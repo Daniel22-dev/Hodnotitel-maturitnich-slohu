@@ -387,6 +387,6 @@ function downloadTxt(){
 async function copyText(text,msg){ try{ await navigator.clipboard.writeText(text); toast(msg); }catch(e){ toast('Kopírování selhalo. Označ text ručně.','err'); } }
 function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 window.addEventListener('beforeunload',saveState);
-function registerAppServiceWorker(){ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){ navigator.serviceWorker.register('./sw.js?v=1.3.3',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{}); } }
+function registerAppServiceWorker(){ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){ navigator.serviceWorker.register('./sw.js?v=1.3.4',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{}); } }
 function renderBuildLabel(){ const el=$('buildLabel'); if(el && RELEASE.build && RELEASE.build!=='__BUILD__') el.textContent='· build '+RELEASE.build; }
 

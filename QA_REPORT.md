@@ -1,4 +1,4 @@
-# QA report — Hodnotitel maturitních slohů 1.3.3
+# QA report — Hodnotitel maturitních slohů 1.3.4
 
 **Datum kontroly:** 11. 7. 2026  
 **Stav:** připraveno k aktualizaci repozitáře a pokračování řízeného školního pilotu
@@ -13,7 +13,7 @@
 - Ověřen produkční build, PWA manifest, service worker, lokální JSZip, školní logo a rubrika `2026.04.27-r1`.
 - Changelog v aplikaci obsahuje přesně deset nejnovějších verzí.
 
-## Nové regresní kontroly 1.3.3
+## Nové regresní kontroly 1.3.4
 
 Testy výslovně ověřují:
 
@@ -26,7 +26,7 @@ Testy výslovně ověřují:
 - existenci živého náhledu importu;
 - jednotnou barvu titulku;
 - přítomnost transparentní bílé i černé varianty školního loga;
-- nový manifest `manifest-v1.3.3.webmanifest`, explicitní PWA identitu a oddělené běžné/maskable ikony;
+- nový manifest `manifest-v1.3.4.webmanifest`, explicitní PWA identitu a oddělené běžné/maskable ikony;
 - přepsání legacy názvů ikon novým motivem;
 - nucenou aktualizaci service workeru bez HTTP cache.
 
@@ -36,7 +36,7 @@ Testovací data jsou syntetická. Reálné adresy studentů poskytnuté při lad
 
 - `npm test`: **363 PASS / 0 FAIL**.
 - `npm run build`: dokončeno bez chyby.
-- Nasaditelná složka `dist/` byla vytvořena ze zdrojů verze 1.3.3.
+- Nasaditelná složka `dist/` byla vytvořena ze zdrojů verze 1.3.4.
 - Výsledný JavaScript prošel syntaktickou kontrolou.
 - Nové logo a obě velikosti ikony jsou součástí `dist/`.
 

@@ -1,5 +1,5 @@
 const BACKEND_CONTRACT_VERSION='1.0';
-function backendHeaders(){const h={'Content-Type':'application/json','X-Client':'essay-evaluator/1.3.3','X-Contract-Version':BACKEND_CONTRACT_VERSION};const token=String(state.backend?.accessToken||'').trim();if(token)h.Authorization=`Bearer ${token}`;return h;}
+function backendHeaders(){const h={'Content-Type':'application/json','X-Client':'essay-evaluator/1.3.4','X-Contract-Version':BACKEND_CONTRACT_VERSION};const token=String(state.backend?.accessToken||'').trim();if(token)h.Authorization=`Bearer ${token}`;return h;}
 function backendBase(){return String(state.backend?.baseUrl||'').trim().replace(/\/+$/,'');}
 function syncBackendFromFields(){ensureWorkflowState();state.backend.mode=$('backendMode')?.value||'browser';state.backend.baseUrl=$('backendBaseUrl')?.value.trim()||'';state.backend.accessToken=$('backendAccessToken')?.value||'';}
 function syncBackendToFields(){ensureWorkflowState();if($('backendMode'))$('backendMode').value=state.backend.mode||'browser';if($('backendBaseUrl'))$('backendBaseUrl').value=state.backend.baseUrl||'';if($('backendAccessToken'))$('backendAccessToken').value=state.backend.accessToken||'';renderBackendStatus();}

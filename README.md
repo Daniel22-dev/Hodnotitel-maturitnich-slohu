@@ -1,8 +1,8 @@
-# Hodnotitel maturitních slohů 1.3.3
+# Hodnotitel maturitních slohů 1.3.4
 
 Modulární webová aplikace pro anonymizaci, individuální i dávkové hodnocení, učitelskou kontrolu, profesionální reporty a bezpečné rozeslání zpětné vazby k maturitním slohům z anglického jazyka. Aplikace je připravena jako součást ekosystému **AI Studio GHRAB**.
 
-## Co přináší verze 1.3.3
+## Co přináší verze 1.3.4
 
 - skutečně transparentní bílé školní logo v aplikaci a samostatná černá varianta pro reporty;
 - nový PWA manifest a zcela nové názvy instalačních ikon kvůli definitivnímu odstranění staré cache;

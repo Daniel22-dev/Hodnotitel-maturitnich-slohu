@@ -23,7 +23,7 @@ Po aktualizaci Studia je nutné znovu vydat administrátorský i učitelské př
 - `pseudonymous-progress`;
 - `offline-docx-import`.
 
-Při registraci zkontroluj, že karta ve Studiu načítá verzi `1.3.3` z živého `studio-manifest.json`. Přístupová politika se nemění: aplikace nadále pracuje s potenciálně citlivými školními daty a má zůstat za centrální ochranou AI Studia.
+Při registraci zkontroluj, že karta ve Studiu načítá verzi `1.3.4` z živého `studio-manifest.json`. Přístupová politika se nemění: aplikace nadále pracuje s potenciálně citlivými školními daty a má zůstat za centrální ochranou AI Studia.
 
 ## Stav integrace 0.6.3
 

@@ -50,7 +50,7 @@ if(/HODNOTITEL_(STYLES|BODY)/.test(html))fail('V indexu zůstal build token.');
 writeFileSync(join(DIST,'index.html'),html);
 writeFileSync(join(DIST,'app.js'),app);
 
-for(const name of ['access-bootstrap.js','manifest-v1.3.3.webmanifest','manifest.webmanifest','sw.js']){
+for(const name of ['access-bootstrap.js','manifest-v1.3.4.webmanifest','manifest.webmanifest','sw.js']){
   cpSync(join(SRC,name),join(DIST,name));
 }
 for(const name of ['assets','icons','vendor','rubric']){

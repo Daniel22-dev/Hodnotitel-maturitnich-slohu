@@ -1,4 +1,4 @@
-# Změny a opravy ve verzi 1.3.3
+# Změny a opravy ve verzi 1.3.4
 
 ## Import studentů z IS
 
@@ -13,7 +13,7 @@
 - celý název aplikace používá jednu barvu;
 - aplikace používá skutečně transparentní bílou variantu školního loga bez bílé bitmapové plochy; reporty používají samostatnou černou variantu;
 - PWA ikona byla nahrazena vycentrovaným motivem štítu, pera a potvrzení;
-- nový manifest `manifest-v1.3.3.webmanifest` používá nové názvy ikon, explicitní PWA identitu a samostatnou maskable variantu;
+- nový manifest `manifest-v1.3.4.webmanifest` používá nové názvy ikon, explicitní PWA identitu a samostatnou maskable variantu;
 - legacy názvy ikon jsou přepsané novým motivem, aby správnou ikonu dostal i starší manifest;
 - service worker se registruje s `updateViaCache: none`.
 
@@ -23,7 +23,7 @@
 - přidány cílené regresní testy čárkového exportu z IS;
 - testovací sada má 363 kontrol bez chyby.
 
-Podrobný technický rozbor je v souboru `AUDIT_REPORT_1.3.3.md`.
+Podrobný technický rozbor je v souboru `AUDIT_REPORT_1.3.4.md`.
 
 ---
 

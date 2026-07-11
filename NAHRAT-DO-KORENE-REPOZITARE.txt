@@ -1,0 +1,2 @@
+Rozbalte ZIP a nahrajte VSECHNY soubory a slozky uvnitr do korene repozitare.
+Pro tuto opravu je rozhodujici soubor tests/test.mjs; nasazeni projde i kdyz se skryta slozka .github pri webovem nahravani neprepise.

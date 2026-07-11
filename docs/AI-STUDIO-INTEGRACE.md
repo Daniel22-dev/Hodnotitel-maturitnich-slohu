@@ -1,4 +1,4 @@
-# Přidání do AI Studia GHRAB 0.6.1+
+# Přidání do AI Studia GHRAB 0.6.2+
 
 Po zveřejnění aplikace je nutné v repozitáři AI Studia doplnit čtyři konfigurace:
 
@@ -23,4 +23,8 @@ Po aktualizaci Studia je nutné znovu vydat administrátorský i učitelské př
 - `pseudonymous-progress`;
 - `offline-docx-import`.
 
-Při registraci zkontroluj, že karta ve Studiu načítá verzi `1.3.0` z živého `studio-manifest.json`. Přístupová politika se nemění: aplikace nadále pracuje s potenciálně citlivými školními daty a má zůstat za centrální ochranou AI Studia.
+Při registraci zkontroluj, že karta ve Studiu načítá verzi `1.3.1` z živého `studio-manifest.json`. Přístupová politika se nemění: aplikace nadále pracuje s potenciálně citlivými školními daty a má zůstat za centrální ochranou AI Studia.
+
+## Stav integrace 0.6.2
+
+AI Studio 0.6.2 obsahuje živý zdroj manifestu, lokální ikonu, fallback kartu, školení HOD-01 a claim `app.essay-evaluator.use`. Workflow Hodnotitele po úspěšném nasazení odesílá událost `app-updated`, pokud je nastaven secret `AI_STUDIO_DISPATCH_TOKEN`.

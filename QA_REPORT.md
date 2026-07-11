@@ -1,61 +1,48 @@
-# QA report — Hodnotitel maturitních slohů 1.3.0
+# QA report — Hodnotitel maturitních slohů 1.3.1
 
 **Datum kontroly:** 11. 7. 2026  
-**Stav:** připraveno k rozšířenému řízenému školnímu pilotu; živé externí integrace je nutné před oficiálním provozem ověřit na testovací sérii
+**Stav:** připraveno k aktualizaci repozitáře a pokračování řízeného školního pilotu
 
 ## Automatická release brána
 
-- **341/341 kontrol prošlo.**
+- **348/348 kontrol prošlo.**
+- **0 chyb.**
 - Zdroj obsahuje **19 JavaScriptových modulů** a **5 CSS modulů**.
 - Ověřena shoda verze balíčku, aplikace, service workeru, backendového klienta a registračních dat AI Studia.
 - Ověřena syntaxe všech zdrojových modulů i výsledného `dist/app.js`.
-- Ověřen build, PWA soubory, školní logo, lokální JSZip a rubrika `2026.04.27-r1`.
-- Ověřeno, že balík neobsahuje Gemini API klíč, Apps Script URL ani sdílené tajemství.
+- Ověřen produkční build, PWA manifest, service worker, lokální JSZip, školní logo a rubrika `2026.04.27-r1`.
 - Changelog v aplikaci obsahuje přesně deset nejnovějších verzí.
 
-## Nové funkční a regresní kontroly
+## Nové regresní kontroly 1.3.1
 
-Testy výslovně hlídají:
+Testy výslovně ověřují:
 
-- jedinou aktivní implementaci generátoru reportu, DOCX a PDF;
-- školní hlavičku, logo a strukturovaná metadata reportu;
-- A4 režim, oba vizuální styly, bodovou mapu, prioritní karty a revizní miniúkol;
-- komentářovou banku, třídění chyb a kontrolu souladu komentáře s body;
-- anonymní analytiku pouze ze schválených validních výsledků;
-- historii jednotlivce pouze po finální učitelské kontrole;
-- neukládání podpisu a vlastních komentářů bez opt-in citlivého ukládání;
-- lokální JSZip bez CDN a odstranění závislosti na Mammoth;
-- lokální převod WordprocessingML na text včetně entit, odstavců, tabulátorů a zalomení;
-- dynamické vytvoření DOCX a přítomnost základních částí balíku, Word stylů, loga, vztahů a podpisu;
-- service worker cache lokální knihovny.
+- čárkový export z IS na jednom řádku se rozdělí na 16 samostatných studentů;
+- zachování prvního i posledního e-mailu v seznamu;
+- automatické odvození jména z e-mailové adresy;
+- kombinaci čárek, středníků a nových řádků;
+- odstranění duplicit;
+- limit maximálně 20 studentů;
+- existenci živého náhledu importu;
+- jednotnou barvu titulku;
+- přítomnost zdrojového SVG nové ikony;
+- maskable nastavení PWA ikon.
 
-Release brána nadále spouští funkční kontroly importu skupiny, vícestránkových prací, bodových pásem, FAIL-1 až FAIL-4, pravidla nuly, PTN penalizace, minimálního rozsahu, validační brány, citací proti zdrojovému textu, Gemini JSON kontraktu, Batch API, tokenů, schvalování a Gmail distribuce.
+Testovací data jsou syntetická. Reálné adresy studentů poskytnuté při ladění nebyly zapsány do zdrojového kódu, testů ani dokumentace.
 
 ## Build
 
-- `npm test`: **341 PASS / 0 FAIL**.
+- `npm test`: **348 PASS / 0 FAIL**.
 - `npm run build`: dokončeno bez chyby.
-- Výsledný JavaScript prošel `node --check`.
-- Nasaditelná složka `dist/` byla vytvořena ze zdrojů verze 1.3.0.
-- Lokální JSZip a jeho MIT licence jsou součástí balíku.
+- Nasaditelná složka `dist/` byla vytvořena ze zdrojů verze 1.3.1.
+- Výsledný JavaScript prošel syntaktickou kontrolou.
+- Nové logo a obě velikosti ikony jsou součástí `dist/`.
 
-## Co nebylo možné v tomto prostředí živě ověřit
+## Co je vhodné ověřit po nasazení
 
-- skutečné hodnocení přes Gemini API bez soukromého API klíče;
-- skutečnou Gemini Batch úlohu;
-- nasazený Apps Script, Gmail koncepty a reálné odeslání;
-- budoucí školní backend;
-- odemčení přes centrální AI Studio policy;
-- plný screenshotový/E2E test v Chromiu: systémový Chromium v kontejneru se nespustil korektně ani na prázdné stránce kvůli omezením procesu/DBus. Nejde tedy o zjištěnou chybu aplikace. Vizuální struktura byla ověřena HTML/CSS kontrolami a buildem; DOCX byl navíc dynamicky vytvořen a rozbalen v testu.
+1. Na mobilu obnovit stránku nebo přeinstalovat PWA, aby se načetla nová ikona místo staré z cache.
+2. Vložit testovací čárkový seznam a zkontrolovat živé počitadlo před kliknutím na „Načíst skupinu“.
+3. Ověřit školní logo na tmavém headeru i ve výsledném reportu.
+4. Otestovat jednu anonymizovanou testovací sérii před prací s reálnou třídou.
 
-## Povinný pilot před oficiálním použitím
-
-1. Porovnat nejméně 10 anonymizovaných referenčních slohů s ručním hodnocením zkušeného učitele.
-2. Otestovat celou sérii pouze na testovacích nebo vlastních e-mailech.
-3. Nejdřív používat Gmail koncepty, nikoli přímé odeslání.
-4. Ručně ověřit report na desktopu, mobilu a při tisku do PDF.
-5. Otevřít několik vytvořených DOCX ve Wordu i LibreOffice a zkontrolovat stránkování.
-6. Prověřit správné párování student → práce → e-mail.
-7. Ověřit reálné limity, model a účtování školního Gemini projektu.
-
-Jazykový úsudek AI nelze garantovat jako stoprocentně neomylný. Formalizovatelná pravidla a matematiku aplikace vynucuje programově; finální odpovědnost zůstává učiteli.
+Živé volání Gemini, Apps Script a centrální odemykání AI Studia zůstávají závislé na externím nasazení a přístupových údajích.

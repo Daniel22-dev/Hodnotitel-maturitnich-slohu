@@ -68,7 +68,7 @@
     "maxSeriesSize": 20
   },
   "compatibility": {
-    "studioMinVersion": "0.6.1",
+    "studioMinVersion": "0.6.2",
     "materialSchema": "ghrab-material-v1",
     "studioBridge": "1.1"
   },

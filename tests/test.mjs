@@ -47,11 +47,12 @@ const manifest=JSON.parse(text('src/studio-manifest.template.json'));
 const studioRegistration=JSON.parse(text('src/studio-integration/essay-evaluator-registration.json'));
 const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
+const deployWorkflow=text('.github/workflows/deploy.yml');
 
-check(pkg.version==='1.3.0','package verze 1.3.0');
-check(contains(release,"version:'1.3.0'"),'release verze 1.3.0');
-check(contains(sw,"APP_VERSION='1.3.0'"),'service worker verze 1.3.0');
-check(contains(body,'v1.3.0'),'UI verze 1.3.0');
+check(pkg.version==='1.3.1','package verze 1.3.1');
+check(contains(release,"version:'1.3.1'"),'release verze 1.3.1');
+check(contains(sw,"APP_VERSION='1.3.1'"),'service worker verze 1.3.1');
+check(contains(body,'v1.3.1'),'UI verze 1.3.1');
 check(jsFiles.length>=18,`nejméně 18 JS modulů (${jsFiles.length})`);
 check(cssFiles.length>=4,`nejméně 4 CSS moduly (${cssFiles.length})`);
 
@@ -66,7 +67,7 @@ for(const file of jsFiles){
 
 const requiredIds=[
   'btnTheme','btnFs','privacyIntroBtn','changesBtn','progressArea','step0','step1','step2','step3','step4','runBtn','resultBox','teacherReviewPanel','reportStudioPanel','reportSignature','reportShowChart','reportShowPriorities','reportIncludeRevision','classAnalyticsBtn','saveHistoryBtn','openHistoryBtn','commentBankSelect','insertCommentBtn','addCommentBtn','deleteCommentBtn',
-  'seriesName','seriesClass','seriesDate','seriesTeacher','rubricVersionLabel','rosterInput','importRosterBtn','clearRosterBtn','rosterTable','zipInput','pickZipBtn','exportPairingBtn',
+  'seriesName','seriesClass','seriesDate','seriesTeacher','rubricVersionLabel','rosterInput','rosterParseStatus','importRosterBtn','clearRosterBtn','rosterTable','zipInput','pickZipBtn','exportPairingBtn',
   'workflowDashboard','queueRpm','seriesBudget','todayUsage','batchJobPanel','batchJobState','checkBatchJobBtn','batchReviewDashboard','approveAllValidBtn',
   'appsScriptUrl','appsScriptSecret','emailSubjectTemplate','emailSenderName','emailIncludeScore','emailIncludeOriginal','openAppsScriptBridgeBtn','createDraftsBtn','sendApprovedBtn','downloadDistributionJsonBtn','downloadDistributionCsvBtn',
   'backendMode','backendBaseUrl','backendAccessToken','backendHealthBtn','backendStatus'
@@ -76,6 +77,9 @@ check(contains(body,'typicky 15 · max. 20'),'UI komunikuje reálnou velikost s�
 check(contains(body+ui+distribution,'Schváleno učitelem'),'UI obsahuje učitelské schválení');
 check(contains(body,'Gmail koncepty'),'UI obsahuje Gmail workflow');
 check(contains(body,'ghrab-logo.png'),'logo školy');
+check(contains(text('src/styles/90-product-shell.css'),'.product-header h1 em{font-weight:400;color:inherit'), 'hero název používá jednotnou barvu');
+check(exists('src/icons/icon-source.svg'),'zdroj nové vycentrované PWA ikony');
+check(JSON.parse(text('src/manifest.webmanifest')).icons.every(icon=>icon.purpose==='any maskable'),'PWA ikony podporují maskable instalaci');
 check(contains(body,'Autor a vývojový garant: <strong>Daniel Baláž</strong>'),'autorství v zápatí');
 check(contains(body,'role="dialog"')&&contains(body,'aria-modal="true"'),'modální dialog má přístupnou sémantiku');
 check(contains(ui,'<button type="button" class="progress-seg')&&contains(ui,'<button type="button" class="prog-label'),'kroky workflow jsou ovladatelná tlačítka');
@@ -139,6 +143,11 @@ const rosterSample=parsedRoster('Jméno;E-mail;Třída\nNovák Jan;jan.novak@sch
 check(rosterSample.length===2,'parser skupiny přeskočí hlavičku a odstraní duplicitu');
 check(rosterSample[0]?.name==='Novák Jan'&&rosterSample[0]?.email==='jan.novak@school.cz','parser skupiny načte jméno a e-mail');
 check(rosterSample[1]?.name==='Petra Mala','parser skupiny odvodí jméno z e-mailu');
+const isCommaList=Array.from({length:16},(_,i)=>`student${String(i+1).padStart(2,'0')}@example.edu`).join(',')+',';
+const commaRoster=parsedRoster(isCommaList);
+check(commaRoster.length===16,'parser rozdělí čárkový export z IS na 16 studentů');
+check(commaRoster[0]?.email==='student01@example.edu'&&commaRoster[15]?.email==='student16@example.edu','parser zachová první a poslední e-mail z čárkového exportu IS');
+check(commaRoster[0]?.name==='Student01','parser odvodí čitelné jméno z e-mailu v exportu IS');
 const rosterOverLimit=parsedRoster(Array.from({length:25},(_,i)=>`Student ${i+1};student${i+1}@school.cz`).join('\n'));
 check(rosterOverLimit.length===20,'parser skupiny funkčně dodrží maximum 20 studentů');
 const pagePaths=['Novak_1.jpg','Novak_2.jpg','Mala_1.jpg','Mala_2.jpg'];
@@ -336,7 +345,7 @@ try{
   vm.runInContext(text('src/vendor/jszip.min.js'),docxContext,{timeout:5000});
   docxContext.ensureJSZip=async()=>docxContext.JSZip;
   docxContext.state={reportSettings:{signature:'Testovací podpis'},series:{teacherName:'Testovací učitel'}};
-  docxContext.APP_VERSION='1.3.0';
+  docxContext.APP_VERSION='1.3.1';
   docxContext.seriesDisplayName=()=> 'Testovací série';
   docxContext.xmlEscape=value=>String(value??'').replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
   const logoBytes=readFileSync(join(SRC,'assets','ghrab-logo.png'));
@@ -360,6 +369,11 @@ check(generatedDocxSignature,'vygenerovaný DOCX obsahuje volitelný podpis');
 
 check(manifest.schema==='ai-studio-app-manifest-v1','schema AI Studio manifestu');
 check(manifest.id==='essay-evaluator','ID aplikace essay-evaluator');
+check(manifest.compatibility.studioMinVersion==='0.6.2','manifest vyžaduje AI Studio 0.6.2');
+check(studioRegistration.fallbackManifest?.icon==='assets/apps/essay-evaluator.png','fallback registrace používá lokální ikonu portálu');
+check(studioRegistration.accessPolicy?.trainingCode==='HOD-01','registrace používá školení HOD-01');
+check(studioRegistration.permission?.serverClaim==='app.essay-evaluator.use','registrace používá správný server claim');
+check(contains(deployWorkflow,'event_type=app-updated'),'workflow oznamuje aktualizaci událostí app-updated');
 check(!/produk|production/i.test(JSON.stringify(manifest.status)),'pilotní status');
 check(manifest.limits.typicalSeriesSize===15,'manifest typická série 15');
 check(manifest.limits.maxSeriesSize===20,'manifest maximum 20');
@@ -390,7 +404,7 @@ check(!contains(appsScript,'SHARED_SECRET ='),'bez vloženého sdíleného tajem
 
 const changelogBlock=js.slice(js.indexOf('const CHANGELOG = ['),js.indexOf('];\nfunction latestChangelog'));
 check((changelogBlock.match(/\{version:/g)||[]).length===10,'UI changelog má přesně 10 verzí');
-check(changelogBlock.trimStart().startsWith("const CHANGELOG = [\n  {version:'1.3.0 AI STUDIO EDITION'"),'changelog začíná 1.3.0');
+check(changelogBlock.trimStart().startsWith("const CHANGELOG = [\n  {version:'1.3.1 AI STUDIO EDITION'"),'changelog začíná 1.3.1');
 check(contains(js,'CHANGELOG_MAX_ENTRIES = 10'),'limit changelogu 10');
 
 for(const path of [

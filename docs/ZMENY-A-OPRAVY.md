@@ -1,3 +1,30 @@
+# Změny a opravy ve verzi 1.3.1
+
+## Import studentů z IS
+
+- čárkový nebo středníkový seznam na jednom řádku se rozdělí na samostatné studenty;
+- podporovány jsou také nové řádky, tabulátory a kombinace oddělovačů;
+- duplicity se odstraňují a jméno lze odvodit z e-mailu;
+- pole zobrazuje živý počet rozpoznaných studentů a případné neplatné položky;
+- maximální velikost série zůstává 20 studentů.
+
+## Branding
+
+- celý název aplikace používá jednu barvu;
+- školní logo používá původní černobílý motiv, ale už není téměř průhledné;
+- PWA ikona byla nahrazena vycentrovaným motivem štítu, pera a potvrzení;
+- manifest podporuje běžné i maskable zobrazení ikony.
+
+## Soukromí a testování
+
+- reálné adresy studentů nebyly vloženy do veřejného repozitáře;
+- přidány cílené regresní testy čárkového exportu z IS;
+- testovací sada má 348 kontrol bez chyby.
+
+Podrobný technický rozbor je v souboru `AUDIT_REPORT_1.3.1.md`.
+
+---
+
 # Změny a opravy ve verzi 1.3.0
 
 ## Report Studio

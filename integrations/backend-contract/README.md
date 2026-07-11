@@ -1,5 +1,5 @@
 # Kontrakt budoucího školního backendu
 
-`openapi.yaml` popisuje minimální serverové rozhraní pro health check, vytvoření hodnoticí série a čtení jejího stavu. Serverová implementace není součástí verze 1.3.0.
+`openapi.yaml` popisuje minimální serverové rozhraní pro health check, vytvoření hodnoticí série a čtení jejího stavu. Serverová implementace není součástí verze 1.3.1.
 
 Budoucí server má ukrýt Gemini klíč, řídit frontu a kvóty, bezpečně uchovávat pouze pseudonymizované práce, evidovat audit a automaticky mazat dočasná data podle školní politiky.

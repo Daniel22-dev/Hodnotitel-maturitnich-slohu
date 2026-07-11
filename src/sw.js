@@ -1,4 +1,4 @@
-const APP_VERSION='1.3.0';
+const APP_VERSION='1.3.1';
 const CACHE=`hodnotitel-${APP_VERSION}`;
 const CORE=['./','./index.html','./app.js','./access-bootstrap.js','./manifest.webmanifest','./assets/ghrab-logo.png','./icons/icon-192.png','./icons/icon-512.png','./vendor/jszip.min.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));

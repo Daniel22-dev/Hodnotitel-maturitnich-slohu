@@ -1,6 +1,9 @@
 function normalizeMatchText(value){
   return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\.[^.]+$/,'').replace(/[^a-z0-9]+/g,' ').trim();
 }
+const ROSTER_EMAIL_SOURCE='[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}';
+function rosterEmails(value){return String(value||'').match(new RegExp(ROSTER_EMAIL_SOURCE,'ig'))||[];}
+function isValidRosterEmail(value){return new RegExp(`^${ROSTER_EMAIL_SOURCE}$`,'i').test(String(value||'').trim());}
 function rosterIdFor(name,email,index){
   return 'R_'+btoa(unescape(encodeURIComponent(`${name}|${email}|${index}`))).replace(/[^a-z0-9]/gi,'').slice(0,14);
 }
@@ -14,48 +17,122 @@ function inferNameFromEmail(email){
 function isRosterHeaderLine(line){
   const low=String(line||'').toLowerCase();
   const hasHeader=/\b(jméno|prijmeni|příjmení|name|surname|student|žák|zak|e-?mail|třída|trida|skupina|class)\b/.test(low);
-  const hasRealEmail=/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(line);
+  const hasRealEmail=rosterEmails(line).length>0;
   return hasHeader&&!hasRealEmail;
+}
+function isRosterNoiseCell(cell){
+  const value=String(cell||'').trim();
+  if(!value)return true;
+  if(/^\d+$/.test(value))return true;
+  if(/^\d+\.?[A-Za-z]?$/.test(value))return true;
+  if(/^(student|žák|zak|aktivní|active)$/i.test(value))return true;
+  if(/^\d+\.[A-Za-z0-9-]+$/.test(value))return true;
+  return false;
 }
 function cleanRosterName(line,email){
   const withoutEmail=String(line||'').replace(email,' ');
   const cells=withoutEmail.split(/[\t;|,]+/).map(x=>x.trim()).filter(Boolean);
-  const useful=cells.filter(cell=>{
-    if(/^\d+$/.test(cell))return false;
-    if(/^\d+\.?[A-Za-z]?$/.test(cell))return false;
-    if(/^(student|žák|zak|aktivní|active)$/i.test(cell))return false;
-    if(/^\d+\.[A-Za-z0-9-]+$/.test(cell))return false;
-    return true;
-  });
+  const useful=cells.filter(cell=>!isRosterNoiseCell(cell)&&!isValidRosterEmail(cell));
   return useful.join(' ').replace(/\s+/g,' ').replace(/^[\s;,|]+|[\s;,|]+$/g,'').trim();
 }
+function pushRosterPerson(out,seen,name,email){
+  const cleanEmail=String(email||'').trim();
+  const cleanName=String(name||'').replace(/\s+/g,' ').trim()||(cleanEmail?inferNameFromEmail(cleanEmail):'');
+  if(!cleanName&&!cleanEmail)return false;
+  const dedupe=cleanEmail.toLowerCase()||normalizeMatchText(cleanName);
+  if(!dedupe||seen.has(dedupe))return false;
+  seen.add(dedupe);
+  out.push({id:rosterIdFor(cleanName,cleanEmail,out.length),name:cleanName,email:cleanEmail,code:`STUDENT_${String(out.length+1).padStart(3,'0')}`});
+  return true;
+}
+function parseRosterLine(line,out,seen){
+  if(!line||isRosterHeaderLine(line)||out.length>=SERIES_MAX_WORKS)return;
+  const emails=rosterEmails(line);
+  if(emails.length===0){
+    const name=cleanRosterName(line,'');
+    if(name)pushRosterPerson(out,seen,name,'');
+    return;
+  }
+  if(emails.length===1){
+    const email=emails[0];
+    pushRosterPerson(out,seen,cleanRosterName(line,email),email);
+    return;
+  }
+  // IS často vrací jeden dlouhý řádek e-mailů oddělených čárkou nebo středníkem.
+  // Buňky před e-mailem se zároveň využijí jako jméno u formátu „Jméno; e-mail“.
+  const cells=String(line).split(/[\t;|,]+/).map(x=>x.trim()).filter(Boolean);
+  if(cells.length<=1){
+    emails.forEach(email=>{if(out.length<SERIES_MAX_WORKS)pushRosterPerson(out,seen,'',email);});
+    return;
+  }
+  let pendingName=[];
+  for(const cell of cells){
+    if(out.length>=SERIES_MAX_WORKS)break;
+    const cellEmails=rosterEmails(cell);
+    if(cellEmails.length){
+      if(cellEmails.length===1){
+        const email=cellEmails[0];
+        const inlineName=cleanRosterName(cell,email);
+        pushRosterPerson(out,seen,inlineName||pendingName.join(' '),email);
+      }else{
+        cellEmails.forEach(email=>{if(out.length<SERIES_MAX_WORKS)pushRosterPerson(out,seen,'',email);});
+      }
+      pendingName=[];
+    }else if(!isRosterNoiseCell(cell)){
+      pendingName.push(cell);
+    }
+  }
+}
 function parseRosterText(raw){
-  const lines=String(raw||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const lines=String(raw||'').replace(/\u00a0/g,' ').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
   const out=[];
   const seen=new Set();
   for(const line of lines){
-    if(isRosterHeaderLine(line))continue;
-    const email=((line.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[])[0]||'').trim();
-    let name=cleanRosterName(line,email);
-    if(!name&&email)name=inferNameFromEmail(email);
-    if(!name&&!email)continue;
-    const dedupe=email.toLowerCase()||normalizeMatchText(name);
-    if(!dedupe||seen.has(dedupe))continue;
-    seen.add(dedupe);
-    out.push({id:rosterIdFor(name,email,out.length),name,email,code:`STUDENT_${String(out.length+1).padStart(3,'0')}`});
+    parseRosterLine(line,out,seen);
     if(out.length>=SERIES_MAX_WORKS)break;
   }
   return out;
 }
+function rosterPreviewData(raw){
+  const text=String(raw||'');
+  const students=parseRosterText(text);
+  const invalid=[];
+  const seen=new Set();
+  text.split(/[\r\n,;\t|]+/).map(x=>x.trim()).filter(Boolean).forEach(fragment=>{
+    if(!fragment.includes('@'))return;
+    if(rosterEmails(fragment).some(isValidRosterEmail))return;
+    const normalized=fragment.toLowerCase();
+    if(seen.has(normalized))return;
+    seen.add(normalized);
+    invalid.push(fragment);
+  });
+  return {students,invalidEntries:invalid};
+}
+function renderRosterInputPreview(){
+  const box=$('rosterParseStatus');
+  if(!box)return;
+  const raw=$('rosterInput')?.value||'';
+  if(!raw.trim()){
+    box.className='roster-parse-status';
+    box.innerHTML='<span>Podporované oddělovače: čárka, středník nebo nový řádek.</span>';
+    return;
+  }
+  const data=rosterPreviewData(raw);
+  box.className=`roster-parse-status ${data.students.length?'ok':'warn'} ${data.invalidEntries.length?'has-errors':''}`;
+  const limit=data.students.length>=SERIES_MAX_WORKS?` · načte se maximálně ${SERIES_MAX_WORKS}`:'';
+  const invalid=data.invalidEntries.length?`<span class="roster-invalid">Nerozpoznané položky: ${data.invalidEntries.slice(0,3).map(escapeHtml).join(' · ')}${data.invalidEntries.length>3?' …':''}</span>`:'';
+  box.innerHTML=`<strong>Rozpoznáno studentů: ${data.students.length}</strong><span>${data.students.length?'Seznam je připraven k načtení':'Zkontroluj formát e-mailů'}${limit}</span>${invalid}`;
+}
 function importRosterFromText(){
   ensureWorkflowState();
-  const parsed=parseRosterText($('rosterInput')?.value||'');
-  if(!parsed.length){toast('Vložený seznam se nepodařilo rozpoznat. Použij jeden student na řádek, ideálně jméno; e-mail.','err');return;}
-  state.roster=parsed;
+  const data=rosterPreviewData($('rosterInput')?.value||'');
+  if(!data.students.length){toast('Vložený seznam se nepodařilo rozpoznat. E-maily odděl čárkou, středníkem nebo novým řádkem.','err');renderRosterInputPreview();return;}
+  state.roster=data.students;
   renderRosterTable();
   pairAllStudentsToRoster();
+  renderRosterInputPreview();
   saveState();
-  toast(`Načteno ${parsed.length} studentů${parsed.length===SERIES_MAX_WORKS?' (dosažen limit série)':''}.`);
+  toast(`Načteno ${data.students.length} studentů${data.students.length===SERIES_MAX_WORKS?' (dosažen limit série)':''}.`);
 }
 async function clearRoster(){
   if(!(await uiConfirm('Vymazat seznam studentů a všechna párování?','Vymazat skupinu')))return;

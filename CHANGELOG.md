@@ -1,12 +1,20 @@
 # Changelog
 
+## 1.3.3 – Tvrdá oprava školního loga a instalační ikony
+
+- školní logo v aplikaci je nyní skutečně transparentní bílý asset bez bílé čtvercové plochy;
+- reporty používají samostatnou černou transparentní variantu loga;
+- PWA používá nový manifest `manifest-v1.3.3.webmanifest`, nové názvy ikon a samostatnou maskable ikonu;
+- registrace service workeru vynucuje aktualizaci bez HTTP cache;
+- import jednořádkového seznamu z IS zůstává ověřen: 16 e-mailů = 16 studentů.
+
 ## Integrace AI Studio GHRAB 0.6.2 — 2026-07-11
 
 - sjednocen repository dispatch na událost `app-updated`;
 - kompatibilita manifestu zvýšena na AI Studio 0.6.2;
 - registrační fallback používá lokální ikonu portálu.
 
-## 1.3.2 – Oprava importu z IS a sjednocení brandingu
+## 1.3.3 – Oprava importu z IS a sjednocení brandingu
 
 - opraven import seznamu studentů z IS, který byl vložen na jednom řádku a oddělen čárkami nebo středníky;
 - parser nově podporuje čárky, středníky, tabulátory, svislítka i nové řádky a jejich kombinace;

@@ -49,11 +49,11 @@ const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
 const deployWorkflow=text('.github/workflows/deploy.yml');
 
-check(pkg.version==='1.3.2','package verze 1.3.2');
-check(contains(release,"version:'1.3.2'"),'release verze 1.3.2');
-check(contains(sw,"APP_VERSION='1.3.2'"),'service worker verze 1.3.2');
-check(contains(sw,'-brand-refresh`'),'service worker používá novou cache brand-refresh');
-check(contains(body,'v1.3.2'),'UI verze 1.3.2');
+check(pkg.version==='1.3.3','package verze 1.3.3');
+check(contains(release,"version:'1.3.3'"),'release verze 1.3.3');
+check(contains(sw,"APP_VERSION='1.3.3'"),'service worker verze 1.3.3');
+check(contains(sw,'-branding-hard-reset`'),'service worker používá novou cache branding-hard-reset');
+check(contains(body,'v1.3.3'),'UI verze 1.3.3');
 check(jsFiles.length>=18,`nejméně 18 JS modulů (${jsFiles.length})`);
 check(cssFiles.length>=4,`nejméně 4 CSS moduly (${cssFiles.length})`);
 
@@ -77,20 +77,24 @@ for(const id of requiredIds)check(contains(body,`id="${id}"`),`povinné UI ID ${
 check(contains(body,'typicky 15 · max. 20'),'UI komunikuje reálnou velikost série');
 check(contains(body+ui+distribution,'Schváleno učitelem'),'UI obsahuje učitelské schválení');
 check(contains(body,'Gmail koncepty'),'UI obsahuje Gmail workflow');
-check(contains(body,'ghrab-logo.png'),'logo školy');
+check(contains(body,'ghrab-logo-white-20260711.png'),'záhlaví používá transparentní bílé logo školy');
+check(exists('src/assets/ghrab-logo-white-20260711.png')&&exists('src/assets/ghrab-logo-black-20260711.png'),'samostatné transparentní varianty školního loga');
 check(contains(text('src/styles/90-product-shell.css'),'.product-header h1 em{font-weight:400;color:inherit'), 'hero název používá jednotnou barvu');
 const shellCss=text('src/styles/90-product-shell.css');
-const pwaManifestText=text('src/manifest.webmanifest');
+const pwaManifestText=text('src/manifest-v1.3.3.webmanifest');
+const pwaManifest=JSON.parse(pwaManifestText);
 check(contains(shellCss,'.school-logo{width:58px;height:48px;object-fit:contain;background:transparent'), 'školní logo je bez bílé dlaždice');
 check(!contains(shellCss,'.school-logo{width:52px;height:52px;object-fit:contain;background:#fff'), 'starý bílý podklad loga byl odstraněn');
-check(contains(template,'icons/hodnotitel-v2-192.png')&&contains(template,'icons/apple-touch-icon-v2.png'), 'HTML používá nové názvy ikon');
-check(contains(pwaManifestText,'hodnotitel-v2-512.png'), 'manifest používá cache-busting ikonu');
+check(contains(template,'manifest-v1.3.3.webmanifest?v=20260711')&&contains(template,'icons/hodnotitel-shield-20260711-192.png')&&contains(template,'icons/hodnotitel-shield-20260711-180.png'), 'HTML používá nový manifest a zcela nové názvy ikon');
+check(contains(pwaManifestText,'hodnotitel-shield-20260711-512.png')&&contains(pwaManifestText,'hodnotitel-shield-20260711-maskable-512.png'), 'manifest používá nové běžné i maskable ikony');
 check(exists('src/icons/icon-source.svg'),'zdroj nové vycentrované PWA ikony');
-check(JSON.parse(text('src/manifest.webmanifest')).icons.every(icon=>icon.purpose==='any maskable'),'PWA ikony podporují maskable instalaci');
+check(pwaManifest.icons.some(icon=>icon.purpose==='any')&&pwaManifest.icons.some(icon=>icon.purpose==='maskable'),'PWA manifest odděluje běžnou a maskable ikonu');
+check(pwaManifest.id.includes('essay-evaluator-133'),'PWA manifest má explicitní novou identitu');
+check(exists('src/icons/icon-192.png')&&exists('src/icons/icon-512.png'),'legacy názvy ikon jsou přepsané novou ikonou pro starý manifest');
 check(contains(body,'Autor a vývojový garant: <strong>Daniel Baláž</strong>'),'autorství v zápatí');
 check(contains(body,'role="dialog"')&&contains(body,'aria-modal="true"'),'modální dialog má přístupnou sémantiku');
 check(contains(ui,'<button type="button" class="progress-seg')&&contains(ui,'<button type="button" class="prog-label'),'kroky workflow jsou ovladatelná tlačítka');
-check(contains(reportEnhancements,'report-letterhead')&&contains(reportEnhancements,"assets/ghrab-logo.png"),'výsledný report má školní hlavičku a logo');
+check(contains(reportEnhancements,'report-letterhead')&&contains(reportEnhancements,"assets/ghrab-logo-black-20260711.png"),'výsledný report má školní hlavičku a černé transparentní logo');
 check(contains(reportEnhancements,'renderReportDocument')&&contains(reportEnhancements,'report-meta-item'),'profesionální report má strukturovaná metadata');
 check(contains(reportEnhancements,'report-preview-a4')||contains(text('src/styles/85-report-studio.css'),'report-preview-a4'),'A4 režim náhledu');
 check(contains(reportEnhancements,'report-theme-friendly'),'dva vizuální režimy reportu');
@@ -102,7 +106,7 @@ check(contains(reportEnhancements,'classifyEvaluationErrors'),'prioritizace krit
 check(contains(reportEnhancements,'scoreCommentConsistencyIssues'),'kontrola souladu komentáře s body');
 check(contains(reportEnhancements,'classAnalyticsData'),'anonymní třídní analytika');
 check(contains(reportEnhancements,'REPORT_HISTORY_SK')&&contains(reportEnhancements,'saveCurrentProgressHistory'),'pseudonymní historie pokroku');
-check(contains(reportEnhancements,'word/media/ghrab-logo.png')||contains(reportEnhancements,"folder('media').file('ghrab-logo.png'"),'DOCX obsahuje vložené školní logo');
+check(contains(reportEnhancements,'word/media/ghrab-logo-black-20260711.png')||contains(reportEnhancements,"folder('media').file('ghrab-logo-black-20260711.png'"),'DOCX obsahuje vložené školní logo');
 check(contains(reportEnhancements,'word/styles.xml')||contains(reportEnhancements,"file('styles.xml'"),'DOCX obsahuje Word styly');
 check(exists('src/vendor/jszip.min.js'),'lokální JSZip je součástí balíku');
 check(exists('src/vendor/JSZIP-LICENSE.md'),'licence lokálního JSZip');
@@ -112,6 +116,8 @@ check(contains(stateUi,"signature:'',customComments:[]")&&contains(ui,"signature
 check(contains(reportEnhancements,'r?.approved&&r?.validation?.ok!==false'),'analytika používá jen schválené validní výsledky');
 check(contains(reportEnhancements,'singleEffective?.verified'),'historie jednotlivce vyžaduje finální kontrolu učitele');
 check(contains(sw,"./vendor/jszip.min.js"),'service worker cacheuje lokální JSZip');
+check(contains(results,"register('./sw.js?v=1.3.3',{updateViaCache:'none'})"),'registrace service workeru vynucuje čerstvou aktualizaci');
+check(contains(build,"'manifest-v1.3.3.webmanifest'")&&contains(build,"'manifest.webmanifest'"),'build publikuje nový i kompatibilní manifest');
 check(contains(bootstrap,'initReportEnhancements();'),'bootstrap inicializuje Report Studio');
 check(contains(reportEnhancements,'resultContextForText')&&contains(reportEnhancements,'useTeacherReview:!batchContext'),'učitelská korekce je izolovaná od dávkových reportů');
 
@@ -352,10 +358,10 @@ try{
   vm.runInContext(text('src/vendor/jszip.min.js'),docxContext,{timeout:5000});
   docxContext.ensureJSZip=async()=>docxContext.JSZip;
   docxContext.state={reportSettings:{signature:'Testovací podpis'},series:{teacherName:'Testovací učitel'}};
-  docxContext.APP_VERSION='1.3.2';
+  docxContext.APP_VERSION='1.3.3';
   docxContext.seriesDisplayName=()=> 'Testovací série';
   docxContext.xmlEscape=value=>String(value??'').replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
-  const logoBytes=readFileSync(join(SRC,'assets','ghrab-logo.png'));
+  const logoBytes=readFileSync(join(SRC,'assets','ghrab-logo-black-20260711.png'));
   docxContext.location={href:'http://127.0.0.1/'};
   docxContext.fetch=async()=>({ok:true,arrayBuffer:async()=>logoBytes.buffer.slice(logoBytes.byteOffset,logoBytes.byteOffset+logoBytes.byteLength)});
   const docxFunctions=reportEnhancements.slice(reportEnhancements.indexOf('function docxRun'),reportEnhancements.indexOf('function reportPrintCss'));
@@ -365,7 +371,7 @@ try{
   const zip=await docxContext.JSZip.loadAsync(await blob.arrayBuffer());
   const documentXml=await zip.file('word/document.xml')?.async('string');
   generatedDocxOk=blob.size>1000&&!!documentXml&&!!zip.file('[Content_Types].xml')&&!!zip.file('word/_rels/document.xml.rels');
-  generatedDocxLogo=!!zip.file('word/media/ghrab-logo.png')&&String(documentXml).includes('rIdLogo');
+  generatedDocxLogo=!!zip.file('word/media/ghrab-logo-black-20260711.png')&&String(documentXml).includes('rIdLogo');
   generatedDocxStyles=!!zip.file('word/styles.xml')&&String(documentXml).includes('Heading2');
   generatedDocxSignature=String(documentXml).includes('Testovací podpis');
 }catch(error){console.error('DOCX dynamický test:',error);}
@@ -411,7 +417,7 @@ check(!contains(appsScript,'SHARED_SECRET ='),'bez vloženého sdíleného tajem
 
 const changelogBlock=js.slice(js.indexOf('const CHANGELOG = ['),js.indexOf('];\nfunction latestChangelog'));
 check((changelogBlock.match(/\{version:/g)||[]).length===10,'UI changelog má přesně 10 verzí');
-check(changelogBlock.trimStart().startsWith("const CHANGELOG = [\n  {version:'1.3.2 BRAND REFRESH'"),'changelog začíná 1.3.2');
+check(changelogBlock.trimStart().startsWith("const CHANGELOG = [\n  {version:'1.3.3 AI STUDIO EDITION'"),'changelog začíná 1.3.3 AI STUDIO EDITION');
 check(contains(js,'CHANGELOG_MAX_ENTRIES = 10'),'limit changelogu 10');
 
 for(const path of [

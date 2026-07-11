@@ -5,7 +5,7 @@
     "cs": "Hodnotitel maturitních slohů",
     "en": "Matura Essay Evaluator"
   },
-  "version": "1.3.1",
+  "version": "1.3.2",
   "status": {
     "cs": "Připraveno k řízenému pilotu",
     "en": "Ready for controlled pilot"
@@ -16,7 +16,7 @@
   },
   "launchUrl": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/",
   "repository": "daniel22-dev/Hodnotitel-maturitnich-slohu",
-  "icon": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/icons/icon-512.png",
+  "icon": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/icons/hodnotitel-v2-512.png",
   "accent": "#d7a04b",
   "tags": [
     {
@@ -68,9 +68,9 @@
     "maxSeriesSize": 20
   },
   "compatibility": {
-    "studioMinVersion": "0.6.2",
+    "studioMinVersion": "0.6.3",
     "materialSchema": "ghrab-material-v1",
     "studioBridge": "1.1"
   },
-  "publishedAt": "2026-07-11T13:53:20.350Z"
+  "publishedAt": "2026-07-11T14:18:57.637Z"
 }

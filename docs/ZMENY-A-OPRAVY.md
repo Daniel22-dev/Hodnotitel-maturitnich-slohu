@@ -1,4 +1,4 @@
-# Změny a opravy ve verzi 1.3.1
+# Změny a opravy ve verzi 1.3.2
 
 ## Import studentů z IS
 
@@ -21,7 +21,7 @@
 - přidány cílené regresní testy čárkového exportu z IS;
 - testovací sada má 348 kontrol bez chyby.
 
-Podrobný technický rozbor je v souboru `AUDIT_REPORT_1.3.1.md`.
+Podrobný technický rozbor je v souboru `AUDIT_REPORT_1.3.2.md`.
 
 ---
 

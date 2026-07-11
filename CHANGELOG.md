@@ -6,7 +6,7 @@
 - kompatibilita manifestu zvýšena na AI Studio 0.6.2;
 - registrační fallback používá lokální ikonu portálu.
 
-## 1.3.1 – Oprava importu z IS a sjednocení brandingu
+## 1.3.2 – Oprava importu z IS a sjednocení brandingu
 
 - opraven import seznamu studentů z IS, který byl vložen na jednom řádku a oddělen čárkami nebo středníky;
 - parser nově podporuje čárky, středníky, tabulátory, svislítka i nové řádky a jejich kombinace;

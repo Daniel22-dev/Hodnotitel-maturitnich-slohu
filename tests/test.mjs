@@ -49,10 +49,11 @@ const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
 const deployWorkflow=text('.github/workflows/deploy.yml');
 
-check(pkg.version==='1.3.1','package verze 1.3.1');
-check(contains(release,"version:'1.3.1'"),'release verze 1.3.1');
-check(contains(sw,"APP_VERSION='1.3.1'"),'service worker verze 1.3.1');
-check(contains(body,'v1.3.1'),'UI verze 1.3.1');
+check(pkg.version==='1.3.2','package verze 1.3.2');
+check(contains(release,"version:'1.3.2'"),'release verze 1.3.2');
+check(contains(sw,"APP_VERSION='1.3.2'"),'service worker verze 1.3.2');
+check(contains(sw,'-brand-refresh`'),'service worker používá novou cache brand-refresh');
+check(contains(body,'v1.3.2'),'UI verze 1.3.2');
 check(jsFiles.length>=18,`nejméně 18 JS modulů (${jsFiles.length})`);
 check(cssFiles.length>=4,`nejméně 4 CSS moduly (${cssFiles.length})`);
 
@@ -78,6 +79,12 @@ check(contains(body+ui+distribution,'Schváleno učitelem'),'UI obsahuje učitel
 check(contains(body,'Gmail koncepty'),'UI obsahuje Gmail workflow');
 check(contains(body,'ghrab-logo.png'),'logo školy');
 check(contains(text('src/styles/90-product-shell.css'),'.product-header h1 em{font-weight:400;color:inherit'), 'hero název používá jednotnou barvu');
+const shellCss=text('src/styles/90-product-shell.css');
+const pwaManifestText=text('src/manifest.webmanifest');
+check(contains(shellCss,'.school-logo{width:58px;height:48px;object-fit:contain;background:transparent'), 'školní logo je bez bílé dlaždice');
+check(!contains(shellCss,'.school-logo{width:52px;height:52px;object-fit:contain;background:#fff'), 'starý bílý podklad loga byl odstraněn');
+check(contains(template,'icons/hodnotitel-v2-192.png')&&contains(template,'icons/apple-touch-icon-v2.png'), 'HTML používá nové názvy ikon');
+check(contains(pwaManifestText,'hodnotitel-v2-512.png'), 'manifest používá cache-busting ikonu');
 check(exists('src/icons/icon-source.svg'),'zdroj nové vycentrované PWA ikony');
 check(JSON.parse(text('src/manifest.webmanifest')).icons.every(icon=>icon.purpose==='any maskable'),'PWA ikony podporují maskable instalaci');
 check(contains(body,'Autor a vývojový garant: <strong>Daniel Baláž</strong>'),'autorství v zápatí');
@@ -345,7 +352,7 @@ try{
   vm.runInContext(text('src/vendor/jszip.min.js'),docxContext,{timeout:5000});
   docxContext.ensureJSZip=async()=>docxContext.JSZip;
   docxContext.state={reportSettings:{signature:'Testovací podpis'},series:{teacherName:'Testovací učitel'}};
-  docxContext.APP_VERSION='1.3.1';
+  docxContext.APP_VERSION='1.3.2';
   docxContext.seriesDisplayName=()=> 'Testovací série';
   docxContext.xmlEscape=value=>String(value??'').replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
   const logoBytes=readFileSync(join(SRC,'assets','ghrab-logo.png'));
@@ -369,8 +376,8 @@ check(generatedDocxSignature,'vygenerovaný DOCX obsahuje volitelný podpis');
 
 check(manifest.schema==='ai-studio-app-manifest-v1','schema AI Studio manifestu');
 check(manifest.id==='essay-evaluator','ID aplikace essay-evaluator');
-check(manifest.compatibility.studioMinVersion==='0.6.2','manifest vyžaduje AI Studio 0.6.2');
-check(studioRegistration.fallbackManifest?.icon==='assets/apps/essay-evaluator.png','fallback registrace používá lokální ikonu portálu');
+check(manifest.compatibility.studioMinVersion==='0.6.3','manifest vyžaduje AI Studio 0.6.3');
+check(studioRegistration.fallbackManifest?.icon==='assets/apps/essay-evaluator-v2.png','fallback registrace používá novou lokální ikonu portálu');
 check(studioRegistration.accessPolicy?.trainingCode==='HOD-01','registrace používá školení HOD-01');
 check(studioRegistration.permission?.serverClaim==='app.essay-evaluator.use','registrace používá správný server claim');
 check(contains(deployWorkflow,'event_type=app-updated'),'workflow oznamuje aktualizaci událostí app-updated');
@@ -404,7 +411,7 @@ check(!contains(appsScript,'SHARED_SECRET ='),'bez vloženého sdíleného tajem
 
 const changelogBlock=js.slice(js.indexOf('const CHANGELOG = ['),js.indexOf('];\nfunction latestChangelog'));
 check((changelogBlock.match(/\{version:/g)||[]).length===10,'UI changelog má přesně 10 verzí');
-check(changelogBlock.trimStart().startsWith("const CHANGELOG = [\n  {version:'1.3.1 AI STUDIO EDITION'"),'changelog začíná 1.3.1');
+check(changelogBlock.trimStart().startsWith("const CHANGELOG = [\n  {version:'1.3.2 BRAND REFRESH'"),'changelog začíná 1.3.2');
 check(contains(js,'CHANGELOG_MAX_ENTRIES = 10'),'limit changelogu 10');
 
 for(const path of [

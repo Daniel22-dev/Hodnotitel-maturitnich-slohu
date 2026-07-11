@@ -1,8 +1,8 @@
 CHANGELOG.md
 QA_REPORT.md
 README.md
-AUDIT_REPORT_1.3.1.md
-CHANGED_FILES_1.3.1.txt
+AUDIT_REPORT_1.3.2.md
+CHANGED_FILES_1.3.2.txt
 docs/AI-STUDIO-INTEGRACE.md
 docs/ARCHITEKTURA.md
 docs/NAHRANI-NA-GITHUB.md
@@ -11,8 +11,8 @@ integrations/backend-contract/README.md
 package.json
 src/assets/ghrab-logo.png
 src/body.html
-src/icons/icon-192.png
-src/icons/icon-512.png
+src/icons/hodnotitel-v2-192.png
+src/icons/hodnotitel-v2-512.png
 src/icons/icon-source.svg
 src/js/00-release-rubric.js
 src/js/20-state-ui.js

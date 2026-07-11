@@ -1,4 +1,4 @@
-# Audit a opravy — Hodnotitel maturitních slohů 1.3.1
+# Audit a opravy — Hodnotitel maturitních slohů 1.3.2
 
 ## Zadání opravy
 
@@ -61,4 +61,4 @@ Konkrétní seznam studentů posloužil pouze k reprodukci chyby. V repozitáři
 
 ## Verdikt
 
-Verze 1.3.1 opravuje nahlášenou funkční regresi a sjednocuje viditelný branding. Balík je připraven k nahrání do kořene existujícího GitHub repozitáře.
+Verze 1.3.2 opravuje nahlášenou funkční regresi a sjednocuje viditelný branding. Balík je připraven k nahrání do kořene existujícího GitHub repozitáře.

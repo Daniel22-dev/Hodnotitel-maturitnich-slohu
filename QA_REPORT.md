@@ -1,4 +1,4 @@
-# QA report — Hodnotitel maturitních slohů 1.3.1
+# QA report — Hodnotitel maturitních slohů 1.3.2
 
 **Datum kontroly:** 11. 7. 2026  
 **Stav:** připraveno k aktualizaci repozitáře a pokračování řízeného školního pilotu
@@ -13,7 +13,7 @@
 - Ověřen produkční build, PWA manifest, service worker, lokální JSZip, školní logo a rubrika `2026.04.27-r1`.
 - Changelog v aplikaci obsahuje přesně deset nejnovějších verzí.
 
-## Nové regresní kontroly 1.3.1
+## Nové regresní kontroly 1.3.2
 
 Testy výslovně ověřují:
 
@@ -34,7 +34,7 @@ Testovací data jsou syntetická. Reálné adresy studentů poskytnuté při lad
 
 - `npm test`: **348 PASS / 0 FAIL**.
 - `npm run build`: dokončeno bez chyby.
-- Nasaditelná složka `dist/` byla vytvořena ze zdrojů verze 1.3.1.
+- Nasaditelná složka `dist/` byla vytvořena ze zdrojů verze 1.3.2.
 - Výsledný JavaScript prošel syntaktickou kontrolou.
 - Nové logo a obě velikosti ikony jsou součástí `dist/`.
 

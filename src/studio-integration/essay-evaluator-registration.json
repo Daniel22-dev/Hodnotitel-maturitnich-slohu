@@ -1,0 +1,76 @@
+{
+  "source": {
+    "id": "essay-evaluator",
+    "url": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/studio-manifest.json"
+  },
+  "accessPolicy": {
+    "trainingRequired": true,
+    "trainingCode": "HOD-01",
+    "trainingVersion": "2026-09",
+    "label": {
+      "cs": "Hodnotitel maturitních slohů",
+      "en": "Matura Essay Evaluator"
+    }
+  },
+  "permission": {
+    "trainingRequired": true,
+    "trainingCode": "HOD-01",
+    "trainingVersion": "2026-09",
+    "defaultState": "locked",
+    "riskLevel": "high",
+    "serverClaim": "app.essay-evaluator.use"
+  },
+  "fallbackManifest": {
+    "schema": "ai-studio-app-manifest-v1",
+    "id": "essay-evaluator",
+    "name": {
+      "cs": "Hodnotitel maturitních slohů",
+      "en": "Matura Essay Evaluator"
+    },
+    "version": "1.3.0",
+    "status": {
+      "cs": "Připraveno k řízenému pilotu",
+      "en": "Ready for controlled pilot"
+    },
+    "description": {
+      "cs": "Důkazní hodnocení maturitních slohů podle školní rubriky, anonymizace, učitelská revize, profesionální reporty a anonymní třídní analytika.",
+      "en": "Evidence-based Matura essay assessment with anonymisation, teacher review, professional reports and anonymous class analytics."
+    },
+    "launchUrl": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/",
+    "repository": "daniel22-dev/Hodnotitel-maturitnich-slohu",
+    "icon": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/icons/icon-512.png",
+    "accent": "#d7a04b",
+    "tags": [
+      {
+        "cs": "Hodnocení slohů",
+        "en": "Essay assessment"
+      },
+      {
+        "cs": "AJ · maturita",
+        "en": "EN · Matura"
+      },
+      {
+        "cs": "Anonymizace",
+        "en": "Anonymisation"
+      }
+    ],
+    "capabilities": [
+      "essay-assessment",
+      "versioned-rubric",
+      "anonymisation",
+      "batch-evaluation",
+      "teacher-review",
+      "professional-reports",
+      "styled-docx",
+      "anonymous-class-analytics",
+      "offline-docx-import",
+      "exports"
+    ],
+    "compatibility": {
+      "studioMinVersion": "0.6.1",
+      "materialSchema": "ghrab-material-v1",
+      "studioBridge": "1.1"
+    },
+    "publishedAt": "2026-07-11T00:00:00.000Z"
+  }
+}

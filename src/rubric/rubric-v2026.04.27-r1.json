@@ -1,0 +1,231 @@
+{
+  "schema": "ghrab-essay-rubric-v2",
+  "version": "2026.04.27-r1",
+  "title": "Hodnocení maturitních slohů – školní rubrika",
+  "language": "en",
+  "feedback_language": "cs",
+  "source_date": "2026-04-27",
+  "word_count": {
+    "minimum": 195,
+    "long_penalty_from": 300,
+    "long_penalty_points": 1,
+    "below_minimum_forces_grade": 5,
+    "raw_rule": "token-separated-by-whitespace",
+    "requires_paragraph_audit": true
+  },
+  "assignment": {
+    "minimum_without_fail": 1,
+    "requirements_start_score": 3,
+    "requirement_penalty": {
+      "splneno": 0,
+      "castecne": 0.5,
+      "nesplneno": 1
+    },
+    "score_bands": [
+      {
+        "min": 2.5,
+        "max": 3,
+        "score": 3
+      },
+      {
+        "min": 1.5,
+        "max": 2,
+        "score": 2
+      },
+      {
+        "min": 0.5,
+        "max": 1,
+        "score": 1
+      }
+    ],
+    "fail_conditions": [
+      {
+        "code": "FAIL-1",
+        "meaning": "Špatný útvar nebo zásadní porušení komunikačního záměru."
+      },
+      {
+        "code": "FAIL-2",
+        "meaning": "Text je mimo téma nebo nereaguje na jádro zadání."
+      },
+      {
+        "code": "FAIL-3",
+        "meaning": "U formálního dopisu současně chybí oslovení i ukončení."
+      },
+      {
+        "code": "FAIL-4",
+        "meaning": "Nesplněna je více než polovina povinných bodů zadání."
+      }
+    ],
+    "formal_genres": [
+      "complaint",
+      "motivation"
+    ],
+    "heading_required_genres": [
+      "review",
+      "narration"
+    ],
+    "contractions_penalized_genres": [
+      "complaint",
+      "motivation",
+      "opinion",
+      "for_against"
+    ],
+    "contractions_free_allowance": 2,
+    "opinion_for_against_exception": {
+      "genres": [
+        "opinion",
+        "for_against"
+      ],
+      "penalty_points": 1,
+      "fail_only_when": "Text neobsahuje argumentaci nebo jde o zcela jiný útvar."
+    }
+  },
+  "sections": [
+    {
+      "id": "zadani_a_rozsah",
+      "label": "Zadání a rozsah",
+      "scoring": "deterministic+ai"
+    },
+    {
+      "id": "odstavce_a_koherence",
+      "label": "Odstavce a koherence",
+      "scoring": "ai+validation"
+    },
+    {
+      "id": "lexikalni_a_spellingove_chyby",
+      "label": "Lexikální a spellingové chyby",
+      "scoring": "deterministic-from-errors"
+    },
+    {
+      "id": "gramaticke_chyby",
+      "label": "Gramatické chyby",
+      "scoring": "deterministic-from-errors"
+    },
+    {
+      "id": "obsah",
+      "label": "Obsah",
+      "scoring": "ai"
+    },
+    {
+      "id": "ptn_a_koheze",
+      "label": "PTN a koheze",
+      "scoring": "ai+deterministic-cap"
+    },
+    {
+      "id": "uroven_slovni_zasoby",
+      "label": "Úroveň slovní zásoby",
+      "scoring": "ai"
+    },
+    {
+      "id": "uroven_gramatiky",
+      "label": "Úroveň gramatiky",
+      "scoring": "ai"
+    }
+  ],
+  "error_scoring": {
+    "local_bands": [
+      {
+        "min": 0,
+        "max": 5,
+        "points": 3
+      },
+      {
+        "min": 6,
+        "max": 11,
+        "points": 2
+      },
+      {
+        "min": 12,
+        "max": 17,
+        "points": 1
+      },
+      {
+        "min": 18,
+        "max": null,
+        "points": 0
+      }
+    ],
+    "global_bands": [
+      {
+        "min": 0,
+        "max": 1,
+        "points": 3
+      },
+      {
+        "min": 2,
+        "max": 3,
+        "points": 2
+      },
+      {
+        "min": 4,
+        "max": 5,
+        "points": 1
+      },
+      {
+        "min": 6,
+        "max": null,
+        "points": 0
+      }
+    ],
+    "formula": "max(0, P_local + P_global - 3)",
+    "same_cause_repeated_counts_once": true,
+    "no_double_counting_across_lexis_and_grammar": true,
+    "articles_always_grammar": true
+  },
+  "zero_rule": {
+    "assignment_zero_forces_grade": true,
+    "other_zero_reduces_every_three_to_two_once": true
+  },
+  "ptn": {
+    "required_groups": [
+      "PTN1",
+      "PTN2",
+      "PTN3"
+    ],
+    "missing_group_penalty": 1
+  },
+  "grade_bands": [
+    {
+      "min": 21,
+      "max": 24,
+      "grade": 1,
+      "label": "výborný"
+    },
+    {
+      "min": 18,
+      "max": 20,
+      "grade": 2,
+      "label": "chvalitebný"
+    },
+    {
+      "min": 14,
+      "max": 17,
+      "grade": 3,
+      "label": "dobrý"
+    },
+    {
+      "min": 11,
+      "max": 13,
+      "grade": 4,
+      "label": "dostatečný"
+    },
+    {
+      "min": 0,
+      "max": 10,
+      "grade": 5,
+      "label": "nedostatečný"
+    }
+  ],
+  "required_outputs": {
+    "requirement_evidence": true,
+    "first_and_last_sentence_lock": true,
+    "all_eight_section_verdicts": true,
+    "error_correction_and_reason": true,
+    "positive_negative_improvement": true,
+    "handwriting_legibility_percent": true,
+    "authenticity_estimate": true,
+    "teacher_detail": true,
+    "student_feedback": true,
+    "record_summary": true
+  }
+}

@@ -1,0 +1,68 @@
+openapi: 3.1.0
+info:
+  title: Hodnotitel maturitních slohů – backend contract
+  version: 1.0.0
+  description: Minimální smlouva pro budoucí školní server. Server drží API klíč, frontu a výsledky; klient nikdy neposílá skutečná jména do AI provideru.
+servers:
+  - url: https://ai.ghrabuvka.cz/api
+paths:
+  /health:
+    get:
+      summary: Kontrola dostupnosti a kompatibility
+      responses:
+        '200':
+          description: Server je připraven
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, contractVersion]
+                properties:
+                  ok: {type: boolean}
+                  contractVersion: {type: string, const: '1.0'}
+  /v1/evaluation-series:
+    post:
+      summary: Založí asynchronní hodnoticí sérii
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SeriesRequest'}
+      responses:
+        '202':
+          description: Série přijata
+  /v1/evaluation-series/{jobId}:
+    get:
+      summary: Vrátí stav a případné výsledky série
+      security: [{bearerAuth: []}]
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema: {type: string}
+      responses:
+        '200': {description: Aktuální stav}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer, bearerFormat: JWT}
+  schemas:
+    SeriesRequest:
+      type: object
+      required: [contractVersion, series, processing, works]
+      properties:
+        contractVersion: {type: string, const: '1.0'}
+        series: {type: object}
+        processing: {type: object}
+        works:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            required: [code, text, transcriptConfirmed]
+            properties:
+              code: {type: string}
+              text: {type: string}
+              sourceType: {type: string}
+              legibilityPercent: {type: [integer, 'null']}
+              transcriptConfirmed: {type: boolean}

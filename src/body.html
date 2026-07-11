@@ -1,0 +1,399 @@
+<div class="wrap">
+  <div id="tooltip" class="tooltip-popup" role="tooltip"></div>
+  <header class="header product-header" aria-label="Záhlaví aplikace">
+    <div class="brand-row">
+      <div class="school-lockup">
+        <img class="school-logo" src="assets/ghrab-logo.png" alt="Logo Gymnázia, Ostrava-Hrabůvka">
+        <div class="school-copy">
+          <span class="school-eyebrow">Gymnázium, Ostrava-Hrabůvka</span>
+          <span class="school-project">Školní hodnoticí nástroj</span>
+        </div>
+      </div>
+      <div class="hdr-btns" aria-label="Nástroje zobrazení">
+        <button class="hdr-btn" id="btnTheme" title="Světlý/tmavý režim" aria-label="Světlý nebo tmavý režim">☀️</button>
+        <button class="hdr-btn" id="btnFs" title="Zvětšené zobrazení / celá obrazovka" aria-label="Zvětšit zobrazení">⛶</button>
+      </div>
+    </div>
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="hero-kicker"><span></span>Maturitní hodnoticí studio</div>
+        <h1>Hodnotitel<br><em>maturitních slohů</em></h1>
+        <p class="hero-lead">Důkazní hodnocení podle školní rubriky, bezpečná anonymizace a finální kontrola učitele v jednom pracovním toku.</p>
+        <div class="sub product-badges">
+          <span class="badge release-badge">v1.3.0</span>
+          <span class="badge ok">řízený pilot</span>
+          <button class="badge clickable" id="privacyIntroBtn" type="button" aria-label="Otevřít pravidla ochrany osobních údajů">🛡 Ochrana údajů</button>
+          <button class="badge clickable" id="changesBtn" type="button" aria-label="Otevřít deník změn">Deník změn</button>
+        </div>
+      </div>
+      <aside class="hero-assurance" aria-label="Klíčové vlastnosti">
+        <div class="assurance-mark" aria-hidden="true">
+          <svg viewBox="0 0 120 120" role="img"><path d="M60 8 101 25v31c0 27-16 46-41 57C35 102 19 83 19 56V25Z" fill="none" stroke="currentColor" stroke-width="3"/><path d="m38 61 14 14 31-34" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="assurance-list">
+          <div><strong>8</strong><span>hodnoticích oblastí</span></div>
+          <div><strong>3</strong><span>výstupní pohledy</span></div>
+          <div><strong>20</strong><span>prací v bezpečné sérii</span></div>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <div id="restoreBanner" class="banner ok hidden"><span>✓ Obnoveno z předchozí relace.</span><button class="btn-mini" id="clearSavedBtn">Začít znovu</button></div>
+
+  <div id="progressArea">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="prog-labels" id="progLabels"></div>
+  </div>
+
+  <div class="card">
+    <section id="step0">
+
+      <div class="workflow-panel series-panel">
+        <div class="workflow-panel-head"><div><span class="workflow-eyebrow">Hodnoticí série</span><h2>Jedno zadání, jedna skupina, jeden bezpečný tok</h2><p>Vytvoř samostatnou sérii pro konkrétní skupinu. Každá série uchovává zadání, verzi rubriky, frontu, výsledky a distribuci odděleně.</p></div><span class="workflow-limit">typicky 15 · max. 20</span></div>
+        <div class="workflow-form four">
+          <label><span>Název série</span><input id="seriesName" type="text" placeholder="4.A – Opinion essay"></label>
+          <label><span>Skupina / třída</span><input id="seriesClass" type="text" placeholder="4.A – AJ1"></label>
+          <label><span>Datum hodnocení</span><input id="seriesDate" type="date"></label>
+          <label><span>Učitel</span><input id="seriesTeacher" type="text" value="Daniel Baláž"></label>
+        </div>
+        <div class="rubric-lock"><span>🔒</span><div><strong id="rubricVersionLabel">Rubrika 2026.04.27-r1</strong><small>Verze pravidel se připojí k celé sérii a výsledkům.</small></div></div>
+      </div>
+      <div class="banner warn"><span><strong>Anonymizace:</strong> před odesláním do AI odstraň jméno studenta, e-mail, telefon, přesnou adresu a další citlivé údaje. Do AI se odesílá pseudonymizovaná verze textu. Jména a citlivé údaje zadané v anonymizační sekci aplikace nahradí kódy. U fotek pozor: text viditelný přímo v obrázku nelze před odesláním spolehlivě začernit v tomto jednosouborovém nástroji.</span></div>
+      <div class="field">
+        <div class="field-label">Sada zadání <button class="tt-icon" type="button" data-tip="Vybereš, zda hodnotíš cvičné nebo ostré maturitní zadání. Do AI se odesílá jen aktuálně vybrané zadání, ne celá databáze.">?</button></div>
+        <div class="grid two">
+          <div class="task-card active" data-set="practice"><div class="tc-title">Cvičná sada</div><div class="tc-desc">13 vložených zadání: 6 útvarů, stížnost má 3 varianty. Vhodné pro trénink a kalibraci hodnocení.</div><span class="tc-tag">practice</span></div>
+          <div class="task-card" data-set="exam"><div class="tc-title">Ostrá maturitní verze</div><div class="tc-desc">12 vložených zadání: 6 útvarů × 2 zadání. Učitelský režim – nesdílet se studenty.</div><span class="tc-tag">exam</span></div>
+        </div>
+      </div>
+      <div id="examWarning" class="warn-box hidden"><strong>Ostrá sada:</strong> pokud je tento HTML soubor předán studentům, zadání jsou technicky dohledatelná ve zdrojovém kódu. Pro studenty používej jen výstupy, ne celý nástroj.</div>
+      <div class="field">
+        <div class="field-label">Útvar <button class="tt-icon" type="button" data-tip="Útvar určuje hodnoticí očekávání: opinion, for and against, review, narration, complaint nebo motivation letter. Ovlivňuje zejména formální prvky, komunikační záměr a vhodné B2 struktury.">?</button></div>
+        <div class="grid three" id="genreCards"></div>
+      </div>
+      <div class="field">
+        <div class="field-label">Konkrétní zadání <button class="tt-icon" type="button" data-tip="Vyber přesnou variantu zadání. Aplikace z ní převezme plný text i povinné body R1–Rn pro důkazní mapu.">?</button></div>
+        <div class="grid two" id="taskCards"></div>
+      </div>
+      <div class="nav"><button class="btn-next" id="next0">Pokračovat →</button></div>
+    </section>
+
+    <section id="step1" class="hidden">
+      <div class="chips" id="selectionChips"></div>
+      <div id="missingTaskBox" class="warn-box hidden"><strong>Zadání zatím není napevno doplněné.</strong> Vyplň text zadání a povinné body níže. Toto se zobrazí jen u položky bez pevně vloženého textu. Vestavěná databáze nyní obsahuje cvičnou i ostrou sadu.</div>
+      <div class="field">
+        <div class="field-label">Název / identifikace zadání <button class="tt-icon" type="button" data-tip="Pracovní název zadání. Pomáhá v přehledu, výstupu a ZIP balíčku; není sám o sobě hodnoticím kritériem.">?</button></div>
+        <input type="text" id="taskTitle" placeholder="např. Ostrá verze – Review 1">
+      </div>
+      <div class="field">
+        <div class="field-label">Plné zadání <button class="tt-icon" type="button" data-tip="Přesné znění zadání, které student dostal. Model podle něj posuzuje splnění útvaru a povinných bodů.">?</button></div>
+        <textarea id="taskText" rows="7" placeholder="Sem patří přesné znění zadání, které student dostal."></textarea>
+      </div>
+      <div class="field">
+        <div class="field-label">Povinné body zadání R1–Rn <button class="tt-icon" type="button" data-tip="Každý bod zadání bude v hodnocení kontrolován zvlášť. Slouží pro verdikt splněno / částečně / nesplněno a citace důkazů z textu.">?</button></div>
+        <div class="field-hint">Každý bod dej na samostatný řádek. Hodnotitel je použije pro důkazní mapu a anti-literalism kontrolu.</div>
+        <textarea id="taskReqs" rows="5" placeholder="R1: ...&#10;R2: ...&#10;R3: ..."></textarea>
+      </div>
+      <details class="advanced-only">
+        <summary>Databáze zadání – import/export JSON <button class="tt-icon" type="button" data-tip="Slouží hlavně pro zálohování nebo ruční opravy zadání. Import přepíše lokální databázi uloženou v tomto prohlížeči." onclick="event.stopPropagation()">?</button></summary>
+        <div class="small-muted">JSON slouží pro zálohu nebo ruční úpravu vestavěné databáze. Import přepíše lokální databázi v tomto prohlížeči.</div>
+        <textarea id="taskJson" class="json-area" rows="10"></textarea>
+        <div class="split-actions">
+          <button class="btn-mini" id="exportTasksBtn">Vypsat aktuální databázi</button>
+          <button class="btn-mini" id="importTasksBtn">Importovat JSON</button>
+          <button class="btn-mini" id="resetTasksBtn">Vrátit výchozí prázdnou databázi</button>
+        </div>
+      </details>
+      <div class="nav"><button class="btn-back" id="back1">← Zpět</button><button class="btn-next" id="next1">Pokračovat →</button></div>
+    </section>
+
+    <section id="step2" class="hidden">
+      <div class="chips" id="taskChips2"></div>
+      <div class="field">
+        <div class="field-label">Režim vstupu <button class="tt-icon" type="button" data-tip="Jeden sloh vytvoří jeden výstup. Dávkový režim použij pro více studentů se stejným zadáním; každý sloh se hodnotí samostatným API požadavkem.">?</button></div>
+        <div class="grid two">
+          <div class="task-card active" data-input-mode="single"><div class="tc-title">Jeden sloh</div><div class="tc-desc">Původní režim: jeden student, jeden výstup.</div><span class="tc-tag">single</span></div>
+          <div class="task-card" data-input-mode="batch"><div class="tc-title">Více slohů – stejné zadání</div><div class="tc-desc">Fronta více prací ke stejnému zadání. Každý sloh se hodnotí samostatně, aby se studenti nesmíchali.</div><span class="tc-tag">batch</span></div>
+        </div>
+      </div>
+      <div id="batchBox" class="batch-panel hidden">
+
+        <div class="workflow-panel roster-panel">
+          <div class="workflow-panel-head"><div><span class="workflow-eyebrow">1 · Skupina studentů</span><h2>Vlož seznam z IS</h2><p>Jeden student na řádek. Doporučený formát: jméno; školní e-mail. Identita zůstává lokálně, do Gemini odchází pouze kód STUDENT_###.</p></div><span class="workflow-limit">max. 20</span></div>
+          <textarea id="rosterInput" rows="6" placeholder="Jan Novák; novak.jan@ghrabuvka.cz&#10;Eva Malá; mala.eva@ghrabuvka.cz"></textarea>
+          <div class="split-actions"><button class="btn-mini" id="importRosterBtn" type="button">Načíst skupinu</button><button class="btn-mini" id="clearRosterBtn" type="button">Vymazat skupinu</button></div>
+          <div id="rosterTable" class="roster-table"></div>
+        </div>
+        <div class="workflow-panel import-panel">
+          <div class="workflow-panel-head"><div><span class="workflow-eyebrow">2 · Balík prací</span><h2>ZIP a vícestránkové slohy</h2><p>Nahraj jeden ZIP. Soubory typu Novak_Jan_1.jpg, Novak_Jan_2.jpg se spojí do jedné práce. Podporovány jsou DOCX, TXT, PDF a běžné fotografie.</p></div></div>
+          <input id="zipInput" class="hidden" type="file" accept=".zip,application/zip">
+          <div class="import-drop"><button class="btn-outline" id="pickZipBtn" type="button">📦 Nahrát ZIP celé skupiny</button><button class="btn-outline" id="exportPairingBtn" type="button">Stáhnout párovací CSV</button></div>
+          <div class="warn-box"><strong>Rukopis a PDF:</strong> před hodnocením musí učitel potvrdit digitální přepis. Jedna studentská práce může obsahovat více fotografií nebo stran PDF.</div>
+        </div>
+        <div class="batch-head">
+          <div>
+            <div class="batch-title">Dávkové hodnocení</div>
+            <div class="small-muted">Nahraj více souborů ke stejnému zadání. Každý soubor vytvoří jednoho studenta s kódem STUDENT_001, STUDENT_002… Jména souborů zůstávají jen lokálně v prohlížeči a do AI se neposílají.</div>
+          </div>
+          <div class="batch-tools">
+            <button class="btn-mini" id="addBatchStudentBtn" type="button">+ Přidat prázdného studenta</button>
+            <button class="btn-mini" id="pickBatchFilesBtn" type="button">Nahrát Word/PDF/fotky</button>
+            <button class="btn-mini" id="clearBatchBtn" type="button">Vymazat dávku</button>
+            <button class="btn-mini" id="clearBatchResultsBtn" type="button">Vymazat výsledky dávky</button>
+          </div>
+        </div>
+        <input id="batchFileInput" type="file" accept=".txt,.md,.markdown,.csv,.tsv,.docx,.pdf,image/*" multiple class="hidden">
+        <div class="warn-box"><strong>Fotky v dávce:</strong> jedna nahraná fotka/PDF = jeden studentský vstup. Pokud má jeden sloh více fotek, použij zatím režim „Jeden sloh“, nebo fotky nejdřív spoj do jednoho PDF. Obrázky se i zde automaticky zmenšují na max. 2000 px.</div>
+        <div class="batch-progress hidden" id="batchProgress"><div class="batch-progress-bar" id="batchProgressBar"></div></div>
+        <div class="batch-list" id="batchList"></div>
+      </div>
+      <div class="field" id="singleStudentField">
+        <div class="field-label">Studentský sloh <button class="tt-icon" type="button" data-tip="Sem patří text práce. Word se převádí na text a dá se pseudonymizovat před odesláním. Fotky/PDF se přikládají jako soubor a je nutné hlídat údaje viditelné v obrázku.">?</button></div>
+        <div class="field-hint">Vlož text ručně, načti Word dokument, nebo přidej fotku práce z telefonu. Word se pokusí převést na čistý text přímo v prohlížeči.</div>
+        <textarea id="studentText" rows="16" placeholder="Sem vlož původní studentský text. Do AI se pošle pseudonymizovaná verze."></textarea>
+        <div class="upload-area" id="uploadArea" role="button" tabindex="0" aria-label="Přidat nebo přetáhnout soubory" style="margin-top:9px">
+          <input id="fileInput" type="file" accept=".txt,.md,.markdown,.csv,.tsv,.docx,.pdf,image/*" multiple>
+          <div class="ua-default"><div class="ua-icon">📂</div><div class="ua-text">Klikni nebo přetáhni Word / TXT / PDF / fotku</div><div class="ua-sub">DOCX se převede na text; fotky se automaticky zmenší na max. 2000 px jako JPEG; PDF se přiloží Geminimu jako multimodální vstup.</div></div>
+          <div class="file-list" id="fileList"></div>
+          <div class="img-preview-strip" id="imgStrip"></div>
+        </div>
+        <div class="small-muted"><strong>Fotky:</strong> obrázky se před odesláním automaticky zmenší podobně jako v generátoru testů (max. delší strana 2000 px, JPEG kvalita 0,82). Pokud je na fotce jméno, třída nebo podpis, jednosouborová aplikace to před odesláním neumí bezpečně začernit. Pro maximální anonymizaci přepiš text do pole nebo pošli fotku bez horní části se jménem.</div>
+      </div>
+      <div class="field" id="singleAnonField">
+        <div class="field-label">Maximální anonymizace <button class="tt-icon" type="button" data-tip="Cílem je, aby do AI odešel jen kód studenta a pseudonymizovaný text. Mapa, kdo je kdo, zůstává pouze u učitele v prohlížeči.">?</button></div>
+        <div class="grid two">
+          <div>
+            <div class="field-hint">Jméno / identifikace studenta. Ven půjde jen kód. <button class="tt-icon" type="button" data-tip="Sem napiš skutečné jméno nebo identifikaci studenta, pokud ji má práce obsahuje. Aplikace ji v textu nahradí kódem studenta.">?</button></div>
+            <input type="text" id="studentIdentity" placeholder="např. Novák Jan, 4.A">
+          </div>
+          <div>
+            <div class="field-hint">Kód studenta používaný v promptu <button class="tt-icon" type="button" data-tip="Tento kód se objeví v promptu a výsledném hodnocení místo skutečného jména. Doporučení: STUDENT_001, STUDENT_002 atd.">?</button></div>
+            <input type="text" id="studentCode" placeholder="STUDENT_001">
+          </div>
+        </div>
+        <div class="field-hint" style="margin-top:9px">Další osobní údaje k nahrazení – každý údaj na samostatný řádek. Můžeš vložit jméno spolužáka, učitele, město, školu, konkrétní adresu apod. <button class="tt-icon" type="button" data-tip="Automatická kontrola je opatrná, ale nezná všechny reálné osoby a kontext. Sem doplň vše, co má být určitě odstraněno: škola, třída, město, jména, adresa, e-mail apod.">?</button></div>
+        <textarea id="extraPii" rows="4" placeholder="Jan Novák&#10;Gymnázium Ostrava-Hrabůvka&#10;4.A&#10;Ostrava"></textarea>
+        <div class="toggle-row">
+          <button class="btn-mini" id="anonymizeBtn">Pseudonymizovat text v poli</button>
+          <button class="btn-mini" id="previewAnonBtn">Zobrazit, co odejde do AI</button>
+          <button class="btn-mini" id="clearTextBtn">Vymazat text</button>
+        </div>
+        <div class="mapping-box hidden" id="anonPreviewBox"><strong>Odchozí pseudonymizovaná verze</strong><pre id="anonPreview"></pre></div>
+        <div class="mapping-box hidden" id="anonMapBox"><strong>Lokální mapa anonymizace – neodesílá se do AI</strong><pre id="anonMap"></pre></div>
+        <div class="privacy-panel strict" id="privacyPanel">
+          <div class="privacy-head">
+            <div>
+              <div class="privacy-title">Privacy režim před odesláním <button class="tt-icon" type="button" data-tip="V přísném režimu se hodnocení nepustí, pokud aplikace najde podezřelé citlivé údaje nebo nekontrolovatelné přílohy. Nález musíš nahradit nebo potvrdit jako bezpečný.">?</button></div>
+              <div class="small-muted">Před voláním Gemini aplikace zkontroluje text na podezřelá jména, třídy, školu, adresu, e-mail, telefon, rodné číslo a další identifikátory. V přísném režimu se odeslání zastaví, dokud nález nevyřešíš nebo výslovně nepotvrdíš.</div>
+            </div>
+            <span class="privacy-status ok" id="privacyModeStatus">přísný režim zapnutý</span>
+          </div>
+          <div class="privacy-actions">
+            <button class="btn-mini" id="togglePrivacyBtn" type="button">Privacy režim: zapnuto</button>
+            <button class="btn-mini" id="runPrivacyCheckBtn" type="button">Zkontrolovat citlivé údaje</button>
+            <button class="btn-mini" id="applyPrivacyFixBtn" type="button">Nahradit vybrané nálezy</button>
+            <button class="btn-mini" id="approvePrivacyBtn" type="button">Potvrdit kontrolu</button>
+          </div>
+          <div class="privacy-list" id="privacyList"><div class="small-muted">Kontrola zatím neproběhla.</div></div>
+          <div class="privacy-actions" style="border-top:1px dashed var(--bdr);padding-top:9px;margin-top:10px">
+            <button class="btn-mini" id="toggleSensitiveSaveBtn" type="button">Obnova citlivé relace: vypnuto</button>
+            <button class="btn-mini" id="clearSensitiveSavedBtn" type="button">Vymazat uložené citlivé údaje</button>
+          </div>
+          <div class="small-muted" id="sensitiveSaveNote">Studentské texty, identita, anonymizační údaje a výsledky se ve výchozím stavu neukládají do trvalého úložiště prohlížeče. Obnovu citlivé relace zapínej jen na vlastním zařízení.</div>
+        </div>
+      </div>
+      <div class="summary-grid" id="localStats"></div>
+      <div class="field">
+        <div class="field-label">Režim hodnocení <button class="tt-icon" type="button" data-tip="Jen počet slov neposuzuje obsah. Standardní režim je kratší. Hloubková analýza používá plnou rubriku, vypisuje většinu chyb a spotřebuje nejvíce tokenů.">?</button></div>
+        <div class="grid three">
+          <div class="task-card" data-mode="count"><div class="tc-title">Jen počet slov</div><div class="tc-desc">Bez hodnocení obsahu a bez oprav. Vhodné pro kontrolu rozsahu.</div><span class="tc-tag">nejlevnější</span></div>
+          <div class="task-card" data-mode="standard"><div class="tc-title">Standardní hodnocení</div><div class="tc-desc">Rubrika, body, hlavní chyby a stručnější zpětná vazba.</div><span class="tc-tag">rychlejší</span></div>
+          <div class="task-card active" data-mode="deep"><div class="tc-title">Hloubková analýza</div><div class="tc-desc">Výchozí režim podle tvého promptu: většina chyb, PTN, B2, AI indikátory.</div><span class="tc-tag">doporučeno</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Výstupní styl po hodnocení <button class="tt-icon" type="button" data-tip="AI v jednom výstupu vytvoří tři použitelné části: detail pro učitele, stručnější zpětnou vazbu pro studenta a evidenční tabulku. Tady volíš, která se má po dokončení zobrazit jako první.">?</button></div>
+        <div class="grid three">
+          <div class="task-card active" data-output-style="teacher"><div class="tc-title">Učitelský detail</div><div class="tc-desc">Plná zpětná vazba, rubrika, chyby, PTN, B2, AI indikátory.</div><span class="tc-tag">vše</span></div>
+          <div class="task-card" data-output-style="student"><div class="tc-title">Pro studenta</div><div class="tc-desc">Stručnější, srozumitelná verze bez interních technických poznámek.</div><span class="tc-tag">ke sdílení</span></div>
+          <div class="task-card" data-output-style="record"><div class="tc-title">Evidence</div><div class="tc-desc">Body, známka, počet slov, hlavní důvody a rychlý přehled.</div><span class="tc-tag">tabulka</span></div>
+        </div>
+        <div class="output-style-note">Všechny tři části se vytvoří z jedné analýzy. Ve výsledku mezi nimi můžeš přepínat bez dalšího volání AI.</div>
+      </div>
+      <div class="nav"><button class="btn-back" id="back2">← Zpět</button><button class="btn-next" id="next2">Pokračovat →</button></div>
+    </section>
+
+    <section id="step3" class="hidden">
+
+      <div class="workflow-panel processing-panel">
+        <div class="workflow-panel-head"><div><span class="workflow-eyebrow">Hodnoticí centrum</span><h2>Rychlost, náklady a bezpečné pokračování</h2><p>Pro skupinu do 20 prací zvol řízenou okamžitou frontu nebo úsporný asynchronní Batch API režim.</p></div></div>
+        <div class="grid two">
+          <div class="task-card active" data-processing-mode="immediate"><div class="tc-title">Vyhodnotit nyní</div><div class="tc-desc">Práce se zpracují postupně. Hotové výsledky se ukládají a při pokračování se znovu neodesílají.</div><span class="tc-tag">okamžitá fronta</span></div>
+          <div class="task-card" data-processing-mode="batch"><div class="tc-title">Úsporné Batch API</div><div class="tc-desc">Asynchronní úloha pro více sérií během dne. Stav a výsledky načteš později.</div><span class="tc-tag">dávkově</span></div>
+        </div>
+        <div id="processingModeNote" class="work-mode-note"></div>
+        <div class="workflow-form three"><label><span>Max. požadavků za minutu</span><input id="queueRpm" type="number" min="1" max="30" value="5"></label><div id="seriesBudget" class="usage-card"><strong>—</strong><span>odhad série</span></div><div id="todayUsage" class="usage-card"><strong>—</strong><span>dnešní spotřeba</span></div></div>
+        <div id="workflowDashboard" class="workflow-dashboard"></div>
+        <div id="batchJobPanel" class="batch-job hidden"><div><strong>Uložená Batch API úloha</strong><span id="batchJobState"></span></div><button class="btn-mini" id="checkBatchJobBtn" type="button">Zkontrolovat Batch úlohu</button></div>
+        <details class="backend-panel"><summary>Budoucí školní server</summary><div class="workflow-form three"><label><span>Provozní režim</span><select id="backendMode"><option value="browser">Prohlížeč</option><option value="server">Školní server</option></select></label><label><span>HTTPS adresa backendu</span><input id="backendBaseUrl" type="url" placeholder="https://ai.ghrabuvka.cz/api"></label><label><span>Přístupový token</span><input id="backendAccessToken" type="password" autocomplete="off"></label></div><div class="split-actions"><button class="btn-mini" id="backendHealthBtn" type="button">Ověřit spojení</button><span id="backendStatus" class="status-note">Aktivní je lokální provoz v prohlížeči.</span></div></details>
+      </div>
+      <div class="work-panel">
+        <div class="field-label">Režim práce <button class="tt-icon" type="button" data-tip="Cílem je používat API jen tehdy, když je skutečně potřeba. Offline příprava a ruční AI režim nevolají Gemini API z aplikace.">?</button></div>
+        <div class="grid three" id="workModeCards">
+          <div class="task-card active" data-work-mode="offline"><div class="tc-title">Offline příprava</div><div class="tc-desc">Bez API: anonymizace, kontrola údajů, mechanický počet slov, odstavce a přípravný protokol.</div><span class="tc-tag">bez klíče</span></div>
+          <div class="task-card" data-work-mode="manual"><div class="tc-title">Ruční AI režim</div><div class="tc-desc">Bez API klíče v aplikaci: zkopíruješ prompt do ChatGPT/Gemini a výsledek vložíš zpět.</div><span class="tc-tag">kopírovat prompt</span></div>
+          <div class="task-card" data-work-mode="api"><div class="tc-title">Gemini API</div><div class="tc-desc">Automatické hodnocení přímo v aplikaci. API se volá až po kliknutí na hodnoticí tlačítko.</div><span class="tc-tag">automaticky</span></div>
+        </div>
+        <div class="work-mode-note" id="workModeNote"></div>
+      </div>
+
+      <div class="offline-panel" id="offlinePanel">
+        <div class="gemini-ph"><span class="gemini-ptitle">🧭 Offline příprava <button class="tt-icon" type="button" data-tip="Tento režim nic neodesílá mimo prohlížeč. Vytvoří lokální protokol a zkontroluje, jestli je text připravený pro případné pozdější hodnocení.">?</button></span><span class="gemini-status">API se nepoužívá</span></div>
+        <div class="small-muted">Vhodné pro kontrolu před hodnocením: pseudonymizovaný text, podezřelé údaje, RAW počet tokenů, odstavce a upozornění na rozsah. Jazykové chyby se offline nehodnotí.</div>
+        <div class="offline-protocol hidden" id="offlineProtocolBox"><pre id="offlineProtocol"></pre></div>
+      </div>
+
+      <div class="manual-panel hidden" id="manualPanel">
+        <div class="gemini-ph"><span class="gemini-ptitle">📋 Ruční AI režim <button class="tt-icon" type="button" data-tip="Aplikace pouze připraví anonymizovaný prompt. Ten ručně vložíš do vybraného AI nástroje. Hotové hodnocení pak můžeš vložit zpět, aby šlo zkopírovat nebo stáhnout jako TXT/ZIP.">?</button></span><span class="gemini-status">bez API klíče</span></div>
+        <div class="small-muted">Použij, když nechceš v aplikaci zadávat API klíč. Před kopírováním promptu v Privacy režimu proběhne kontrola citlivých údajů.</div>
+        <div class="split-actions" style="margin-top:8px">
+          <button class="btn-mini" id="copyManualPromptBtn" type="button">Zkopírovat prompt pro ruční AI</button>
+          <button class="btn-mini" id="downloadPromptBundleBtn" type="button">Stáhnout prompt(y) TXT</button>
+        </div>
+        <div class="field" style="margin-top:10px">
+          <div class="field-label">Vložit hotové hodnocení zpět <button class="tt-icon" type="button" data-tip="Sem vlož odpověď z ChatGPT/Gemini. Aplikace ji potom zobrazí jako výsledek a umožní stáhnout TXT. U dávky doporučuji vkládat postupně nebo použít automatický API režim.">?</button></div>
+          <textarea id="manualResultInput" rows="7" placeholder="Sem vlož hotové hodnocení z ručního AI režimu…"></textarea>
+          <div class="split-actions"><button class="btn-mini" id="importManualResultBtn" type="button">Použít jako výsledek</button></div>
+        </div>
+      </div>
+
+      <div class="gemini-panel" id="geminiPanel">
+        <div class="gemini-ph"><span class="gemini-ptitle">⚡ Přímé hodnocení přes Gemini <button class="tt-icon" type="button" data-tip="API klíč se používá jen k přímému volání Gemini z tohoto prohlížeče. Pro hodnotitel používej samostatný Google projekt/API key, aby nečerpal kvótu generátoru testů.">?</button></span><span class="gemini-status" id="geminiStatus">Klíč není nastaven</span></div>
+        <div class="field-hint">Doporučení: používej samostatný Google AI Studio projekt a API key pro tento hodnotitel, aby nečerpal kvótu generátoru testů.</div>
+        <div class="gemini-key-row"><input type="password" id="geminiKeyInput" placeholder="Gemini API klíč (AIza…)" autocomplete="off" autocorrect="off"><button class="btn-eye" id="toggleKey" type="button">👁</button></div>
+        <div class="gemini-key-actions">
+          <button type="button" id="btnUseKeySession" class="key-btn-recommended key-mode-selected" aria-pressed="true">Použít jen pro relaci <span class="key-rec-tag">doporučeno</span></button>
+          <button type="button" id="btnSaveKeyPermanent" aria-pressed="false">Uložit trvale (jen osobní zařízení)</button>
+          <button type="button" id="btnClearKey" aria-pressed="false">Smazat klíč</button>
+        </div>
+        <div class="gemini-note" id="geminiNote"><strong>Relace</strong> = klíč se po zavření prohlížeče sám zapomene; nejbezpečnější volba na sdílených i školních zařízeních. <strong>Trvalé uložení</strong> zapisuje klíč do localStorage tohoto prohlížeče — používej jen na vlastním zařízení. Zdarma: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com</a> → Get API key.</div>
+        <div class="gemini-model-row"><label class="gemini-model-label" for="geminiModelInput">Model <button class="tt-icon" type="button" data-tip="Nech výchozí, pokud generování funguje. Tlačítko Ověřit modely načte modely dostupné pro vložený API klíč; výběr potom můžeš provést z rozbalovacího seznamu nebo tlačítek v okně.">?</button> <span class="gemini-model-status" id="geminiModelStatus">výchozí</span></label><div class="gemini-model-inputwrap"><input type="text" id="geminiModelInput" placeholder="gemini-3.5-flash" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><select id="geminiModelSelect" aria-label="Dostupné Gemini modely"><option value="">Nejdřív ověř modely…</option></select><button type="button" class="gemini-model-reset" id="resetModelBtn">Výchozí</button><button type="button" class="gemini-model-reset" id="checkModelsBtn">Ověřit modely</button></div><div class="gemini-note" id="geminiModelNote">Primárně se používá stabilní Gemini API v1; pokud model není dostupný přes v1, aplikace automaticky zkusí fallback v1beta. Při dávce se 429/5xx a síťové chyby opakují s backoffem.</div></div>
+      </div>
+      <div class="summary-grid" id="finalStats"></div>
+      <details class="advanced-only" open>
+        <summary>Náhled promptu / ručního zadání pro AI <button class="tt-icon" type="button" data-tip="Kontrolní náhled. U dlouhých promptů může být zkrácený, ale skutečné odeslání použije plný prompt." onclick="event.stopPropagation()">?</button></summary>
+        <div class="preview-box"><pre id="promptPreview"></pre></div>
+        <button class="btn-outline" id="copyPromptBtn">Zkopírovat prompt</button>
+      </details>
+      <button class="btn-main" id="runBtn">🧭 Vytvořit offline přípravu</button>
+      <button class="btn-outline hidden" id="cancelBtn">Zrušit generování</button>
+      <div id="runStatus" class="small-muted"></div>
+      <div class="nav"><button class="btn-back" id="back3">← Zpět</button><button class="btn-next" id="next3" disabled>Výsledek →</button></div>
+    </section>
+
+    <section id="step4" class="hidden">
+
+      <div class="workflow-panel review-overview">
+        <div class="workflow-panel-head"><div><span class="workflow-eyebrow">Kontrola celé série</span><h2>Validace, schválení a doručení</h2><p>Výsledek lze odeslat až po úspěšné validační bráně a výslovném schválení učitelem.</p></div><button class="btn-mini" id="approveAllValidBtn" type="button">Schválit všechny validní</button></div>
+        <div id="batchReviewDashboard" class="batch-review-dashboard"></div>
+      </div>
+      <div class="workflow-panel distribution-panel">
+        <div class="workflow-panel-head"><div><span class="workflow-eyebrow">Gmail distribuce</span><h2>Nejdřív koncepty, potom odeslání</h2><p>Propojení používá školní Google Apps Script a sdílené tajemství. Odesílají se pouze schválené výsledky se správným e-mailem.</p></div></div>
+        <div class="workflow-form two"><label><span>URL Apps Script webové aplikace</span><input id="appsScriptUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"></label><label><span>Sdílené tajemství</span><input id="appsScriptSecret" type="password" autocomplete="off"></label><label><span>Předmět e-mailu</span><input id="emailSubjectTemplate" type="text" value="Zpětná vazba – {series}"></label><label><span>Podpis učitele</span><input id="emailSenderName" type="text" value="Daniel Baláž"></label></div>
+        <div class="delivery-mode"><label><input type="radio" name="deliveryMode" value="drafts" checked> Vytvořit koncepty</label><label><input type="radio" name="deliveryMode" value="send"> Přímé odeslání</label></div>
+        <div class="delivery-mode delivery-options"><label><input type="checkbox" id="emailIncludeScore" checked> Uvést body a známku v úvodu</label><label><input type="checkbox" id="emailIncludeOriginal"> Připojit původní text studenta pod zpětnou vazbu</label></div>
+        <div class="distribution-actions"><button class="btn-main compact" id="createDraftsBtn" type="button">Vytvořit Gmail koncepty</button><button class="btn-outline" id="sendApprovedBtn" type="button">Odeslat schválené</button><button class="btn-outline" id="openAppsScriptBridgeBtn" type="button">Kompatibilní odeslání v nové kartě</button><button class="btn-outline" id="downloadDistributionJsonBtn" type="button">Stáhnout JSON</button><button class="btn-outline" id="downloadDistributionCsvBtn" type="button">Stáhnout CSV</button></div><div class="small-muted">Kompatibilní režim použij pouze tehdy, když přímé propojení zablokuje prohlížeč nebo přihlášení Google. Požadavek otevře v nové kartě; před opakováním vždy zkontroluj Gmail, aby nevznikly duplicity.</div>
+      </div>
+      <div class="chips" id="resultChips"></div>
+      <div class="summary-grid" id="resultSummary"></div>
+      <div class="result-view-panel" id="resultViewPanel">
+        <div class="result-view-title">Zobrazit výstup</div>
+        <div class="btn-row">
+          <button class="tag-btn active" type="button" data-result-view="teacher">Učitelský detail</button>
+          <button class="tag-btn" type="button" data-result-view="student">Pro studenta</button>
+          <button class="tag-btn" type="button" data-result-view="record">Evidence</button>
+        </div>
+        <div class="result-view-note">Přepínání nemění hodnocení. Kopírování a stažení TXT použije právě zobrazenou verzi.</div>
+      </div>
+
+      <div class="report-studio-panel" id="reportStudioPanel">
+        <div class="report-studio-head">
+          <div><span class="workflow-eyebrow">Report studio</span><h3>Vzhled, pedagogické doplňky a bezpečná analytika</h3><p>Nastavení se promítne do náhledu, tisku/PDF, DOCX i balíčku pro studenty. Nemění body ani rubriku.</p></div>
+          <span class="report-studio-badge">PRO report</span>
+        </div>
+        <div class="report-settings-grid">
+          <div class="report-setting-card">
+            <span class="report-setting-label">Vizuální režim</span>
+            <div class="segmented-control" role="group" aria-label="Vizuální režim reportu">
+              <button type="button" data-report-theme="formal">Formální školní</button>
+              <button type="button" data-report-theme="friendly">Přívětivý studentský</button>
+            </div>
+          </div>
+          <div class="report-setting-card">
+            <span class="report-setting-label">Náhled stránky</span>
+            <div class="segmented-control" role="group" aria-label="Režim náhledu reportu">
+              <button type="button" data-report-preview="screen">Obrazovka</button>
+              <button type="button" data-report-preview="a4">A4 náhled</button>
+            </div>
+          </div>
+          <label class="report-setting-card"><span class="report-setting-label">Podpis / iniciály učitele</span><input id="reportSignature" type="text" maxlength="80" placeholder="např. Daniel Baláž"></label>
+          <div class="report-setting-card report-checks">
+            <label><input type="checkbox" id="reportShowChart"> Barevná mapa 8 kategorií</label>
+            <label><input type="checkbox" id="reportShowPriorities"> Karty tří priorit</label>
+            <label><input type="checkbox" id="reportIncludeRevision"> Revizní miniúkol</label>
+          </div>
+        </div>
+        <div class="report-studio-actions">
+          <button class="btn-mini" id="classAnalyticsBtn" type="button">Anonymní analytika třídy</button>
+          <button class="btn-mini" id="saveHistoryBtn" type="button">Uložit pseudonymní záznam pokroku</button>
+          <button class="btn-mini" id="openHistoryBtn" type="button">Historie pokroku</button>
+        </div>
+        <div class="report-consistency" id="reportConsistency"></div>
+        <div class="report-privacy-note"><strong>Soukromí:</strong> analytika pracuje jen se schválenými výsledky a nezobrazuje jména. Historie je vypnutá, dokud není povolena obnova citlivé relace; ukládá pouze kód studenta, datum a bodové výsledky, nikdy text slohu ani e-mail. Podpis a vlastní komentáře se bez této volby po zavření aplikace neuchovají.</div>
+      </div>
+
+      <div class="teacher-review-panel hidden" id="teacherReviewPanel">
+        <div class="teacher-review-title">Finální kontrola učitele</div>
+        <div class="small-muted">AI výstup ber jako návrh. Tady můžeš ručně upravit body/známku, přidat poznámku a označit práci jako zkontrolovanou člověkem. Exporty použijí právě tento finální stav.</div>
+        <div class="review-grid" id="teacherReviewGrid"></div>
+        <div class="review-final-row">
+          <div class="review-final-card"><label for="teacherReviewScore">Finální body celkem</label><input type="number" id="teacherReviewScore" min="0" max="24" step="1" placeholder="0–24"></div>
+          <div class="review-final-card"><label for="teacherReviewGrade">Finální známka</label><select id="teacherReviewGrade"><option value="">—</option><option value="1">1 – výborný</option><option value="2">2 – chvalitebný</option><option value="3">3 – dobrý</option><option value="4">4 – dostatečný</option><option value="5">5 – nedostatečný</option></select></div>
+          <div class="review-final-card"><label>Kontrola člověkem</label><label class="review-check"><input type="checkbox" id="teacherReviewVerified"> <span>Označit jako finálně zkontrolováno učitelem</span></label><div class="small-muted" id="teacherReviewVerifiedAt"></div></div>
+        </div>
+        <div class="review-note"><div class="field-label">Poznámka učitele k finální úpravě</div><textarea id="teacherReviewNote" rows="4" placeholder="Např. Upravil jsem body za PTN, protože model přehlédl…"></textarea></div>
+        <div class="comment-bank">
+          <div class="comment-bank-head"><div><strong>Komentářová banka učitele</strong><span>Rychlé věty se vloží do poznámky a stanou se součástí exportu.</span></div></div>
+          <div class="comment-bank-controls"><select id="commentBankSelect" aria-label="Vybrat komentář"></select><button class="btn-mini" id="insertCommentBtn" type="button">Vložit komentář</button></div>
+          <div class="comment-bank-controls"><input id="customCommentInput" type="text" maxlength="300" placeholder="Vlastní opakovaně použitelný komentář"><button class="btn-mini" id="addCommentBtn" type="button">Přidat do banky</button><button class="btn-mini danger" id="deleteCommentBtn" type="button">Smazat vlastní</button></div>
+        </div>
+        <div class="review-actions"><button class="btn-mini" id="recalcReviewBtn" type="button">Přepočítat součet z kategorií</button><button class="btn-mini" id="applyTeacherReviewBtn" type="button">Uložit finální kontrolu</button><button class="btn-mini" id="resetTeacherReviewBtn" type="button">Vrátit AI návrh</button></div>
+        <div class="export-hint">Doporučení: před sdílením se studentem použij výstup „Pro studenta“. U konfliktních případů exportuj i učitelský detail pro vlastní archiv.</div>
+      </div>
+      <div class="result-box" id="resultBox">Zatím není vygenerované žádné hodnocení.</div>
+      <div class="batch-results hidden" id="batchResultsBox"></div>
+      <div class="result-actions">
+        <button class="btn-outline" id="copyResultBtn">Zkopírovat hodnocení</button>
+        <button class="btn-outline" id="downloadTxtBtn">Stáhnout TXT</button>
+        <button class="btn-outline" id="downloadDocxBtn">Stáhnout DOCX</button>
+        <button class="btn-outline" id="printPdfBtn">Tisk/PDF</button>
+        <button class="btn-outline" id="downloadCsvBtn">Stáhnout CSV</button>
+        <button class="btn-outline" id="downloadXlsxBtn">Stáhnout XLSX</button>
+        <button class="btn-outline" id="downloadEmailBtn">E-mailová šablona</button>
+        <button class="btn-outline hidden" id="downloadZipBtn">Stáhnout balíček ZIP</button>
+        <button class="btn-outline" id="newEvalBtn">Nové hodnocení</button>
+      </div>
+      <div class="nav"><button class="btn-back" id="back4">← Zpět</button><button class="btn-next" id="againBtn">Upravit vstup →</button></div>
+    </section>
+  </div>
+  <footer class="app-footer">
+    <div class="footer-brand">
+      <img src="assets/ghrab-logo.png" alt="" aria-hidden="true">
+      <div><strong>Hodnotitel maturitních slohů</strong><span>Bezpečný učitelský nástroj · řízený pilot</span></div>
+    </div>
+    <div class="footer-meta">Autor a vývojový garant: <strong>Daniel Baláž</strong> · Školní projekt Gymnázia, Ostrava-Hrabůvka<br><span>Verze 1.3.0 <span id="buildLabel"></span> · AI výstup je návrh, konečné hodnocení potvrzuje učitel.</span></div>
+  </footer>
+</div>
+<div class="toast-stack" id="toastStack"></div>
+<div class="ui-modal-backdrop hidden" id="uiModal" role="presentation"><div class="ui-modal-box" role="dialog" aria-modal="true" aria-labelledby="uiModalTitle"><div class="ui-modal-head" id="uiModalTitle"></div><div class="ui-modal-body" id="uiModalBody"></div><div class="ui-modal-actions" id="uiModalActions"></div></div></div>

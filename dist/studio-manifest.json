@@ -1,0 +1,76 @@
+{
+  "schema": "ai-studio-app-manifest-v1",
+  "id": "essay-evaluator",
+  "name": {
+    "cs": "Hodnotitel maturitních slohů",
+    "en": "Matura Essay Evaluator"
+  },
+  "version": "1.3.0",
+  "status": {
+    "cs": "Připraveno k řízenému pilotu",
+    "en": "Ready for controlled pilot"
+  },
+  "description": {
+    "cs": "Kompletní třídní workflow pro anonymizaci, důkazní hodnocení, validaci, učitelské schválení, profesionální školní reporty, anonymní analytiku a bezpečnou distribuci zpětné vazby k maturitním slohům.",
+    "en": "Complete class workflow for anonymisation, evidence-based essay assessment, validation, teacher approval, professional school reports, anonymous analytics and secure feedback delivery."
+  },
+  "launchUrl": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/",
+  "repository": "daniel22-dev/Hodnotitel-maturitnich-slohu",
+  "icon": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/icons/icon-512.png",
+  "accent": "#d7a04b",
+  "tags": [
+    {
+      "cs": "Hodnocení slohů",
+      "en": "Essay assessment"
+    },
+    {
+      "cs": "AJ · maturita",
+      "en": "EN · Matura"
+    },
+    {
+      "cs": "Třídní workflow",
+      "en": "Class workflow"
+    },
+    {
+      "cs": "Anonymizace",
+      "en": "Anonymisation"
+    }
+  ],
+  "capabilities": [
+    "essay-assessment",
+    "versioned-rubric",
+    "deterministic-scoring",
+    "structured-output",
+    "validation-gate",
+    "anonymisation",
+    "class-roster",
+    "zip-import",
+    "multipage-work",
+    "handwriting-transcription-review",
+    "student-pairing",
+    "evaluation-queue",
+    "batch-api",
+    "teacher-review",
+    "gmail-distribution",
+    "usage-cost-tracking",
+    "exports",
+    "backend-ready",
+    "professional-reports",
+    "a4-preview",
+    "styled-docx",
+    "teacher-comment-bank",
+    "anonymous-class-analytics",
+    "pseudonymous-progress",
+    "offline-docx-import"
+  ],
+  "limits": {
+    "typicalSeriesSize": 15,
+    "maxSeriesSize": 20
+  },
+  "compatibility": {
+    "studioMinVersion": "0.6.1",
+    "materialSchema": "ghrab-material-v1",
+    "studioBridge": "1.1"
+  },
+  "publishedAt": "2026-07-11T12:37:02.544Z"
+}

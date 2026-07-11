@@ -1,0 +1,3 @@
+Tento opravny balicek obsahuje vsechny soubory zmenene mezi 1.3.2 a 1.3.3.
+Rozbalte ZIP a nahrajte VSECHEN obsah do korene repozitare. Potvrdte prepsani.
+Po commitu spustte GitHub Actions znovu.

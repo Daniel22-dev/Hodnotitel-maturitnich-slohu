@@ -51,8 +51,10 @@ function detectHeadingForCount(tokens, lines, taskText, taskTitle, genre){
   if(!headingNorm || headingNorm.length<2) return null;
   const taskNorm=normalizePlainForCount((taskText||'')+' '+(taskTitle||''));
   const copied=taskNorm && taskNorm.includes(headingNorm);
-  const nextLine=lines[firstLineNo+1]||'';
-  const followedByBlank=!String(nextLine).trim();
+  const hasFollowingLine=firstLineNo+1<lines.length;
+  const nextLine=hasFollowingLine?lines[firstLineNo+1]:'';
+  const hasBodyAfterHeading=tokens.some(t=>t.line>firstLineNo);
+  const followedByBlank=hasFollowingLine && !String(nextLine).trim() && hasBodyAfterHeading;
   const titleCaseCount=firstLineTokens.filter(t=>isCapitalizedCountWord(t.raw)).length;
   const likelyTitle = copied || followedByBlank || ['review','narration'].includes(genre||'') || (titleCaseCount>=2 && len<=8);
   if(!likelyTitle) return null;

@@ -2,7 +2,7 @@
 
 ## Základní princip
 
-Hodnotitel 1.3.4 odděluje čtyři odpovědnosti:
+Hodnotitel 1.3.6 odděluje čtyři odpovědnosti:
 
 1. **AI analytická vrstva** rozpoznává splnění bodů zadání, jazykové chyby, úroveň, PTN, koherenci a důkazy z textu.
 2. **Deterministické hodnoticí jádro** vypočítá body, povolené FAIL stavy, výjimku mezi typy essay, PTN penalizaci, pravidlo nuly, součet a známku.

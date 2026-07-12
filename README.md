@@ -1,32 +1,19 @@
-# Hodnotitel maturitních slohů 1.3.4
+# Hodnotitel maturitních slohů 1.3.6
 
 Modulární webová aplikace pro anonymizaci, individuální i dávkové hodnocení, učitelskou kontrolu, profesionální reporty a bezpečné rozeslání zpětné vazby k maturitním slohům z anglického jazyka. Aplikace je připravena jako součást ekosystému **AI Studio GHRAB**.
 
-## Co přináší verze 1.3.4
+## Co přináší verze 1.3.6
 
-- skutečně transparentní bílé školní logo v aplikaci a samostatná černá varianta pro reporty;
-- nový PWA manifest a zcela nové názvy instalačních ikon kvůli definitivnímu odstranění staré cache;
-
-- opravený import seznamu z IS i pro jeden dlouhý řádek e-mailů oddělených čárkou nebo středníkem;
-- živé počitadlo rozpoznaných studentů, validace položek a odstranění duplicit;
-- sjednocená barva hlavního názvu;
-- obnovené kontrastní černobílé logo školy;
-- nová vycentrovaná PWA ikona se štítem, perem a potvrzením;
-- regresní testy používají výhradně syntetické adresy.
-
-- **Report Studio** se dvěma vzhledy: formální školní a přívětivý studentský;
-- přesný **A4 náhled**, tisk/PDF a volitelný podpis či iniciály učitele;
-- bodová mapa všech osmi kategorií a tři prioritní karty „Udržet / Zlepšit / Příště zkontrolovat“;
-- třídění jazykových nálezů na kritické, opakující se a jednorázové;
-- automatický revizní miniúkol odvozený z konkrétních chyb a nejslabší oblasti;
-- komentářová banka učitele včetně vlastních opakovaně použitelných vět;
-- kontrola souladu bodů, známky a slovního komentáře;
-- anonymní třídní analytika pouze ze schválených validních výsledků;
-- volitelná pseudonymní historie pokroku bez textu práce, jména a e-mailu;
-- skutečně formátovaný DOCX se školním logem, styly, tabulkami a podpisem;
-- plně lokální ZIP/DOCX/XLSX workflow bez CDN; běžné DOCX lze načíst i bez internetu;
-- odstranění překrytých starých generátorů reportu, DOCX a PDF;
-- dodatečné privacy pojistky pro podpis, vlastní komentáře, analytiku a historii.
+- jediný kanonický soubor školního loga pro rozhraní, reporty i DOCX;
+- stabilní PWA identitu a jediný `manifest.webmanifest`;
+- service worker s HTML fallbackem pouze pro navigaci;
+- lokální vzhled přístupové brány, časové limity a označený nouzový offline režim;
+- bezpečnější obnovu dávky bez base64 příloh, s odloženým ukládáním a hlášením chyby;
+- výrazně kratší analytický prompt bez chatových artefaktů a instrukcí k výpočtu známky;
+- verzi aplikace řízenou jedině z `package.json`;
+- rozšířenou anonymizaci zadaného jména a opatrnější rozpoznávání číselných identifikátorů;
+- funkční zlaté testy word-countu, snapshotu a pseudonymizace;
+- opravu heuristiky, která mohla jednorádkový text mylně označit jako nadpis.
 
 ## Hlavní funkce
 

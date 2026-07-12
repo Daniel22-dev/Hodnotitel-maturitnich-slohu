@@ -1,9 +1,9 @@
 {
-  "id": "/Hodnotitel-maturitnich-slohu/?pwa=essay-evaluator-134",
+  "id": "/Hodnotitel-maturitnich-slohu/",
   "name": "Hodnotitel maturitních slohů",
   "short_name": "Hodnotitel",
   "description": "Hodnocení maturitních slohů s anonymizací, validačním jádrem, profesionálními reporty, anonymní analytikou a učitelským schválením.",
-  "start_url": "./?pwa=essay-evaluator-134",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#07111b",

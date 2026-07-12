@@ -1,4 +1,4 @@
-# Hodnotitel 1.3.4 — integrace do AI Studio GHRAB 0.6.2
+# Hodnotitel 1.3.6 — integrace do AI Studio GHRAB 0.6.3
 
 ## Provedené změny
 

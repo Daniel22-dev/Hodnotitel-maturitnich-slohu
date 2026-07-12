@@ -1,29 +1,34 @@
-# Změny a opravy ve verzi 1.3.4
+# Změny a opravy ve verzi 1.3.6
 
-## Import studentů z IS
+## PWA, cache a přístupová brána
 
-- čárkový nebo středníkový seznam na jednom řádku se rozdělí na samostatné studenty;
-- podporovány jsou také nové řádky, tabulátory a kombinace oddělovačů;
-- duplicity se odstraňují a jméno lze odvodit z e-mailu;
-- pole zobrazuje živý počet rozpoznaných studentů a případné neplatné položky;
-- maximální velikost série zůstává 20 studentů.
+- stabilní manifest, `id` a `start_url`;
+- HTML fallback pouze pro navigace;
+- lokální CSS přístupové brány;
+- časový limit a označený nouzový offline režim bez obcházení explicitního zamítnutí.
 
-## Branding
+## Branding a repozitář
 
-- celý název aplikace používá jednu barvu;
-- aplikace používá skutečně transparentní bílou variantu školního loga bez bílé bitmapové plochy; reporty používají samostatnou černou variantu;
-- PWA ikona byla nahrazena vycentrovaným motivem štítu, pera a potvrzení;
-- nový manifest `manifest-v1.3.4.webmanifest` používá nové názvy ikon, explicitní PWA identitu a samostatnou maskable variantu;
-- legacy názvy ikon jsou přepsané novým motivem, aby správnou ikonu dostal i starší manifest;
-- service worker se registruje s `updateViaCache: none`.
+- jediný kanonický soubor školního loga;
+- odstraněny duplicitní logotypy, ikony a staré manifesty;
+- odstraněna mrtvá CSS pravidla;
+- sjednocen návod k nasazení a přidán seznam historických souborů k odstranění.
 
-## Soukromí a testování
+## Dávky, prompt a anonymizace
 
-- reálné adresy studentů nebyly vloženy do veřejného repozitáře;
-- přidány cílené regresní testy čárkového exportu z IS;
-- testovací sada má 363 kontrol bez chyby.
+- snapshot bez base64 příloh, s debounce a kontrolou úspěchu zápisu;
+- po obnovení se zobrazí upozornění k opětovnému přiložení PDF a obrázků;
+- analytický prompt zkrácen přibližně na 4,3 tisíce znaků a oddělen od deterministického výpočtu;
+- zadané jméno se nahrazuje celé i po samostatných částech dlouhých alespoň tři znaky;
+- skloňované tvary a přezdívky zůstávají ruční odpovědností učitele;
+- prosté devítimístné a desetimístné sekvence se pouze označují k ruční kontrole.
 
-Podrobný technický rozbor je v souboru `AUDIT_REPORT_1.3.4.md`.
+## Testy
+
+- 385/385 PASS;
+- nové zlaté vzorky word-countu;
+- funkční test snapshotu a pseudonymizace;
+- opravena detekce nadpisu u jednorádkového textu.
 
 ---
 

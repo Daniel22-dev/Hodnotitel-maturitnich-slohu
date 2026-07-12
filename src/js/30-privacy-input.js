@@ -10,13 +10,14 @@ function getOutboundStudentText(){
 function getOutboundStudentTextFromValues(rawText, identity, codeValue, extraPiiValue){
   const code=(codeValue||'STUDENT_001').trim()||'STUDENT_001';
   let text=rawText||''; const map=[];
-  const add=(repl,label)=>{ if(!repl) return; const esc=escapeRegExp(String(repl).trim()); if(!esc) return; const re=new RegExp(esc,'gi'); if(re.test(text)){ text=text.replace(re,label); map.push(`${repl} → ${label}`); } };
-  add(identity, code);
+  const add=(repl,label,wholeToken=false)=>{ if(!repl) return; const clean=String(repl).trim(); const esc=escapeRegExp(clean); if(!esc) return; const re=wholeToken?new RegExp(`(^|[^\\p{L}\\p{N}_])(${esc})(?=$|[^\\p{L}\\p{N}_])`,'giu'):new RegExp(esc,'gi'); if(re.test(text)){ re.lastIndex=0; text=wholeToken?text.replace(re,(_,prefix)=>prefix+label):text.replace(re,label); map.push(`${clean} → ${label}`); } };
+  const identityTerms=Array.from(new Set([String(identity||'').trim(),...String(identity||'').trim().split(/[\s,;]+/).map(x=>x.trim()).filter(x=>x.length>=3)])).filter(Boolean).sort((a,b)=>b.length-a.length);
+  identityTerms.forEach(term=>add(term,code,true));
   String(extraPiiValue||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach((x,i)=>add(x,`[OSOBA_UDÁJ_${i+1}]`));
   let n=0; text=text.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,m=>{map.push(`${m} → [EMAIL_${++n}]`); return `[EMAIL_${n}]`;});
-  n=0; text=text.replace(/\b(?:\+?420\s*)?(?:\d{3}\s*){3}\b/g,m=>{map.push(`${m} → [TELEFON_${++n}]`); return `[TELEFON_${n}]`;});
+  n=0; text=text.replace(/(?<!\d)(?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|\+?420\d{9})(?!\d)/g,m=>{map.push(`${m} → [TELEFON_${++n}]`); return `[TELEFON_${n}]`;});
   n=0; text=text.replace(/https?:\/\/\S+/gi,m=>{map.push(`${m} → [URL_${++n}]`); return `[URL_${n}]`;});
-  n=0; text=text.replace(/\b\d{6}\/?\d{3,4}\b/g,m=>{map.push(`${m} → [RODNÉ_ČÍSLO_${++n}]`); return `[RODNÉ_ČÍSLO_${n}]`;});
+  n=0; text=text.replace(/\b\d{6}\/\d{3,4}\b/g,m=>{map.push(`${m} → [RODNÉ_ČÍSLO_${++n}]`); return `[RODNÉ_ČÍSLO_${n}]`;});
   return {text,map,code};
 }
 function applyPseudonymizationToField(){ const out=getOutboundStudentText(); if(!out.text.trim()){toast('Nejdřív vlož text.','warn');return;} $('studentText').value=out.text; state.studentText=out.text; renderAnonMap(out); updateStats(); updatePromptPreview(); saveState(); toast('Text v poli byl nahrazen pseudonymizovanou verzí.','warn'); }
@@ -36,9 +37,10 @@ function scanSensitiveText(text, identity='', extraPii='', scope='student'){
   const add=(type,value,reason,severity='warn',auto=false)=>{ value=privacyNormalizeValue(value); if(!value || value.length<2) return; const low=value.toLowerCase(); if(known.some(k=>k && low===k)) return; findings.push({scope,type,value,reason,severity,auto,selected:!auto,snippet:privacySnippet(raw,value)}); };
   const each=(re,type,reason,severity='warn',auto=false,group=0)=>{ let m; const r=new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g'); while((m=r.exec(raw))){ add(type,m[group]||m[0],reason,severity,auto); if(m[0].length===0) r.lastIndex++; } };
   each(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'e-mail','e-mail se nahrazuje automaticky', 'ok', true);
-  each(/\b(?:\+?420\s*)?(?:\d{3}[\s.-]*){3}\b/g,'telefon','telefonní číslo se nahrazuje automaticky', 'ok', true);
+  each(/(?<!\d)(?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|\+?420\d{9})(?!\d)/g,'telefon','telefonní číslo se nahrazuje automaticky', 'ok', true);
   each(/https?:\/\/\S+/gi,'URL','odkaz se nahrazuje automaticky', 'ok', true);
-  each(/\b\d{6}\/?\d{3,4}\b/g,'rodné číslo','rodné číslo / podobný číselný identifikátor', 'ok', true);
+  each(/\b\d{9,10}\b/g,'číselný identifikátor','devítimístná sekvence může být telefon nebo jiný identifikátor; ověř ručně', 'warn', false);
+  each(/\b\d{6}\/\d{3,4}\b/g,'rodné číslo','rodné číslo / podobný číselný identifikátor', 'ok', true);
   each(/\b\d{3}\s?\d{2}\b/g,'PSČ','poštovní směrovací číslo může identifikovat adresu', 'warn', false);
   each(/\b[1-9]\.?\s?[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]\b/g,'třída','možné označení třídy', 'warn', false);
   each(/\b(?:Gymnázium|ZŠ|SŠ|SOŠ|SOU|Střední škola|Základní škola|school|college)\b[^\n.,;:!?]{0,70}/gi,'škola','možný název školy nebo instituce', 'warn', false);

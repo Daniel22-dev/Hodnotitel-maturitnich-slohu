@@ -51,7 +51,7 @@ const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
 const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workflows/deploy.yml'):'';
 
-check(pkg.version==='1.3.6','package verze 1.3.6');
+check(pkg.version==='1.3.7','package verze 1.3.7');
 check(contains(release,"version:'__APP_VERSION__'"),'release přebírá verzi z build tokenu');
 check(contains(sw,"APP_VERSION='__APP_VERSION__'"),'service worker přebírá verzi z build tokenu');
 check(contains(body,'v__APP_VERSION__'),'UI přebírá verzi z build tokenu');
@@ -477,6 +477,12 @@ check(contains(build,"'rubric'"),'build kopíruje rubriku');
 check(contains(build,"execFileSync(process.execPath,['--check'"),'build kontroluje dist/app.js');
 check(contains(build,"manifest.limits?.maxSeriesSize!==20"),'build kontroluje limit manifestu');
 check(contains(build,"rubric.version!=='2026.04.27-r1'"),'build kontroluje verzi rubriky');
+
+
+check(existsSync(join(ROOT,'src','manual','index.html')),'Zdrojový interaktivní manuál existuje.');
+const manualSource=readFileSync(join(ROOT,'src','manual','index.html'),'utf8');
+check(manualSource.includes('data-ghrab-access-bootstrap')&&manualSource.includes('const APP_ID="essay-evaluator"'),'Manuál dědí oprávnění Hodnotitele z AI Studia.');
+check(readFileSync(join(ROOT,'src','body.html'),'utf8').includes('manual-launch-btn'),'Záhlaví obsahuje samostatné tlačítko interaktivního manuálu.');
 
 console.log(`\n${pass} PASS / ${fail} FAIL`);
 if(fail)process.exit(1);

@@ -1,6 +1,6 @@
 const APP_VERSION='__APP_VERSION__';
 const CACHE=`hodnotitel-${APP_VERSION}`;
-const CORE=['./','./index.html','./app.js','./access-bootstrap.js','./access-gate.css','./manifest.webmanifest','./assets/ghrab-logo.png','./icons/hodnotitel-shield-20260711-32.png','./icons/hodnotitel-shield-20260711-180.png','./icons/hodnotitel-shield-20260711-192.png','./icons/hodnotitel-shield-20260711-512.png','./icons/hodnotitel-shield-20260711-maskable-512.png','./vendor/jszip.min.js'];
+const CORE=['./','./index.html','./app.js','./access-bootstrap.js','./access-gate.css','./manifest.webmanifest','./manual/','./manual/index.html','./assets/ghrab-logo.png','./icons/hodnotitel-shield-20260711-32.png','./icons/hodnotitel-shield-20260711-180.png','./icons/hodnotitel-shield-20260711-192.png','./icons/hodnotitel-shield-20260711-512.png','./icons/hodnotitel-shield-20260711-maskable-512.png','./vendor/jszip.min.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('hodnotitel-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{

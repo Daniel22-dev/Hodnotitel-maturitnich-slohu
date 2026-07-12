@@ -37,6 +37,7 @@
       "en": "Evidence-based Matura essay assessment with anonymisation, teacher review, professional reports and anonymous class analytics."
     },
     "launchUrl": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/",
+    "manualUrl": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/manual/",
     "repository": "daniel22-dev/Hodnotitel-maturitnich-slohu",
     "icon": "assets/apps/essay-evaluator-v2.png",
     "accent": "#d7a04b",

@@ -1,4 +1,4 @@
-const APP_VERSION='1.3.7';
+const APP_VERSION='1.4.0';
 const CACHE=`hodnotitel-${APP_VERSION}`;
 const CORE=['./','./index.html','./app.js','./access-bootstrap.js','./access-gate.css','./manifest.webmanifest','./manual/','./manual/index.html','./assets/ghrab-logo.png','./icons/hodnotitel-shield-20260711-32.png','./icons/hodnotitel-shield-20260711-180.png','./icons/hodnotitel-shield-20260711-192.png','./icons/hodnotitel-shield-20260711-512.png','./icons/hodnotitel-shield-20260711-maskable-512.png','./vendor/jszip.min.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));

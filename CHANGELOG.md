@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.2 – Aktuální manuál v pracovním prostoru AI Studia
+
+- interaktivní manuál byl sjednocen s funkcemi aktuálního Hodnotitele 1.5.2;
+- tlačítko manuálu nyní otevírá příručku ve stejném rámci aplikace místo nové karty prohlížeče;
+- opravná verze obnovuje PWA cache, aby se nový manuál načetl i ve dříve nainstalované aplikaci.
+
 ## 1.5.1 – Zařazení auditních oprav do jednotné certifikační brány
 
 - zachovány všechny funkční a bezpečnostní opravy auditu 1.5.0 a jejich dynamické regrese;

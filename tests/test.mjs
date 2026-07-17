@@ -51,7 +51,7 @@ const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
 const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workflows/deploy.yml'):'';
 
-check(pkg.version==='1.5.1','package verze 1.5.1');
+check(pkg.version==='1.5.2','package verze 1.5.2');
 check(contains(text('README.md'),pkg.version),'README obsahuje aktuální verzi');
 check(contains(text('CHANGELOG.md'),`## ${pkg.version}`),'CHANGELOG obsahuje aktuální verzi');
 check(contains(release,"version:'__APP_VERSION__'"),'release přebírá verzi z build tokenu');

@@ -1,12 +1,12 @@
-# QA report — Hodnotitel maturitních slohů 1.5.1
+# QA report — Hodnotitel maturitních slohů 1.5.2
 
 **Datum kontroly:** 17. 7. 2026  
 **QA standard:** GHRAB-QA-1.0.2  
 **Lokální verdikt:** `AUTOMATED_READY` — deployed smoke test zatím nebyl proveden.
 
-## Co verze 1.5.1 představuje
+## Co verze 1.5.2 představuje
 
-Verze 1.5.1 zachovává všechny auditní opravy 1.5.0 a doplňuje zpět ekosystémové bezpečnostní a release pojistky: reprodukovatelný lockfile, fail-closed centrální guard, atomickou PWA precache a jednotnou GHRAB QA bránu.
+Verze 1.5.2 zachovává všechny auditní opravy 1.5.0 a doplňuje zpět ekosystémové bezpečnostní a release pojistky: reprodukovatelný lockfile, fail-closed centrální guard, atomickou PWA precache a jednotnou GHRAB QA bránu.
 
 ## Interní release brána
 
@@ -14,7 +14,7 @@ Verze 1.5.1 zachovává všechny auditní opravy 1.5.0 a doplňuje zpět ekosyst
 - **0 chyb.**
 - 19 JavaScriptových modulů a 6 CSS modulů.
 - Osmipoložková rubrika a její pravidla nebyly měněny.
-- Build: verze 1.5.1, rubrika `2026.04.27-r1`.
+- Build: verze 1.5.2, rubrika `2026.04.27-r1`.
 - `npm ci` a `npm audit --audit-level=high` jsou díky lockfilu reprodukovatelné.
 
 ## Společné GHRAB QA brány
@@ -52,4 +52,4 @@ Verze 1.5.1 zachovává všechny auditní opravy 1.5.0 a doplňuje zpět ekosyst
 
 Automatická sada nemůže sama potvrdit skutečné živé volání Gemini, Batch API, Apps Script, doručení e-mailu ani vzdálený permit na produkční adrese. Tyto oblasti jsou součástí deployed smoke testu.
 
-Veřejná databázová zadání a klientské používání API klíče zůstávají dokumentovanými provozními rozhodnutími. Nejde o nově skryté vady verze 1.5.1; případný přesun zadání do privátního importu a API volání na školní backend je samostatná budoucí architektonická změna.
+Veřejná databázová zadání a klientské používání API klíče zůstávají dokumentovanými provozními rozhodnutími. Nejde o nově skryté vady verze 1.5.2; případný přesun zadání do privátního importu a API volání na školní backend je samostatná budoucí architektonická změna.

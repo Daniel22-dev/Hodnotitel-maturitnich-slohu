@@ -1,8 +1,8 @@
-# Hodnotitel maturitních slohů 1.5.1
+# Hodnotitel maturitních slohů 1.5.2
 
 Modulární webová aplikace pro anonymizaci, individuální i dávkové hodnocení, učitelskou kontrolu, profesionální reporty a bezpečné rozeslání zpětné vazby k maturitním slohům z anglického jazyka. Aplikace je součástí ekosystému **AI Studio GHRAB**.
 
-## Co přináší verze 1.5.1
+## Co přináší verze 1.5.2
 
 - plně funkční ruční AI režim: prompt obsahuje JSON schéma a importovaný JSON prochází deterministickým bodováním a validační bránou;
 - opravený počet slov bez technické značky nahraného souboru a bezpečnější rozpoznání skutečného nadpisu;
@@ -60,7 +60,7 @@ API klíč nepatří do zdrojového kódu. Trvalé uložení vyžaduje samostatn
 
 ## Ostrá zadání
 
-Repozitář aktuálně obsahuje i vestavěnou sadu označenou jako ostrá maturitní verze. Je proto nutné počítat s tím, že obsah veřejného repozitáře a výsledného `app.js` není tajný. Přesun této sady do neveřejného lokálního importu je samostatné provozní rozhodnutí autora a verze 1.5.1 jej bez výslovného souhlasu nemění.
+Repozitář aktuálně obsahuje i vestavěnou sadu označenou jako ostrá maturitní verze. Je proto nutné počítat s tím, že obsah veřejného repozitáře a výsledného `app.js` není tajný. Přesun této sady do neveřejného lokálního importu je samostatné provozní rozhodnutí autora a verze 1.5.2 jej bez výslovného souhlasu nemění.
 
 ## Autorství
 
@@ -68,6 +68,6 @@ Autor a vývojový garant: **Daniel Baláž**
 Školní projekt Gymnázia, Ostrava-Hrabůvka.
 
 
-## Jednotná certifikace 1.5.1
+## Jednotná certifikace 1.5.2
 
 Úplný lokální průchod se spouští příkazy `npm ci` a `npm run qa:release`. Auditní regrese 1.5.0 jsou zachovány a navíc jsou zapojené do GHRAB QA 1.0.2. Automatické PASS bez ruční galerie a deployed smoke testu neznamená stav READY.

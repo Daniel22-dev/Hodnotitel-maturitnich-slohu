@@ -112,9 +112,9 @@ const EMBEDDED_TASKS = {
         "genre": "narration",
         "number": 1,
         "title": "Cvičná sada – Narration 1 – A mistake that taught me a lesson",
-        "taskText": "Napište vypravování na téma “A mistake that taught me a lesson“ v rozsahu 200–250 slov, ve kterém:\nPovinné body zadání:\n• představíte situaci, kdy a kde se příběh odehrávál,\n• popíšete, co přesně se stalo a jaké bylo vaše chybné rozhodnutí,\n• vysvětlíte, jaké mělo vaše rozhodnutí důsledky,\n• napíšete, co jste se z celé situace naučili.",
+        "taskText": "Napište vypravování na téma “A mistake that taught me a lesson“ v rozsahu 200–250 slov, ve kterém:\nPovinné body zadání:\n• představíte situaci, kdy a kde se příběh odehrával,\n• popíšete, co přesně se stalo a jaké bylo vaše chybné rozhodnutí,\n• vysvětlíte, jaké mělo vaše rozhodnutí důsledky,\n• napíšete, co jste se z celé situace naučili.",
         "requirements": [
-          "R1: představíte situaci, kdy a kde se příběh odehrávál,",
+          "R1: představíte situaci, kdy a kde se příběh odehrával,",
           "R2: popíšete, co přesně se stalo a jaké bylo vaše chybné rozhodnutí,",
           "R3: vysvětlíte, jaké mělo vaše rozhodnutí důsledky,",
           "R4: napíšete, co jste se z celé situace naučili."
@@ -146,7 +146,7 @@ const EMBEDDED_TASKS = {
         "genre": "complaint",
         "number": 1,
         "title": "Cvičná sada – Complaint 1 – Hostel accommodation",
-        "taskText": "Představte si, že jste byli ubytováni v hostelu během školního výletu do zahraničí. Bohužel ubytování neodpovídalo inzerované nabídce. Napište vedení hostu stížnost na téma Problems with Hostel Accommodation v rozsahu 200–250 slov, ve které:\nPovinné body zadání:\n• popíšete, jaké ubytování vám bylo slíbeno, a co jste skutečně obdrželi,\n• uvedete konkrétní problémy (např. čistota, hluk, vybavení pokoje),\n• vysvětlíte, jak vás situace ovlivnila,\n• navrhnete, jak by se měl hostel zachovat (náhrada, omluva apod.).",
+        "taskText": "Představte si, že jste byli ubytováni v hostelu během školního výletu do zahraničí. Bohužel ubytování neodpovídalo inzerované nabídce. Napište vedení hostelu stížnost na téma Problems with Hostel Accommodation v rozsahu 200–250 slov, ve které:\nPovinné body zadání:\n• popíšete, jaké ubytování vám bylo slíbeno, a co jste skutečně obdrželi,\n• uvedete konkrétní problémy (např. čistota, hluk, vybavení pokoje),\n• vysvětlíte, jak vás situace ovlivnila,\n• navrhnete, jak by se měl hostel zachovat (náhrada, omluva apod.).",
         "requirements": [
           "R1: popíšete, jaké ubytování vám bylo slíbeno, a co jste skutečně obdrželi,",
           "R2: uvedete konkrétní problémy (např. čistota, hluk, vybavení pokoje),",
@@ -336,7 +336,7 @@ const EMBEDDED_TASKS = {
         "genre": "narration",
         "number": 1,
         "title": "Ostrá maturitní verze – Narration 1 – Journey by Public Transport",
-        "taskText": "Rozhodla/a jste se napsat vypravování do školního anglického časopisu o tom, co se přihodilo během vaší cesty dopravní prostředkem.\nNapište vypravování v rozsahu 200-250 slov, ve kterém\nPovinné body zadání:\n• uvedete kdy, kde a jakým dopravním prostředkem jste cestoval/a,\n• budete vypravovat o tom, co se v průběhu vaší cesty dopravním prostředkem přihodilo,\n• popíšete pocity, které ve vás tato příhoda vyvolala,\n• uvedete, zda byste tento dopravní prostředek doporučili ostatním a proč.",
+        "taskText": "Rozhodl/a jste se napsat vypravování do školního anglického časopisu o tom, co se přihodilo během vaší cesty dopravním prostředkem.\nNapište vypravování v rozsahu 200-250 slov, ve kterém\nPovinné body zadání:\n• uvedete kdy, kde a jakým dopravním prostředkem jste cestoval/a,\n• budete vypravovat o tom, co se v průběhu vaší cesty dopravním prostředkem přihodilo,\n• popíšete pocity, které ve vás tato příhoda vyvolala,\n• uvedete, zda byste tento dopravní prostředek doporučili ostatním a proč.",
         "requirements": [
           "R1: uvedete kdy, kde a jakým dopravním prostředkem jste cestoval/a,",
           "R2: budete vypravovat o tom, co se v průběhu vaší cesty dopravním prostředkem přihodilo,",
@@ -352,7 +352,7 @@ const EMBEDDED_TASKS = {
         "genre": "narration",
         "number": 2,
         "title": "Ostrá maturitní verze – Narration 2 – A Time I Helped Someone",
-        "taskText": "Napište vypravování na téma: “A Time I helped Someone“ v rozsahu 200–250 slov, ve kterém:\nPovinné body zadání:\n• uvedete, kdy a kde se celá situace odehrála,\n• popíšete konkrétní problém nebo obtíže druhé osoby,\n• popíšete, jak přesně jste druhé osobě pomohl/a, jaké překážky jste musel/a překonat,\n• napíšete, jak celá situace dopadla a jak jste se po poskytnutí pomoci cítil/a.",
+        "taskText": "Napište vypravování na téma: “A Time I Helped Someone“ v rozsahu 200–250 slov, ve kterém:\nPovinné body zadání:\n• uvedete, kdy a kde se celá situace odehrála,\n• popíšete konkrétní problém nebo obtíže druhé osoby,\n• popíšete, jak přesně jste druhé osobě pomohl/a, jaké překážky jste musel/a překonat,\n• napíšete, jak celá situace dopadla a jak jste se po poskytnutí pomoci cítil/a.",
         "requirements": [
           "R1: uvedete, kdy a kde se celá situace odehrála,",
           "R2: popíšete konkrétní problém nebo obtíže druhé osoby,",

@@ -168,71 +168,27 @@ function updateRetryStatus(context,attempt,delay,e){
 }
 
 async function callGemini(key,model,prompt,files,signal){
-  const maxOut = state.evalMode==='deep'?32768:state.evalMode==='standard'?12288:4096;
   const parts=[{text:prompt}];
-  for(const f of files) parts.push({inline_data:{mime_type:f.mime,data:dataUrlToBase64(f.dataUrl)}});
-  const makeBody=(contents)=>({contents,generationConfig:{temperature:0.12,topP:0.85,maxOutputTokens:maxOut}});
-  async function postContentsNoRetry(contents,apiVersion){
-    const url=geminiGenerateUrl(apiVersion,model);
-    let res;
-    try{ res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(makeBody(contents)),signal}); }
-    catch(e){ if(e.name==='AbortError') throw makeGeminiApiError('Generování bylo zrušeno.',0,apiVersion,e); throw makeGeminiApiError('Spojení s Gemini selhalo: '+e.message,0,apiVersion,e); }
-    const data=await res.json().catch(()=>({}));
-    if(!res.ok){
-      const msg=data?.error?.message||`HTTP ${res.status}`; const status=data?.error?.status?` (${data.error.status})`:''; const modelHint = res.status===404?' Model pravděpodobně není dostupný pro tento klíč nebo API verzi; ověř dostupné modely tlačítkem Ověřit modely.':''; const quotaHint = res.status===429?' Pravděpodobně byl dosažen minutový nebo denní limit projektu. Počkám a zkusím požadavek opakovat.':'', tokenHint = res.status===400 && /max.?output|token/i.test(msg)?' Tento model zřejmě nepodporuje tak vysoký výstupní limit; zkus standardní režim nebo jiný Flash model.':'', retryAfterMs=parseRetryAfterMs(res.headers?.get?.('retry-after'));
-      const err=makeGeminiApiError('Gemini API '+apiVersion+': '+msg+status+modelHint+quotaHint+tokenHint,res.status,apiVersion,data);
-      err.retryAfterMs=retryAfterMs;
-      throw err;
-    }
-    const finish=data?.candidates?.[0]?.finishReason||'';
-    const txt=(data.candidates||[]).flatMap(c=>(c.content?.parts||[]).map(p=>p.text||'')).join('\n').trim();
-    return {txt,finish,apiVersion};
-  }
-  async function postContents(contents,apiVersion,context='Gemini'){
+  for(const f of files)parts.push({inline_data:{mime_type:f.mime,data:dataUrlToBase64(f.dataUrl)}});
+  const body={contents:[{role:'user',parts}],generationConfig:{temperature:0.05,topP:0.8,maxOutputTokens:16384,responseMimeType:'application/json'}};
+  async function post(apiVersion){
     for(let attempt=1;attempt<=GEMINI_RETRY_MAX_ATTEMPTS;attempt++){
-      try{ return await postContentsNoRetry(contents,apiVersion); }
-      catch(e){
-        if(!isRetryableGeminiError(e) || attempt>=GEMINI_RETRY_MAX_ATTEMPTS) throw e;
-        const delay=geminiRetryDelayMs(attempt,e);
-        updateRetryStatus(context,attempt,delay,e);
-        await sleepWithAbort(delay,signal);
+      try{
+        const res=await fetch(geminiGenerateUrl(apiVersion,model),{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),signal});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok){const err=makeGeminiApiError(data?.error?.message||`HTTP ${res.status}`,res.status,apiVersion,data);err.retryAfterMs=parseRetryAfterMs(res.headers?.get?.('retry-after'));throw err;}
+        const finish=data?.candidates?.[0]?.finishReason||'';
+        if(finish==='MAX_TOKENS')throw makeGeminiApiError('Přepis je delší než výstupní limit modelu. Rozděl přílohy na méně stran na jednoho studenta.',422,apiVersion,data);
+        const text=(data.candidates||[]).flatMap(c=>(c.content?.parts||[]).map(p=>p.text||'')).join('').trim();
+        if(!text)throw makeGeminiApiError('Gemini nevrátilo textový přepis.',0,apiVersion,data);
+        return text;
+      }catch(e){
+        if(e?.name==='AbortError')throw makeGeminiApiError('Přepis byl zrušen.',0,apiVersion,e);
+        if(!Number.isFinite(e?.httpStatus))e=makeGeminiApiError('Spojení s Gemini při přepisu selhalo: '+(e?.message||e),0,apiVersion,e);
+        if(!isRetryableGeminiError(e)||attempt>=GEMINI_RETRY_MAX_ATTEMPTS)throw e;
+        const delay=geminiRetryDelayMs(attempt,e);updateRetryStatus('Přepis přílohy',attempt,delay,e);await sleepWithAbort(delay,signal);
       }
     }
   }
-  let contents=[{role:'user',parts}];
-  let apiVersion=GEMINI_API_VERSION_PRIMARY;
-  let first;
-  try{ first=await postContents(contents,apiVersion,'Gemini hodnocení'); }
-  catch(e){
-    if(shouldFallbackToV1Beta(e)){
-      apiVersion=GEMINI_API_VERSION_FALLBACK;
-      first=await postContents(contents,apiVersion,'Gemini fallback v1beta');
-      if($('runStatus')) $('runStatus').textContent='Model nebyl dostupný přes stabilní v1, použil se fallback v1beta.';
-    }else throw e;
-  }
-  let txt=first.txt;
-  if(!txt) throw new Error('Gemini nevrátil textový výstup. Zkus zkrátit vstup nebo změnit model.');
-  let finish=first.finish;
-  let attempts=0;
-  while(finish==='MAX_TOKENS' && attempts<2){
-    attempts++;
-    const continuePrompt=`Pokračuj v přerušeném hodnocení přesně tam, kde předchozí odpověď skončila. Neopakuj už hotové části. Nepiš úvod. Zachovej stejný Markdown styl, češtinu, kód studenta a hodnoticí rubriku. Pokud ještě nebyl uveden validní MACHINE_SUMMARY_JSON, uveď ho v pokračování; pokud už uveden byl, neopakuj ho.`;
-    const followContents=[
-      {role:'user',parts},
-      {role:'model',parts:[{text:txt}]},
-      {role:'user',parts:[{text:continuePrompt}]}
-    ];
-    try{
-      const more=await postContents(followContents,apiVersion,'Pokračování dlouhé odpovědi');
-      if(more.txt) txt += `\n\n---\n\n${more.txt}`;
-      finish=more.finish;
-    }catch(e){
-      txt += `\n\n> ⚠️ Poznámka aplikace: Gemini narazilo na výstupní limit a automatické pokračování selhalo (${e.message||e}). Zobrazená zpětná vazba může být neúplná.`;
-      finish='STOP';
-    }
-  }
-  if(finish==='MAX_TOKENS'){
-    txt += `\n\n> ⚠️ Poznámka aplikace: Odpověď byla velmi dlouhá a ani po automatickém pokračování se nevešla celá. Zpětná vazba výše je částečná. Doporučení: použij Standardní hodnocení, zkrať vstup, nebo hodnot práci samostatně.`;
-  }
-  return txt;
+  try{return await post(GEMINI_API_VERSION_PRIMARY);}catch(e){if(shouldFallbackToV1Beta(e))return post(GEMINI_API_VERSION_FALLBACK);throw e;}
 }

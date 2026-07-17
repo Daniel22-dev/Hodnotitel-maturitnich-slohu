@@ -1,0 +1,115 @@
+{
+  "flows": [
+    {
+      "id": "HOD-START",
+      "name": "Učitel otevře hodnoticí sérii",
+      "type": "browser",
+      "url": "/index.html",
+      "expectedText": "Hodnotitel maturitních slohů",
+      "steps": [
+        {
+          "action": "wait",
+          "ms": 200
+        },
+        {
+          "action": "click",
+          "selector": "#privacyAckBtn"
+        },
+        {
+          "action": "assertVisible",
+          "selector": "#seriesName"
+        },
+        {
+          "action": "fill",
+          "selector": "#seriesName",
+          "value": "QA série"
+        },
+        {
+          "action": "fill",
+          "selector": "#seriesClass",
+          "value": "4.A"
+        }
+      ]
+    },
+    {
+      "id": "HOD-RUBRIC",
+      "name": "Verzovaná rubrika je součástí buildu",
+      "type": "static",
+      "assertions": [
+        {
+          "file": "src/rubric/rubric-v2026.04.27-r1.json",
+          "regex": "2026\\.04\\.27-r1"
+        }
+      ]
+    },
+    {
+      "id": "HOD-MANUAL-ROUNDTRIP",
+      "name": "Ruční AI JSON prochází autoritativním vyhodnocením",
+      "type": "static",
+      "assertions": [
+        {
+          "file": "src/js/45-evaluation-contract.js",
+          "regex": "responseSchema|RESPONSE_SCHEMA|EVALUATION_RESPONSE_SCHEMA",
+          "flags": "i"
+        },
+        {
+          "file": "src/js/50-wordcount-offline.js",
+          "regex": "JSON\\.parse[\\s\\S]{0,1000}finalizeEvaluation",
+          "flags": "i"
+        },
+        {
+          "file": "src/js/50-wordcount-offline.js",
+          "regex": "evaluationToLegacyResult",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "id": "HOD-DATA-MINIMIZATION",
+      "name": "Ukládaný stav neobsahuje surovou Batch odpověď",
+      "type": "static",
+      "assertions": [
+        {
+          "file": "src/js/95-workflow-ui.js",
+          "regex": "serializableBatchJob"
+        },
+        {
+          "file": "src/js/95-workflow-ui.js",
+          "notRegex": "batchJob\\s*:\\s*state\\.batchJob"
+        }
+      ]
+    },
+    {
+      "id": "HOD-ATTACHMENT-GATE",
+      "name": "Obrazová nebo PDF práce bez textu vyžaduje přepis",
+      "type": "static",
+      "assertions": [
+        {
+          "file": "src/js/65-evaluation-workflow.js",
+          "regex": "transcript|přepis|textu",
+          "flags": "i"
+        },
+        {
+          "file": "src/body.html",
+          "regex": "Přepsat přes Gemini",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "id": "HOD-ACCESS-FAIL-CLOSED",
+      "name": "Centrální guard zůstává při chybě uzamčený",
+      "type": "static",
+      "assertions": [
+        {
+          "file": "src/access-bootstrap.js",
+          "regex": "ghrabAccess='denied'"
+        },
+        {
+          "file": "src/access-bootstrap.js",
+          "notRegex": "Nouzový offline režim|addOfflineWarning|catch\\([^)]*\\)[\\s\\S]{0,250}loadApplication\\("
+        }
+      ]
+    }
+  ]
+}

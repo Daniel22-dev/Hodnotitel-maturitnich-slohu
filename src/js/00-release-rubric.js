@@ -21,6 +21,7 @@ const BATCH_PROGRESS_SESSION_SK = 'maturitniHodnotitelBatchProgressSessionV078';
 const BATCH_PROGRESS_LOCAL_SK = 'maturitniHodnotitelBatchProgressLocalV078';
 const IMAGE_MAX_DIM = 2000;
 const IMAGE_JPEG_QUALITY = 0.82;
+const PDF_INLINE_MAX_BYTES = 15 * 1024 * 1024;
 const GENRES = [
   {id:'opinion', label:'Opinion essay', desc:'Jasný osobní názor, argumentace, závěr.'},
   {id:'for_against', label:'For and against essay', desc:'Argumenty pro i proti, vyvážený závěr.'},

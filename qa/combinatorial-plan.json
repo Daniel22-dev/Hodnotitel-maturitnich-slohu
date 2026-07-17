@@ -1,0 +1,16 @@
+{
+  "parameters": {
+    "input": ["pasted-text", "document"],
+    "length": ["short", "within-limit", "over-limit"],
+    "assignment": ["matching", "missing", "off-topic"],
+    "ptn": ["PTN1", "PTN2", "PTN3"],
+    "aiIndicator": ["low", "high"]
+  },
+  "criticalTriples": [
+    {"input":"document","length":"over-limit","assignment":"off-topic"},
+    {"input":"pasted-text","assignment":"missing","ptn":"PTN3"}
+  ],
+  "fixedScenarios": [{"input":"pasted-text","length":"within-limit","assignment":"matching","ptn":"PTN1","aiIndicator":"low"}],
+  "validator": "qa/combinatorial-validator.mjs",
+  "limitations": ["Pairwise validátor ověřuje přítomnost příslušných regresních invariantů; úplné jazykové hodnocení zůstává v nativní sadě 388 testů."]
+}

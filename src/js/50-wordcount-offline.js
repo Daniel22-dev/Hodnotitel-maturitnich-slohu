@@ -24,6 +24,7 @@ function buildCountTokens(text){
       if(seenInPara){ para++; seenInPara=false; }
       return;
     }
+    if(/^\[ZDROJ:[^\]]*\]$/i.test(line.trim())) return;
     seenInPara=true;
     line.trim().split(/\s+/).filter(Boolean).forEach((rawToken,indexInLine)=>{
       tokens.push({raw:rawToken, clean:stripOuterPunct(rawToken), norm:normalizeTokenForCount(rawToken), para, line:lineIndex, indexInLine, globalIndex:tokens.length});
@@ -33,10 +34,20 @@ function buildCountTokens(text){
   return {tokens, lines, paragraphs};
 }
 function sentenceEdgesForCount(text){
-  const parts=String(text||'').trim().split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean);
-  if(parts.length) return {first:parts[0], last:parts[parts.length-1]};
   const trimmed=String(text||'').trim();
-  return {first:trimmed||'—', last:trimmed||'—'};
+  if(!trimmed) return {first:'—',last:'—'};
+  const parts=[];
+  let start=0;
+  const re=/[.!?]+(?:\s+|$)/g;
+  let match;
+  while((match=re.exec(trimmed))){
+    const sentence=trimmed.slice(start,match.index+match[0].trimEnd().length).trim();
+    if(sentence) parts.push(sentence);
+    start=re.lastIndex;
+  }
+  const tail=trimmed.slice(start).trim();
+  if(tail) parts.push(tail);
+  return {first:parts[0]||trimmed,last:parts[parts.length-1]||trimmed};
 }
 function detectHeadingForCount(tokens, lines, taskText, taskTitle, genre){
   if(!tokens.length) return null;
@@ -56,7 +67,9 @@ function detectHeadingForCount(tokens, lines, taskText, taskTitle, genre){
   const hasBodyAfterHeading=tokens.some(t=>t.line>firstLineNo);
   const followedByBlank=hasFollowingLine && !String(nextLine).trim() && hasBodyAfterHeading;
   const titleCaseCount=firstLineTokens.filter(t=>isCapitalizedCountWord(t.raw)).length;
-  const likelyTitle = copied || followedByBlank || ['review','narration'].includes(genre||'') || (titleCaseCount>=2 && len<=8);
+  const titleCaseSignal=titleCaseCount>=2&&len<=8;
+  const genreSignal=['review','narration'].includes(genre||'')&&(followedByBlank||titleCaseSignal);
+  const likelyTitle=copied||followedByBlank||titleCaseSignal||genreSignal;
   if(!likelyTitle) return null;
   return {type:copied?'převzatý nadpis':'originální nadpis', copied, raw:rawLine, indices:firstLineTokens.map(t=>t.globalIndex)};
 }
@@ -142,7 +155,7 @@ function formatWordCountAuditForPrompt(wc){
   return `WORD_COUNT_AUDIT:\nRAW COUNT (tokeny mezi mezerami) = ${wc.rawCount}\nODEČTENÉ POLOŽKY = −${wc.deductTotal} [${formatDeductionList(wc)}]\nFINÁLNÍ POČET SLOV = ${wc.rawCount} − ${wc.deductTotal} = ${wc.finalCount}\nKONTROLA PO ODSTAVCÍCH: ${formatParagraphAudit(wc)}; součet = ${wc.paraCounts.reduce((a,b)=>a+b,0)}\nRozsah – kontrola: Z = ${wc.finalCount}; <195? ${wc.finalCount<195?'ano':'ne'}; ≥300? ${wc.finalCount>=300?'ano':'ne'}; penalizace: ${wc.finalCount>=300?'ano':'ne'}\nPoznámka: Tento audit vytvořila aplikace deterministicky před odesláním. Použij ho jako výchozí závazný výpočet; pokud při kontrole textu najdeš zjevný rozpor, upozorni učitele a vysvětli ho.`;
 }
 function localWordCountReport(text, taskText='', taskTitle='', genre=''){
-  const raw=String(text||'').trim();
+  const raw=String(text||'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(line=>!/^\[ZDROJ:[^\]]*\]$/i.test(line.trim())).join('\n').trim();
   const built=buildCountTokens(raw);
   const tokens=built.tokens;
   const deductMap=new Map();
@@ -217,24 +230,51 @@ async function copyPromptWithPrivacyGate(){
   syncStateFromFields(); commitTaskFieldsToDb(false); updateStats();
   if(!hasTaskBasics()){toast('Doplň přesné zadání a povinné body R1–Rn.','err'); goTo(1); return;}
   if(!hasStudentInput()){toast('Vlož studentský text nebo přidej přílohu.','err'); goTo(2); return;}
+  if(singleAttachmentTranscriptRequired()){showSingleTranscriptGuidance();return;}
   if(!(await privacyGateBeforeSend())) return;
-  await copyText(buildPrompt(), 'Prompt pro ruční AI zkopírován.');
+  await copyText(buildPrompt(null,true), 'Prompt pro ruční AI zkopírován včetně JSON schématu.');
 }
+function stripManualJsonFence(value){return String(value||'').trim().replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();}
+function manualStudentSnapshot(){return {code:state.studentCode||'STUDENT_001',identity:state.studentIdentity||'',extraPii:state.extraPii||'',text:state.studentText||'',files:attachedFiles||[],transcriptConfirmed:true};}
 function importManualResult(){
-  const val=$('manualResultInput')?.value||'';
-  if(!val.trim()){toast('Nejdřív vlož hotové hodnocení z AI.','warn'); return;}
-  state.result=val.trim(); batchResults=[]; renderResult(); saveState(); toast('Vložené hodnocení bylo použito jako výsledek.'); goTo(4);
+  const original=$('manualResultInput')?.value||'';
+  const val=stripManualJsonFence(original);
+  if(!val){toast('Nejdřív vlož celou JSON odpověď z AI.','warn');return;}
+  try{
+    const raw=JSON.parse(val);
+    const evaluation=finalizeEvaluation(raw,manualStudentSnapshot());
+    state.lastEvaluation=evaluation;
+    state.result=evaluationToLegacyResult(evaluation);
+    batchResults=[];
+    renderResult();saveState();goTo(4);
+    toast(evaluation.validation.ok?'Ruční výsledek prošel validační bránou.':'Ruční výsledek vyžaduje učitelskou kontrolu.',evaluation.validation.ok?'ok':'warn');
+  }catch(e){
+    if(original.includes(RESULT_JSON_START)){
+      state.result=original.trim();state.lastEvaluation=null;batchResults=[];renderResult();saveState();goTo(4);toast('Načten starší výstup ve formátu aplikace.','warn');return;
+    }
+    toast('Vložený text není JSON podle schématu — zkopíruj celou odpověď AI bez úprav. '+(e?.message||''),'err');
+  }
 }
-function downloadPromptBundleTxt(){
+async function downloadPromptBundleWithPrivacyGate(){
+  syncStateFromFields();commitTaskFieldsToDb(false);updateStats();
+  if(!hasTaskBasics()){toast('Doplň přesné zadání a povinné body R1–Rn.','err');goTo(1);return;}
+  if(!hasStudentInput()){toast('Vlož studentský text nebo přidej přílohu.','err');goTo(2);return;}
+  if(singleAttachmentTranscriptRequired()){showSingleTranscriptGuidance();return;}
+  if(!(await privacyGateBeforeSend()))return;
+  await downloadPromptBundleTxt();
+}
+async function downloadPromptBundleTxt(){
   syncStateFromFields(); commitTaskFieldsToDb(false); updateStats();
   let content='';
   if(state.inputMode==='batch'){
     const ready=batchStudents.filter(s=>String(s.text||'').trim() || (s.files||[]).length);
-    if(!ready.length){toast('V dávce není žádný připravený sloh.','warn'); return;}
-    content=ready.map((s,i)=>`==================== PROMPT ${i+1}: ${s.code} ====================\n\n${buildPrompt(s)}`).join('\n\n');
+    if(!ready.length){toast('V dávce není žádný připravený sloh.','warn');return;}
+    const unconfirmed=ready.filter(requiresTranscriptReview);if(unconfirmed.length){toast(`${unconfirmed.length} příloh nemá potvrzený digitální přepis.`, 'err');return;}
+    content='POZNÁMKA: Ruční vložení JSON výsledku zpět do aplikace je v této verzi podporováno pouze pro jeden sloh, nikoli hromadně.\n\n'+ready.map((s,i)=>`==================== PROMPT ${i+1}: ${s.code} ====================\n\n${buildPrompt(s,true)}`).join('\n\n');
   }else{
-    content=buildPrompt();
+    if(singleAttachmentTranscriptRequired()){showSingleTranscriptGuidance();return;}
+    content=buildPrompt(null,true);
   }
   const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${safeFileName(state.taskTitle||currentTask().title||'prompty')}_prompt${state.inputMode==='batch'?'y':''}.txt`; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove(); toast('Prompt(y) staženy jako TXT.');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${safeFileName(state.taskTitle||currentTask().title||'prompty')}_prompt${state.inputMode==='batch'?'y':''}.txt`; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove(); toast('Prompt(y) staženy jako TXT včetně JSON schématu.');
 }

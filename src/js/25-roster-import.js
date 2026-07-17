@@ -155,12 +155,11 @@ function rosterCandidateScore(student,person){
   return score;
 }
 function bestRosterMatch(student){
-  let best=null;
-  for(const person of state.roster||[]){
-    const score=rosterCandidateScore(student,person);
-    if(!best||score>best.score)best={person,score};
-  }
-  return best&&best.score>=20?best:null;
+  const ranked=(state.roster||[]).map(person=>({person,score:rosterCandidateScore(student,person)})).sort((a,b)=>b.score-a.score);
+  const best=ranked[0],second=ranked[1]||{score:0};
+  if(!best)return null;
+  const unambiguous=best.score>=40||(best.score>=20&&best.score-second.score>=20);
+  return unambiguous?best:null;
 }
 function syncStudentContactToResult(student){
   if(!student)return;
@@ -302,7 +301,7 @@ async function importWorksZip(file){
       if(['txt','md','csv','tsv'].includes(ext))student.text+=(student.text?'\n\n':'')+await f.text();
       else if(ext==='docx')student.text+=(student.text?'\n\n':'')+await extractDocxText(f);
       else if(/^image\//.test(f.type))student.files.push(await prepareImageAttachment(f));
-      else if(ext==='pdf')student.files.push({name:`PŘÍLOHA_${student.files.length+1}.pdf`,originalName:name,size:f.size,originalSize:f.size,mime:'application/pdf',dataUrl:await readAsDataUrl(f),wasDownscaled:false});
+      else if(ext==='pdf'){assertPdfInlineSize(f);student.files.push({name:`PŘÍLOHA_${student.files.length+1}.pdf`,originalName:name,size:f.size,originalSize:f.size,mime:'application/pdf',dataUrl:await readAsDataUrl(f),wasDownscaled:false});}
     }
     student.transcriptConfirmed=!student.files.length&&Boolean(student.text.trim());
     student.transcriptStatus=student.transcriptConfirmed?'ready':'needs-review';

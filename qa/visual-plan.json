@@ -1,0 +1,128 @@
+{
+  "scenarios": [
+    {
+      "id": "hodnotitel-privacy-intro",
+      "name": "Povinné upozornění na anonymizaci",
+      "url": "/index.html",
+      "expectedText": "Ochrana osobních údajů a anonymizace",
+      "mustVisible": [
+        "#uiModal",
+        "#privacyAckBtn"
+      ],
+      "viewports": [
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 1366,
+          "height": 768
+        }
+      ]
+    },
+    {
+      "id": "hodnotitel-main",
+      "name": "Hlavní hodnoticí workflow",
+      "url": "/index.html",
+      "expectedText": "Hodnotitel maturitních slohů",
+      "mustVisible": [
+        ".product-header h1",
+        "#step0"
+      ],
+      "viewports": [
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 412,
+          "height": 915
+        },
+        {
+          "width": 768,
+          "height": 1024
+        },
+        {
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "steps": [
+        {
+          "action": "wait",
+          "ms": 180
+        },
+        {
+          "action": "click",
+          "selector": "#privacyAckBtn"
+        },
+        {
+          "action": "wait",
+          "ms": 120
+        }
+      ]
+    },
+    {
+      "id": "hodnotitel-manual",
+      "name": "Interaktivní manuál",
+      "url": "/manual/index.html",
+      "expectedText": "Hodnotitel",
+      "mustVisible": [
+        "body"
+      ],
+      "viewports": [
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 1366,
+          "height": 768
+        }
+      ]
+    },
+    {
+      "id": "hodnotitel-manual-ai",
+      "name": "Ruční AI režim a import JSON",
+      "url": "/index.html",
+      "expectedText": "Ruční AI režim",
+      "mustVisible": [
+        "#manualPanel",
+        "#manualResultInput",
+        "#importManualResultBtn"
+      ],
+      "viewports": [
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "steps": [
+        {
+          "action": "wait",
+          "ms": 180
+        },
+        {
+          "action": "click",
+          "selector": "#privacyAckBtn"
+        },
+        {
+          "action": "evaluate",
+          "script": "document.querySelectorAll('section[id^=\\\"step\\\"]').forEach(el=>el.classList.add('hidden')); document.querySelector('#step3')?.classList.remove('hidden'); document.querySelector('#offlinePanel')?.classList.add('hidden'); document.querySelector('#geminiPanel')?.classList.add('hidden'); document.querySelector('#manualPanel')?.classList.remove('hidden'); document.querySelector('#manualPanel')?.scrollIntoView({block:'center'});"
+        },
+        {
+          "action": "wait",
+          "ms": 150
+        }
+      ]
+    }
+  ]
+}

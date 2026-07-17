@@ -98,7 +98,7 @@
         <div class="field-hint">Každý bod dej na samostatný řádek. Hodnotitel je použije pro důkazní mapu a anti-literalism kontrolu.</div>
         <textarea id="taskReqs" rows="5" placeholder="R1: ...&#10;R2: ...&#10;R3: ..."></textarea>
       </div>
-      <details class="advanced-only">
+      <details>
         <summary>Databáze zadání – import/export JSON <button class="tt-icon" type="button" data-tip="Slouží hlavně pro zálohování nebo ruční opravy zadání. Import přepíše lokální databázi uloženou v tomto prohlížeči." onclick="event.stopPropagation()">?</button></summary>
         <div class="small-muted">JSON slouží pro zálohu nebo ruční úpravu vestavěné databáze. Import přepíše lokální databázi v tomto prohlížeči.</div>
         <textarea id="taskJson" class="json-area" rows="10"></textarea>
@@ -124,7 +124,7 @@
 
         <div class="workflow-panel roster-panel">
           <div class="workflow-panel-head"><div><span class="workflow-eyebrow">1 · Skupina studentů</span><h2>Vlož seznam z IS</h2><p>Vlož e-maily oddělené čárkou, středníkem nebo novým řádkem. Podporován je také formát jméno; školní e-mail. Identita zůstává lokálně, do Gemini odchází pouze kód STUDENT_###.</p></div><span class="workflow-limit">max. 20</span></div>
-          <textarea id="rosterInput" rows="6" aria-describedby="rosterParseStatus" placeholder="novak.jan@ghrabuvka.cz, mala.eva@ghrabuvka.cz&#10;nebo&#10;Jan Novák; novak.jan@ghrabuvka.cz"></textarea>
+          <textarea id="rosterInput" rows="6" aria-describedby="rosterParseStatus" placeholder="jan.novak@example.edu, eva.mala@example.edu&#10;nebo&#10;Jan Novák; jan.novak@example.edu"></textarea>
           <div id="rosterParseStatus" class="roster-parse-status" aria-live="polite"><span>Podporované oddělovače: čárka, středník nebo nový řádek.</span></div>
           <div class="split-actions"><button class="btn-mini" id="importRosterBtn" type="button">Načíst skupinu</button><button class="btn-mini" id="clearRosterBtn" type="button">Vymazat skupinu</button></div>
           <div id="rosterTable" class="roster-table"></div>
@@ -162,6 +162,8 @@
           <div class="file-list" id="fileList"></div>
           <div class="img-preview-strip" id="imgStrip"></div>
         </div>
+        <button class="btn-mini hidden" id="transcribeSingleBtn" type="button">Přepsat přes Gemini</button>
+        <div class="small-muted"><strong>Povinný krok u fotky/PDF:</strong> nejdřív vytvoř digitální přepis a celý ho porovnej s originálem. Hodnocení se spustí až nad zkontrolovaným textem v poli.</div>
         <div class="small-muted"><strong>Fotky:</strong> obrázky se před odesláním automaticky zmenší podobně jako v generátoru testů (max. delší strana 2000 px, JPEG kvalita 0,82). Pokud je na fotce jméno, třída nebo podpis, jednosouborová aplikace to před odesláním neumí bezpečně začernit. Pro maximální anonymizaci přepiš text do pole nebo pošli fotku bez horní části se jménem.</div>
       </div>
       <div class="field" id="singleAnonField">
@@ -266,9 +268,9 @@
           <button class="btn-mini" id="downloadPromptBundleBtn" type="button">Stáhnout prompt(y) TXT</button>
         </div>
         <div class="field" style="margin-top:10px">
-          <div class="field-label">Vložit hotové hodnocení zpět <button class="tt-icon" type="button" data-tip="Sem vlož odpověď z ChatGPT/Gemini. Aplikace ji potom zobrazí jako výsledek a umožní stáhnout TXT. U dávky doporučuji vkládat postupně nebo použít automatický API režim.">?</button></div>
-          <textarea id="manualResultInput" rows="7" placeholder="Sem vlož hotové hodnocení z ručního AI režimu…"></textarea>
-          <div class="split-actions"><button class="btn-mini" id="importManualResultBtn" type="button">Použít jako výsledek</button></div>
+          <div class="field-label">Vložit hotové hodnocení zpět <button class="tt-icon" type="button" data-tip="Sem vlož celou JSON odpověď z ChatGPT, Claude nebo Gemini. Aplikace ji ověří a sama deterministicky dopočítá body i známku. Vložení zpět je podporováno pouze pro jeden sloh, nikoli hromadně.">?</button></div>
+          <textarea id="manualResultInput" rows="7" placeholder="Sem vlož celý JSON z ručního AI režimu…"></textarea>
+          <div class="split-actions"><button class="btn-mini" id="importManualResultBtn" type="button">Ověřit JSON a vytvořit výsledek</button></div>
         </div>
       </div>
 
@@ -285,7 +287,7 @@
         <div class="gemini-model-row"><label class="gemini-model-label" for="geminiModelInput">Model <button class="tt-icon" type="button" data-tip="Nech výchozí, pokud generování funguje. Tlačítko Ověřit modely načte modely dostupné pro vložený API klíč; výběr potom můžeš provést z rozbalovacího seznamu nebo tlačítek v okně.">?</button> <span class="gemini-model-status" id="geminiModelStatus">výchozí</span></label><div class="gemini-model-inputwrap"><input type="text" id="geminiModelInput" placeholder="gemini-3.5-flash" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><select id="geminiModelSelect" aria-label="Dostupné Gemini modely"><option value="">Nejdřív ověř modely…</option></select><button type="button" class="gemini-model-reset" id="resetModelBtn">Výchozí</button><button type="button" class="gemini-model-reset" id="checkModelsBtn">Ověřit modely</button></div><div class="gemini-note" id="geminiModelNote">Primárně se používá stabilní Gemini API v1; pokud model není dostupný přes v1, aplikace automaticky zkusí fallback v1beta. Při dávce se 429/5xx a síťové chyby opakují s backoffem.</div></div>
       </div>
       <div class="summary-grid" id="finalStats"></div>
-      <details class="advanced-only" open>
+      <details open>
         <summary>Náhled promptu / ručního zadání pro AI <button class="tt-icon" type="button" data-tip="Kontrolní náhled. U dlouhých promptů může být zkrácený, ale skutečné odeslání použije plný prompt." onclick="event.stopPropagation()">?</button></summary>
         <div class="preview-box"><pre id="promptPreview"></pre></div>
         <button class="btn-outline" id="copyPromptBtn">Zkopírovat prompt</button>

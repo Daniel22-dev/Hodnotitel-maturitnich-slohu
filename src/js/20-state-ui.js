@@ -1,6 +1,6 @@
 let tasks = loadTasks();
 let state = {
-  step:0, appMode:'advanced', workMode:'offline', set:'practice', genre:'opinion', taskIndex:0, evalMode:'deep', outputStyle:'teacher', resultView:'teacher',
+  step:0, workMode:'offline', set:'practice', genre:'opinion', taskIndex:0, evalMode:'deep', outputStyle:'teacher', resultView:'teacher',
   taskTitle:'', taskText:'', taskReqs:'', studentText:'', studentIdentity:'', studentCode:'STUDENT_001', extraPii:'', inputMode:'single', privacyMode:'strict', privacyApprovedHash:'', result:'', teacherReview:{sections:{}, score_total:null, grade:null, note:'', verified:false, verifiedAt:''}
 };
 let abortController = null;
@@ -12,7 +12,6 @@ let geminiAvailableModelsApiVersion = '';
 let attachedFiles = [];
 let batchStudents = [];
 let batchResults = [];
-let showRaw = false;
 const $ = id => document.getElementById(id);
 
 const RESULT_JSON_START = '=== MACHINE_SUMMARY_JSON ===';
@@ -21,48 +20,6 @@ const RESULT_FEEDBACK_START = '=== FEEDBACK_MARKDOWN ===';
 const RESULT_VIEW_MARKERS = {teacher:'=== TEACHER_DETAIL ===', student:'=== STUDENT_FEEDBACK ===', record:'=== RECORD_TABLE ==='};
 const RESULT_SECTION_KEYS = ['zadani_a_rozsah','odstavce_a_koherence','lexikalni_a_spellingove_chyby','gramaticke_chyby','obsah','ptn_a_koheze','uroven_slovni_zasoby','uroven_gramatiky'];
 const RESULT_SECTION_LABELS = {zadani_a_rozsah:'Zadání a rozsah',odstavce_a_koherence:'Odstavce a koherence',lexikalni_a_spellingove_chyby:'Lexikální a spellingové chyby',gramaticke_chyby:'Gramatické chyby',obsah:'Obsah',ptn_a_koheze:'PTN a koheze',uroven_slovni_zasoby:'Úroveň slovní zásoby',uroven_gramatiky:'Úroveň gramatiky'};
-const RESULT_SUMMARY_INSTRUCTIONS = `VÝSTUPNÍ FORMÁT – STRUKTUROVANÝ SOUHRN + ČITELNÁ ZPĚTNÁ VAZBA:
-1) Úplně na začátek odpovědi vlož validní JSON mezi přesné značky:
-=== MACHINE_SUMMARY_JSON ===
-{
-  "schema_version": "1.0",
-  "student_code": "STUDENT_001",
-  "final_word_count": 0,
-  "raw_word_count": 0,
-  "deducted_word_count": 0,
-  "score_total": 0,
-  "grade": 5,
-  "fail_signal": false,
-  "fail_reason": null,
-  "sections": {
-    "zadani_a_rozsah": 0,
-    "odstavce_a_koherence": 0,
-    "lexikalni_a_spellingove_chyby": 0,
-    "gramaticke_chyby": 0,
-    "obsah": 0,
-    "ptn_a_koheze": 0,
-    "uroven_slovni_zasoby": 0,
-    "uroven_gramatiky": 0
-  },
-  "ai_language_estimate_percent": 0,
-  "json_confidence": "vysoká"
-}
-=== END_MACHINE_SUMMARY_JSON ===
-2) JSON musí být validní: žádné komentáře, žádné trailing commas, žádný Markdown ani code fence uvnitř JSON bloku.
-3) Pokud hodnotíš pouze počet slov v režimu NEHODNOŤ, nech score_total, grade a sections jako null, ale final_word_count/raw_word_count/deducted_word_count vyplň.
-4) Hned po JSON bloku vlož značku:
-=== FEEDBACK_MARKDOWN ===
-5) Teprve potom napiš čitelnou zpětnou vazbu v Markdownu pro učitele.
-6) Čitelná zpětná vazba nesmí měnit body oproti JSONu. Pokud v textu uvedeš body/známku/slova, musí přesně odpovídat JSONu.
-7) Nepiš HTML. Nepiš programátorské code fences. JSON blok je jediná strojově čitelná část výstupu.
-8) Po značce === FEEDBACK_MARKDOWN === musí následovat přesně tři oddělené Markdown sekce v tomto pořadí:
-=== TEACHER_DETAIL ===
-plná učitelská zpětná vazba podle rubriky
-=== STUDENT_FEEDBACK ===
-stručná a srozumitelná zpětná vazba pro studenta bez interních technických poznámek a bez domněnek o AI jako obvinění
-=== RECORD_TABLE ===
-tabulka pro evidenci: body v 8 kategoriích, součet, známka, final_word_count, fail signál a 3–6 hlavních důvodů.
-9) Všechny tři sekce vycházejí ze stejného hodnocení a nesmí si odporovat.`;
 function toast(msg,type='ok'){
   const el=document.createElement('div'); el.className=`toast ${type==='err'?'err':type==='warn'?'warn':''}`; el.textContent=msg; $('toastStack').appendChild(el);
   setTimeout(()=>el.classList.add('visible'),20); setTimeout(()=>{el.classList.remove('visible'); setTimeout(()=>el.remove(),220)},4200);
@@ -119,16 +76,16 @@ function initTooltips(){ document.querySelectorAll('.tt-icon[data-tip]').forEach
 
 const CHANGELOG_MAX_ENTRIES = 10;
 const CHANGELOG = [
-  {version:APP_VERSION+' AI STUDIO EDITION', items:['Přidán úplný interaktivní manuál dostupný samostatným tlačítkem 📖 v pravém horním rohu.', 'Manuál se otevírá v nové kartě, takže zachová rozpracovanou hodnoticí sérii a nekoliduje s kontextovými otazníky, ochranou údajů ani deníkem změn.', 'Přímý přístup k manuálu používá stejné oprávnění AI Studia jako Hodnotitel a manuál je součástí offline PWA balíčku.']},
+  {version:APP_VERSION+' AI STUDIO EDITION', items:['Opraven ruční AI režim: prompt obsahuje úplné JSON schéma a vložený výsledek prochází stejným deterministickým bodováním a validační bránou jako API.', 'Opraveny hraniční chyby počtu slov, nadpisů a vstupního zámku; technická značka nahraného textu se už nikdy nepočítá.', 'Kódy studentů se po odebrání práce nerecyklují a nejednoznační jmenovci se nepárují automaticky.', 'Fotku nebo PDF je nyní nutné nejdřív přepsat a potvrdit; prázdný text už nemůže vytvořit automatickou známku 5.', 'Batch odpovědi s citacemi se neukládají do localStorage a výsledky bez identifikačního klíče se nepřiřazují podle pořadí.', 'Doplněny regresní testy, limit PDF, bezpečnější práce s API klíčem, kompatibilita bez regex lookbehind a opravy exportu DOCX/PWA cache., sjednocená certifikace GHRAB QA 1.0.2 a fail-closed přístupová brána.']},
+  {version:'1.4.0 AI STUDIO EDITION', items:['Přidána anonymní technická telemetrie počtu zpracovaných slohů, úspěchů, chyb a zrušení.', 'Batch API zapisuje metriku až při dokončení a chrání se před dvojím započtením.', 'Text práce, výsledek, jméno ani jiné údaje studenta se do telemetrie neposílají.']},
+  {version:'1.3.7 AI STUDIO EDITION', items:['Přidán úplný interaktivní manuál dostupný samostatným tlačítkem v záhlaví.', 'Manuál se otevírá v nové kartě, zachová rozpracovanou sérii a používá stejné oprávnění AI Studia.', 'Manuál je součástí offline PWA balíčku.']},
+  {version:'1.3.6 AI STUDIO EDITION', items:['Stabilizována PWA identita, service worker, přístupová brána a bezpečná obnova dávky bez base64 příloh.', 'Sjednoceno školní logo a verze řízená výhradně z package.json.', 'Doplněny první funkční zlaté testy word-countu, snapshotu a pseudonymizace.']},
   {version:'1.3.5 AI STUDIO EDITION', items:['Sjednoceno školní logo a název školy s ostatními aplikacemi AI Studia.', 'Autorské údaje v zápatí používají společný dvouřádkový formát celé sady.']},
-  {version:'1.3.4 AI STUDIO EDITION', items:['Opraven křehký CI test, který blokoval celé nasazení kvůli volitelnému oznámení AI Studiu.', 'Build a GitHub Pages se spustí i bez volitelného repository dispatch.', 'Tehdejší verzovaná PWA identita řešila cache; ve verzi 1.3.6 byla nahrazena stabilním manifestem.', 'Import seznamu z IS je ověřen pro čárky, středníky, tabulátory i nové řádky.']},
-  {version:'1.3.3 AI STUDIO EDITION', items:['Byly zavedeny samostatně pojmenované varianty školního loga; po pozdějším sjednocení se ukázaly jako totožné a verze 1.3.6 je nahradila jediným kanonickým souborem.', 'Tehdejší verzovaný manifest a identita byly ve verzi 1.3.6 nahrazeny stabilním PWA modelem.', 'Instalační ikona používá vycentrovaný motiv štítu, pera a potvrzení v běžné i maskable variantě.', 'Regresní test potvrzuje import 16 e-mailů z jednoho čárkového exportu IS jako 16 samostatných studentů.']},
-  {version:'1.3.2 AI STUDIO EDITION', items:['Opraven import skupiny z IS: jeden řádek e-mailů oddělených čárkou nebo středníkem se nyní správně rozdělí na jednotlivé studenty.', 'Import skupiny dostal živý náhled počtu rozpoznaných studentů, podporu kombinovaných oddělovačů, odstranění duplicit a upozornění na chybně zapsané položky.', 'Barevnost hlavního názvu byla sjednocena; zlatá zůstává pouze jako akcent rozhraní.', 'Obnoveno ostré černobílé školní logo bez chybné průhlednosti.', 'PWA ikona byla nahrazena novým vycentrovaným motivem štítu, pera a potvrzení a připravena také pro maskable instalaci.']},
-  {version:'1.3.0 AI STUDIO EDITION', items:['Dokončeno Report Studio: formální a studentský vizuální režim, přesný A4 náhled, podpis učitele, bodová mapa osmi kategorií a karty tří priorit.', 'DOCX export je nyní skutečně formátovaný dokument Word se školním logem, styly nadpisů, tabulkami, barevnou hierarchií a podpisem.', 'Přidán automatický revizní miniúkol odvozený z konkrétních chyb a nejslabší hodnocené oblasti.', 'Přidána komentářová banka učitele s vlastními opakovaně použitelnými větami.', 'Chyby se v reportu třídí na kritické, opakující se a jednorázové.', 'Nová kontrola upozorní na rozpor mezi komentářem, kategoriemi, součtem bodů a známkou.', 'Dávkové výsledky doplňuje anonymní třídní analytika bez jmen, kódů, e-mailů a textů.', 'Přidána bezpečně opt-in pseudonymní historie pokroku, která ukládá pouze kód, datum a bodové výsledky; nikdy text práce ani kontakt.', 'Reportové doplňky se propisují do náhledu, TXT, DOCX, tisku/PDF a studentské e-mailové šablony.', 'DOCX import i ZIP/DOCX/XLSX exporty nyní používají lokální knihovnu bez CDN; běžný Word dokument lze načíst i bez internetu.', 'Odstraněny překryté staré generátory reportu, DOCX a PDF; každá kritická exportní funkce má jedinou implementaci.', 'Podpis a vlastní komentáře se bez výslovného povolení citlivého ukládání po zavření aplikace neuchovávají; analytika používá jen schválené validní výsledky a historie jen finálně zkontrolované práce.']},
-  {version:'1.2.0 AI STUDIO EDITION', items:['Přepracován studentský i učitelský report do profesionálního školního dokumentu s logem, hlavičkou, výsledkovým panelem, metadaty práce a jasnou vizuální hierarchií.', 'Opraven kritický přenos odečteného počtu slov do strojového souhrnu a exportů.', 'Opraveno pokračování dávky: výsledky ve stavu vyžadujícím kontrolu se už neposílají znovu a lze je korektně vymazat při vědomém restartu.', 'Učitelská ruční korekce jednoho výsledku se už nemůže propsat do reportů ostatních studentů v dávce.', 'Opraven výběr ověřených Gemini modelů, synchronizace jména a e-mailu mezi skupinou a výsledkem a zneplatnění schválení po změně kontaktu.', 'Distribuce nyní vyžaduje syntakticky platný e-mail; neplatné adresy nelze schválit ani odeslat.', 'Studentská zpětná vazba dostala přehlednější strukturu: výsledek, silné stránky, hlavní prostor ke zlepšení, tři další kroky, konkrétní chyby a doporučený postup opravy.', 'Odstraněny nepoužívané legacy funkce a doplněny přístupnější kroky workflow a modální dialogy.']},
-  {version:'1.1.0 AI STUDIO EDITION', items:['Přidán kompletní třídní workflow pro série do 20 prací: skupina, import, párování, fronta, kontrola a distribuce.', 'Školní prompt byl převeden do verzované strojově čitelné rubriky; aplikace přepočítává matematické body, FAIL pravidla, výjimku opinion ↔ for-and-against, PTN, pravidlo nuly a známku.', 'Gemini nyní vrací strukturovaný JSON; validační brána kontroluje všech osm sekcí, důkazní mapu, vstupní zámek i skutečný výskyt citací a při chybě provede jeden opravný pokus.', 'Přidán import skupiny z IS, ZIP import a seskupení vícestránkových prací, kontrola přepisu rukopisu a povinné potvrzení učitelem.', 'Přidána okamžitá řízená fronta, úsporné Gemini Batch API, měření tokenů a orientačních nákladů.', 'Přidáno schvalování výsledků učitelem, export distribučního balíku a Gmail bridge pro koncepty, přímé odeslání i kompatibilní přenos v nové kartě.', 'Doplněn kontrakt budoucího školního backendu a bezpečné oddělení klientského a serverového provozu.']},
-  {version:'1.0.0 AI STUDIO EDITION', items:['Kompletní produktová přestavba do originálního prostředí Maturitního hodnoticího studia.', 'Zdrojový kód rozdělen do tematických modulů; nasazovací build vytváří čistý app.js a kontroluje kritické vazby.', 'Přidána PWA vrstva, školní logo, jednotné autorství, bezpečnostní dokumentace a živý manifest pro AI Studio.', 'Přidána ochrana přímé adresy přes podepsané oprávnění AI Studia a samostatné ID essay-evaluator.', 'Zachovány a auditovány: anonymizace, dávkové hodnocení, offline/ruční/API režim, tři výstupy, finální kontrola učitele a exporty.']},
-  {version:'0.7.9 CHANGELOG LIMIT', items:['Deník změn nově uchovává a zobrazuje maximálně 10 nejnovějších verzí.', 'Starší položky changelogu jsou z aktuálního souboru odstraněny; při další verzi se nejstarší položka z desítky postupně vyřadí.', 'Přidána pojistka CHANGELOG_MAX_ENTRIES, aby se v modálním okně nikdy nezobrazilo více než 10 položek ani při budoucí ruční chybě.']},
+  {version:'1.3.4 AI STUDIO EDITION', items:['Opraven křehký CI test, který blokoval celé nasazení kvůli volitelnému oznámení AI Studiu.', 'Build a GitHub Pages se spustí i bez volitelného repository dispatch.', 'Import seznamu z IS je ověřen pro čárky, středníky, tabulátory i nové řádky.']},
+  {version:'1.3.3 AI STUDIO EDITION', items:['Připravena vycentrovaná PWA ikona štítu, pera a potvrzení v běžné i maskable variantě.', 'Regresní test potvrzuje import 16 e-mailů z jednoho čárkového exportu IS.']},
+  {version:'1.3.2 AI STUDIO EDITION', items:['Opraven import skupiny z IS a přidán živý náhled počtu rozpoznaných studentů.', 'Barevnost názvu, školní logo a PWA ikona byly sjednoceny.']},
+  {version:'1.3.0 AI STUDIO EDITION', items:['Dokončeno Report Studio, skutečně formátovaný DOCX, komentářová banka, anonymní třídní analytika a pseudonymní historie.', 'DOCX import i exporty používají lokální knihovnu bez CDN.', 'Odstraněny překryté staré implementace reportu a exportů.']},
+  {version:'1.2.0 AI STUDIO EDITION', items:['Přepracován studentský i učitelský report a opraven přenos odečteného počtu slov.', 'Opraveno pokračování dávky, izolace učitelské korekce a validace kontaktů.', 'Studentská zpětná vazba dostala přehlednější akční strukturu.']},
 ];
 function latestChangelog(){ return CHANGELOG.slice(0, CHANGELOG_MAX_ENTRIES); }
 function showChangelog(){ const items=latestChangelog(); const html=`<p class="small-muted" style="margin-bottom:10px">Zobrazuje se posledních ${items.length} změn. Starší položky se v nových verzích průběžně odstraňují.</p>`+items.map(v=>`<h3 style="color:var(--acc);margin:8px 0 4px">${escapeHtml(v.version)}</h3><ul style="margin-left:18px">${v.items.map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul>`).join(''); showModal('Co je nového',html,[{label:'Zavřít',className:'primary'}]); }
@@ -137,15 +94,26 @@ function loadTasks(){
   try{ const raw=safeLocalGet(TASK_STORAGE_KEY); if(raw) return mergeTasks(makeDefaultTasks(), JSON.parse(raw)); }catch(e){}
   return makeDefaultTasks();
 }
+function normalizeImportedTask(setId,genreId,item,index){
+  const task=Object.assign(placeholderTask(setId,genreId,index+1),item&&typeof item==='object'?item:{});
+  task.id=String(task.id||`${setId}-${genreId}-${index+1}`);
+  task.set=setId;
+  task.genre=genreId;
+  task.number=Number.isFinite(Number(task.number))?Number(task.number):index+1;
+  task.title=String(task.title||placeholderTask(setId,genreId,index+1).title);
+  task.taskText=String(task.taskText||'');
+  task.requirements=Array.isArray(task.requirements)?task.requirements.map(x=>String(x||'').trim()).filter(Boolean):[];
+  task.sourceFile=String(task.sourceFile||'');
+  task.isPlaceholder=!task.taskText.trim();
+  return task;
+}
 function mergeTasks(base, incoming){
   if(!incoming || typeof incoming !== 'object') return base;
   for(const setId of ['practice','exam']){
-    if(!incoming[setId]) continue;
+    if(!incoming[setId] || typeof incoming[setId]!=='object') continue;
     for(const g of GENRES){
       const arr=incoming[setId][g.id];
-      if(Array.isArray(arr) && arr.length){
-        base[setId][g.id] = arr.map((item,i) => Object.assign(placeholderTask(setId,g.id,i+1), item||{}));
-      }
+      if(Array.isArray(arr) && arr.length) base[setId][g.id]=arr.map((item,i)=>normalizeImportedTask(setId,g.id,item,i));
     }
   }
   return base;
@@ -238,25 +206,22 @@ function bindEvents(){
   $('btnFs').onclick=toggleAppFullscreen;
   $('changesBtn').onclick=showChangelog; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=()=>{clearAllSavedState(); location.reload();};
   $('next0').onclick=()=>goTo(1); $('back1').onclick=()=>goTo(0); if($('againBtn')) $('againBtn').onclick=()=>goTo(2); $('next1').onclick=()=>{commitTaskFieldsToDb();goTo(2)}; $('back2').onclick=()=>goTo(1); $('next2').onclick=()=>goTo(3); $('back3').onclick=()=>goTo(2); $('next3').onclick=()=>goTo(4); $('back4').onclick=()=>goTo(3); $('newEvalBtn').onclick=()=>{state.studentText='';state.result='';state.studentIdentity='';state.extraPii='';state.teacherReview=defaultTeacherReview();attachedFiles=[];batchStudents=[];batchResults=[];clearBatchProgress();state.privacyApprovedHash='';goTo(0);syncFieldsFromState();renderFiles();renderBatchList();renderResult();updateStats();saveState();};
-  ['taskTitle','taskText','taskReqs','studentText','studentIdentity','studentCode','extraPii'].forEach(id=>$(id).addEventListener('input',()=>{state.privacyApprovedHash='';syncStateFromFields();updateStats();updatePromptPreview();saveState();renderPrivacyMode();}));
-  $('studentText').addEventListener('input',()=>{updateStats();updatePromptPreview();});
+  ['taskTitle','taskText','taskReqs','studentText','studentIdentity','studentCode','extraPii'].forEach(id=>$(id).addEventListener('input',()=>{state.privacyApprovedHash='';updateStats();updatePromptPreview();saveState(false);renderPrivacyMode();}));
   $('anonymizeBtn').onclick=applyPseudonymizationToField; $('previewAnonBtn').onclick=showAnonPreview; $('clearTextBtn').onclick=()=>{$('studentText').value=''; attachedFiles=[]; syncStateFromFields(); renderFiles(); updateStats(); updatePromptPreview(); saveState();}; $('togglePrivacyBtn')?.addEventListener('click',togglePrivacyMode); $('runPrivacyCheckBtn')?.addEventListener('click',()=>{syncStateFromFields(); renderPrivacyReport(runPrivacyScan(), false);}); $('applyPrivacyFixBtn')?.addEventListener('click',applySelectedPrivacyFindings); $('approvePrivacyBtn')?.addEventListener('click',approvePrivacyCheck); $('toggleSensitiveSaveBtn')?.addEventListener('click',toggleSensitiveStateSaving); $('clearSensitiveSavedBtn')?.addEventListener('click',clearSensitiveSavedData);
-  $('fileInput').addEventListener('change',handleFiles); const ua=$('uploadArea'); ua.onclick=()=>$('fileInput').click(); ua.addEventListener('dragover',e=>{e.preventDefault(); ua.classList.add('dragover')}); ua.addEventListener('dragleave',()=>ua.classList.remove('dragover')); ua.addEventListener('drop',e=>{e.preventDefault(); ua.classList.remove('dragover'); handleFileList(e.dataTransfer.files)});
+  $('fileInput').addEventListener('change',handleFiles); $('transcribeSingleBtn')?.addEventListener('click',transcribeSingleAttachments); const ua=$('uploadArea'); ua.onclick=()=>$('fileInput').click(); ua.addEventListener('dragover',e=>{e.preventDefault(); ua.classList.add('dragover')}); ua.addEventListener('dragleave',()=>ua.classList.remove('dragover')); ua.addEventListener('drop',e=>{e.preventDefault(); ua.classList.remove('dragover'); handleFileList(e.dataTransfer.files)});
   $('batchFileInput')?.addEventListener('change',handleBatchFiles); $('pickBatchFilesBtn')?.addEventListener('click',()=>$('batchFileInput').click()); $('addBatchStudentBtn')?.addEventListener('click',()=>addBatchStudent()); $('clearBatchBtn')?.addEventListener('click',()=>{batchStudents=[];batchResults=[];clearBatchProgress();state.privacyApprovedHash='';renderBatchList();updateStats();saveState();renderPrivacyMode();}); $('clearBatchResultsBtn')?.addEventListener('click',()=>{resetBatchResultsOnly();});
   $('exportTasksBtn').onclick=()=>{$('taskJson').value=JSON.stringify(tasks,null,2); toast('Databáze zadání vypsána do JSON pole.');};
   $('importTasksBtn').onclick=importTasks; $('resetTasksBtn').onclick=()=>{tasks=makeDefaultTasks(); saveTasks(); renderTasks(); fillTaskFieldsFromSelection(); toast('Vrácena výchozí vestavěná databáze.','warn');};
   document.querySelectorAll('[data-work-mode]').forEach(el=>{el.onclick=()=>{state.workMode=el.dataset.workMode; renderWorkMode(); updateStats(); updatePromptPreview(); saveState();};});
-  $('copyManualPromptBtn')?.addEventListener('click',copyPromptWithPrivacyGate); $('downloadPromptBundleBtn')?.addEventListener('click',downloadPromptBundleTxt); $('importManualResultBtn')?.addEventListener('click',importManualResult);
-  $('btnUseKeySession').onclick=useGeminiKeyForSession; $('btnSaveKeyPermanent').onclick=saveGeminiKeyPermanent; $('btnClearKey').onclick=clearGeminiKey; $('geminiKeyInput').addEventListener('input',()=>{ if(geminiKeyScope==='session'){ safeSessionSet(GEMINI_KEY_SESSION_SK,getGeminiInputKey()) } if(geminiKeyScope==='permanent'){ safeLocalSet(GEMINI_KEY_SK,getGeminiInputKey()) } geminiApiKey=getGeminiInputKey(); updateGeminiStatus(); }); $('geminiModelInput').addEventListener('input',updateGeminiModelUI); $('geminiModelInput').addEventListener('change',e=>setGeminiModel(e.target.value)); $('geminiModelSelect')?.addEventListener('change',e=>{ if(e.target.value) setGeminiModel(e.target.value); }); $('resetModelBtn').onclick=resetGeminiModel; $('checkModelsBtn')?.addEventListener('click',checkGeminiModels); $('toggleKey').onclick=()=>{const i=$('geminiKeyInput'); i.type=i.type==='password'?'text':'password';};
+  $('copyManualPromptBtn')?.addEventListener('click',copyPromptWithPrivacyGate); $('downloadPromptBundleBtn')?.addEventListener('click',downloadPromptBundleWithPrivacyGate); $('importManualResultBtn')?.addEventListener('click',importManualResult);
+  $('btnUseKeySession').onclick=useGeminiKeyForSession; $('btnSaveKeyPermanent').onclick=saveGeminiKeyPermanent; $('btnClearKey').onclick=clearGeminiKey; $('geminiKeyInput').addEventListener('input',()=>{ geminiApiKey=getGeminiInputKey(); if(geminiKeyScope==='session'){ if(geminiApiKey) safeSessionSet(GEMINI_KEY_SESSION_SK,geminiApiKey); else safeSessionRemove(GEMINI_KEY_SESSION_SK); } updateGeminiStatus(); }); $('geminiModelInput').addEventListener('input',updateGeminiModelUI); $('geminiModelInput').addEventListener('change',e=>setGeminiModel(e.target.value)); $('geminiModelSelect')?.addEventListener('change',e=>{ if(e.target.value) setGeminiModel(e.target.value); }); $('resetModelBtn').onclick=resetGeminiModel; $('checkModelsBtn')?.addEventListener('click',checkGeminiModels); $('toggleKey').onclick=()=>{const i=$('geminiKeyInput'); i.type=i.type==='password'?'text':'password';};
   $('copyPromptBtn').onclick=copyPromptWithPrivacyGate;
   document.querySelectorAll('[data-result-view]').forEach(el=>{el.onclick=()=>{state.resultView=el.dataset.resultView||'teacher'; renderResultViewControls(); renderResult(); saveState();};});
   $('copyResultBtn').onclick=()=>copyText(state.result?composeExportMarkdown(state.resultView,state.result,null):$('resultBox').textContent, 'Zobrazený report zkopírován.');
-  $('downloadTxtBtn').onclick=downloadTxt; $('downloadDocxBtn')?.addEventListener('click',downloadDocx); $('printPdfBtn')?.addEventListener('click',printPdfExport); $('downloadCsvBtn')?.addEventListener('click',downloadCsvSummary); $('downloadXlsxBtn')?.addEventListener('click',downloadXlsxSummary); $('downloadEmailBtn')?.addEventListener('click',downloadEmailTemplate); if($('downloadZipBtn')) $('downloadZipBtn').onclick=downloadBatchZip; $('teacherReviewPanel')?.addEventListener('input',handleTeacherReviewInput); $('recalcReviewBtn')?.addEventListener('click',()=>{recalculateTeacherReviewTotal(); syncTeacherReviewFromFields(false); renderResultSummary(state.result); saveState();}); $('applyTeacherReviewBtn')?.addEventListener('click',()=>{syncTeacherReviewFromFields(true); saveState(); renderResult(); toast('Finální kontrola učitele uložena.');}); $('resetTeacherReviewBtn')?.addEventListener('click',()=>{state.teacherReview=defaultTeacherReview(); saveState(); renderResult(); toast('Vrácen AI návrh.','warn');}); if($('toggleRawBtn')) $('toggleRawBtn').onclick=()=>{showRaw=!showRaw; renderResult();}; $('runBtn').onclick=runEvaluation; $('cancelBtn').onclick=cancelRun;
+  $('downloadTxtBtn').onclick=downloadTxt; $('downloadDocxBtn')?.addEventListener('click',downloadDocx); $('printPdfBtn')?.addEventListener('click',printPdfExport); $('downloadCsvBtn')?.addEventListener('click',downloadCsvSummary); $('downloadXlsxBtn')?.addEventListener('click',downloadXlsxSummary); $('downloadEmailBtn')?.addEventListener('click',downloadEmailTemplate); if($('downloadZipBtn')) $('downloadZipBtn').onclick=downloadBatchZip; $('teacherReviewPanel')?.addEventListener('input',handleTeacherReviewInput); $('recalcReviewBtn')?.addEventListener('click',()=>{recalculateTeacherReviewTotal(); syncTeacherReviewFromFields(false); renderResultSummary(state.result); saveState();}); $('applyTeacherReviewBtn')?.addEventListener('click',()=>{syncTeacherReviewFromFields(true); saveState(); renderResult(); toast('Finální kontrola učitele uložena.');}); $('resetTeacherReviewBtn')?.addEventListener('click',()=>{state.teacherReview=defaultTeacherReview(); saveState(); renderResult(); toast('Vrácen AI návrh.','warn');}); $('runBtn').onclick=runEvaluation; $('cancelBtn').onclick=cancelRun;
 }
 function updateThemeBtn(){ $('btnTheme').textContent = document.body.classList.contains('light')?'🌙':'☀️'; }
-function renderAll(){ renderProgress(); renderMode(); renderGenres(); renderTasks(); renderEvalMode(); renderOutputStyle(); renderInputMode(); renderWorkMode(); renderStep(); }
-function renderMode(){ document.querySelectorAll('.advanced-only').forEach(el=>el.classList.remove('hidden')); }
-
+function renderAll(){ renderProgress(); renderGenres(); renderTasks(); renderEvalMode(); renderOutputStyle(); renderInputMode(); renderWorkMode(); renderStep(); }
 function renderWorkModeLegacy(){
   const mode=state.workMode||'offline';
   document.querySelectorAll('[data-work-mode]').forEach(el=>el.classList.toggle('active',el.dataset.workMode===mode));
@@ -302,9 +267,18 @@ function renderInputMode(){
   renderWorkMode();
   renderBatchList();
 }
-function nextBatchCode(){ return 'STUDENT_'+String(batchStudents.length+1).padStart(3,'0'); }
+function nextBatchCode(){
+  const used=new Set([...batchStudents,...batchResults].map(x=>String(x?.code||'')).filter(Boolean));
+  let max=0;
+  for(const code of used){const m=code.match(/^STUDENT_(\d+)$/i);if(m)max=Math.max(max,Number(m[1])||0);}
+  let next=Math.max(1,max+1),code='';
+  do{code='STUDENT_'+String(next++).padStart(3,'0');}while(used.has(code));
+  return code;
+}
 function addBatchStudent(data={}){
-  batchStudents.push(Object.assign({code:nextBatchCode(),identity:'',extraPii:'',text:'',files:[],sourceName:'ruční vstup',status:'čeká'},data));
+  const item=Object.assign({code:nextBatchCode(),identity:'',extraPii:'',text:'',files:[],sourceName:'ruční vstup',status:'čeká'},data);
+  const used=new Set([...batchStudents,...batchResults].map(x=>String(x?.code||'')));if(!item.code||used.has(String(item.code)))item.code=nextBatchCode();
+  batchStudents.push(item);
   renderBatchList(); updateStats(); updatePromptPreview(); saveState();
 }
 async function handleBatchFiles(e){ await handleBatchFileList(e.target.files); e.target.value=''; }
@@ -320,7 +294,7 @@ async function processBatchFile(f){
     if(['txt','md','markdown','csv','tsv'].includes(ext) || /^text\//.test(f.type)) item.text=await f.text();
     else if(ext==='docx') item.text=await extractDocxText(f);
     else if(/^image\//.test(f.type) || ['jpg','jpeg','png','webp','gif','heic','heif'].includes(ext)) item.files=[await prepareImageAttachment(f)];
-    else if(ext==='pdf' || f.type==='application/pdf') item.files=[{name:'PŘÍLOHA_1.pdf',size:f.size,originalSize:f.size,mime:'application/pdf',dataUrl:await readAsDataUrl(f),wasDownscaled:false}];
+    else if(ext==='pdf' || f.type==='application/pdf'){assertPdfInlineSize(f);item.files=[{name:'PŘÍLOHA_1.pdf',size:f.size,originalSize:f.size,mime:'application/pdf',dataUrl:await readAsDataUrl(f),wasDownscaled:false}];}
     else { toast('Nepodporovaný typ souboru v dávce: '+f.name,'err'); return; }
     batchStudents.push(item); state.privacyApprovedHash=''; saveBatchProgress(); toast('Do dávky přidáno: '+f.name);
   }catch(e){ toast('Soubor '+f.name+' se nepodařilo načíst: '+(e.message||e),'err'); }

@@ -3,7 +3,35 @@ function structuredGenerationConfig(){return {temperature:0.05,topP:0.8,maxOutpu
 function geminiPartsForStudent(student){const parts=[{text:buildPrompt(student)}];const useFiles=(student?.files||[]).length&&!String(student?.text||'').trim();for(const f of(useFiles?student.files:[]))parts.push({inline_data:{mime_type:f.mime,data:dataUrlToBase64(f.dataUrl)}});return parts;}
 let lastQueueRequestAt=0;
 async function queueThrottle(){const rpm=Math.max(1,Number(state.queueRpm)||5);const minGap=Math.ceil(60000/rpm);const wait=Math.max(0,lastQueueRequestAt+minGap-Date.now());if(wait)await sleepWithAbort(wait,abortController?.signal);lastQueueRequestAt=Date.now();}
-async function postStructuredRequest(student,key,model,signal,repairContext=''){const prompt=repairContext?`${buildPrompt(student)}\n\nOPRAVNÁ VALIDACE: Předchozí JSON měl tyto nedostatky:\n${repairContext}\nVrať znovu celý JSON a oprav pouze tyto nedostatky.`:buildPrompt(student);const body={contents:[{role:'user',parts:[{text:prompt},...geminiPartsForStudent(student).slice(1)]}],generationConfig:structuredGenerationConfig()};let lastError;for(let version of [GEMINI_API_VERSION_PRIMARY,GEMINI_API_VERSION_FALLBACK]){for(let attempt=1;attempt<=GEMINI_RETRY_MAX_ATTEMPTS;attempt++){try{await queueThrottle();const res=await fetch(geminiGenerateUrl(version,model),{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),signal});const data=await res.json().catch(()=>({}));if(!res.ok){const err=makeGeminiApiError(data?.error?.message||`HTTP ${res.status}`,res.status,version,data);err.retryAfterMs=parseRetryAfterMs(res.headers?.get?.('retry-after'));throw err;}const text=(data.candidates||[]).flatMap(c=>(c.content?.parts||[]).map(p=>p.text||'')).join('').trim();return {raw:JSON.parse(text.replace(/^```(?:json)?\s*/i,'').replace(/```$/,'').trim()),usage:data.usageMetadata||{}};}catch(e){lastError=e;if(shouldFallbackToV1Beta(e))break;if(!isRetryableGeminiError(e)||attempt>=GEMINI_RETRY_MAX_ATTEMPTS)throw e;const delay=geminiRetryDelayMs(attempt,e);updateRetryStatus('Strukturované hodnocení',attempt,delay,e);await sleepWithAbort(delay,signal);}}}throw lastError||new Error('Gemini nevrátilo strukturovaný výsledek.');}
+async function postStructuredRequest(student,key,model,signal,repairContext=''){
+  const prompt=repairContext?`${buildPrompt(student)}
+
+OPRAVNÁ VALIDACE: Předchozí JSON měl tyto nedostatky:
+${repairContext}
+Vrať znovu celý JSON a oprav pouze tyto nedostatky.`:buildPrompt(student);
+  const body={contents:[{role:'user',parts:[{text:prompt},...geminiPartsForStudent(student).slice(1)]}],generationConfig:structuredGenerationConfig()};
+  let lastError;
+  for(const version of [GEMINI_API_VERSION_PRIMARY,GEMINI_API_VERSION_FALLBACK]){
+    for(let attempt=1;attempt<=GEMINI_RETRY_MAX_ATTEMPTS;attempt++){
+      try{
+        await queueThrottle();
+        const res=await fetch(geminiGenerateUrl(version,model),{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),signal});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok){const err=makeGeminiApiError(data?.error?.message||`HTTP ${res.status}`,res.status,version,data);err.retryAfterMs=parseRetryAfterMs(res.headers?.get?.('retry-after'));throw err;}
+        const finish=data?.candidates?.[0]?.finishReason||'';
+        if(finish==='MAX_TOKENS')throw makeGeminiApiError('Model nedokončil strukturovaný výstup (limit tokenů). Zkus Standardní režim, kratší vstup nebo jiný model.',422,version,data);
+        const text=(data.candidates||[]).flatMap(c=>(c.content?.parts||[]).map(p=>p.text||'')).join('').trim();
+        try{return {raw:JSON.parse(text.replace(/^```(?:json)?\s*/i,'').replace(/```$/,'').trim()),usage:data.usageMetadata||{}};}
+        catch(e){throw makeGeminiApiError('Model nevrátil platný dokončený JSON: '+(e.message||e),422,version,data);}
+      }catch(e){
+        lastError=e;if(shouldFallbackToV1Beta(e))break;
+        if(!isRetryableGeminiError(e)||attempt>=GEMINI_RETRY_MAX_ATTEMPTS)throw e;
+        const delay=geminiRetryDelayMs(attempt,e);updateRetryStatus('Strukturované hodnocení',attempt,delay,e);await sleepWithAbort(delay,signal);
+      }
+    }
+  }
+  throw lastError||new Error('Gemini nevrátilo strukturovaný výsledek.');
+}
 async function evaluateStudentStructured(student,key,model,signal,priceMode='standard'){const first=await postStructuredRequest(student,key,model,signal);let evaluation=finalizeEvaluation(first.raw,student);let usage=registerUsage(first.usage,priceMode);if(!evaluation.validation.ok){const repair=await postStructuredRequest(student,key,model,signal,evaluation.validation.issues.map(x=>'- '+x).join('\n'));evaluation=finalizeEvaluation(repair.raw,student);const extra=registerUsage(repair.usage,priceMode);usage={promptTokens:usage.promptTokens+extra.promptTokens,outputTokens:usage.outputTokens+extra.outputTokens,totalTokens:usage.totalTokens+extra.totalTokens,costUsd:usage.costUsd+extra.costUsd};}return {evaluation,result:evaluationToLegacyResult(evaluation),usage};}
 function batchReadyStudents(){return batchStudents.map(ensureBatchStudentShape).filter(s=>String(s.text||'').trim()||(s.files||[]).length);}
 function validateBatchPreflight(){const ready=batchReadyStudents();if(!ready.length)return 'Přidej alespoň jeden sloh.';if(ready.length>SERIES_MAX_WORKS)return `Jedna série může obsahovat maximálně ${SERIES_MAX_WORKS} prací.`;const notConfirmed=ready.filter(requiresTranscriptReview);if(notConfirmed.length)return `${notConfirmed.length} obrazových/PDF prací nemá potvrzený digitální přepis.`;return '';}
@@ -28,6 +56,7 @@ async function runEvaluation(){
   if(mode==='offline'){
     state.result=buildOfflineReport();batchResults=[];renderResult();$('next3').disabled=false;saveState();recordEssayTelemetry(1,1,0);goTo(4);return;
   }
+  if(singleAttachmentTranscriptRequired()){showSingleTranscriptGuidance();return;}
   if(mode==='manual'){await copyPromptWithPrivacyGate();return;}
   const model=await prepareApiRun();if(!model)return;
   const student={code:state.studentCode||'STUDENT_001',identity:state.studentIdentity,extraPii:state.extraPii,text:state.studentText,files:attachedFiles,transcriptConfirmed:true};
@@ -89,7 +118,7 @@ async function checkGeminiBatchJob(){
   if(!geminiApiKey&&getGeminiInputKey())useGeminiKeyForSession();geminiApiKey=getGeminiInputKey()||geminiApiKey;if(!geminiApiKey){toast('Zadej stejný Gemini API klíč, kterým byla úloha vytvořena.','err');return;}
   try{
     const res=await fetch(batchApiStatusUrl(job.name),{headers:{'x-goog-api-key':geminiApiKey}});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error?.message||`HTTP ${res.status}`);
-    job.state=data.state||data.metadata?.state||data.batch?.state||job.state;job.lastCheckedAt=new Date().toISOString();job.raw=data;state.batchJob=job;state.series.batchJob=job;
+    job.state=data.state||data.metadata?.state||data.batch?.state||job.state;job.lastCheckedAt=new Date().toISOString();state.batchJob=job;state.series.batchJob=job;
     if(/SUCCEEDED|COMPLETED/i.test(job.state))await importGeminiBatchResponses(data,job);
     else if(/FAILED|CANCELLED|CANCELED/i.test(job.state)&&!job.telemetryRecordedAt){const count=(job.codes||[]).length;recordEssayTelemetry(count,0,/FAILED/i.test(job.state)?count:0,/FAILED/i.test(job.state)?0:count);job.telemetryRecordedAt=new Date().toISOString();}
     saveState();renderBatchJobPanel();updateWorkflowDashboard();toast(`Stav Batch úlohy: ${job.state}`);
@@ -99,7 +128,7 @@ async function importGeminiBatchResponses(data,job){
   const rows=data?.dest?.inlinedResponses||data?.response?.inlinedResponses||data?.dest?.inlined_responses||data?.output?.inlinedResponses||data?.batch?.dest?.inlinedResponses||[];
   let successful=0,failed=0;
   for(let i=0;i<rows.length;i++){
-    const row=rows[i];const code=row.metadata?.key||job.codes?.[i];const student=batchStudents.find(s=>s.code===code);if(!student){failed++;continue;}
+    const row=rows[i];const code=String(row.metadata?.key||'').trim();if(!code){failed++;job.unassignedResponses=(job.unassignedResponses||0)+1;continue;}const student=batchStudents.find(s=>s.code===code);if(!student){failed++;job.unassignedResponses=(job.unassignedResponses||0)+1;continue;}
     const text=(row.response?.candidates||[]).flatMap(c=>(c.content?.parts||[]).map(p=>p.text||'')).join('').trim();
     try{
       const raw=JSON.parse(text.replace(/^```(?:json)?\s*/i,'').replace(/```$/,'').trim());const evaluation=finalizeEvaluation(raw,student);const usage=registerUsage(row.response?.usageMetadata||{},'batch');
@@ -109,5 +138,6 @@ async function importGeminiBatchResponses(data,job){
   }
   const attempted=Math.max((job.codes||[]).length,rows.length);failed+=Math.max(0,attempted-successful-failed);
   if(!job.telemetryRecordedAt){recordEssayTelemetry(attempted,successful,failed);job.telemetryRecordedAt=new Date().toISOString();}
+  if(job.unassignedResponses)toast(`${job.unassignedResponses} odpověď${job.unassignedResponses===1?'':'i'} Batch API neobsahovala jednoznačný kód studenta a nebyla proto přiřazena.`,'warn');
   state.result=makeBatchSummaryText();renderBatchList();renderBatchReviewDashboard();renderResult();$('next3').disabled=batchResults.length===0;saveBatchProgress();
 }

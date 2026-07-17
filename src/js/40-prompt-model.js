@@ -44,17 +44,26 @@ function persistCurrentKeyForScope(){ const key=getGeminiInputKey(); geminiApiKe
 function useGeminiKeyForSession(){ geminiKeyScope='session'; persistCurrentKeyForScope(); toast(getGeminiInputKey()?'Klíč se použije jen pro tuto relaci.':'Zvolen režim relace. Vlož API klíč.','ok'); }
 async function saveGeminiKeyPermanent(){
   if(isEmbeddedBrowserEnv()){ toast('V tomto vestavěném prohlížeči je trvalé uložení nespolehlivé. Přepínám na relaci.','warn'); useGeminiKeyForSession(); return; }
-  const key=getGeminiInputKey(); if(!key){ geminiKeyScope='permanent'; updateGeminiStatus(); toast('Zvolen režim trvalého uložení. Vlož API klíč a aplikace ho uloží do tohoto prohlížeče.','warn'); return; }
+  const key=getGeminiInputKey(); if(!key){ toast('Nejdřív vlož API klíč a potom znovu klikni na „Uložit trvale“. Bez potvrzení se do zařízení nic neuloží.','warn'); return; }
   const ok=await uiConfirm('Klíč se uloží do tohoto prohlížeče a zůstane tam i po zavření. Dělej to jen na osobním zařízení. Na sdíleném nebo školním počítači zvol raději „Použít jen pro relaci“.\n\nUložit klíč trvale?','Trvalé uložení API klíče'); if(!ok){ updateGeminiStatus(); return; }
   geminiKeyScope='permanent'; persistCurrentKeyForScope(); toast('API klíč je uložený trvale v tomto prohlížeči.','ok');
 }
 function clearGeminiKey(){ safeSessionRemove(GEMINI_KEY_SESSION_SK); safeLocalRemove(GEMINI_KEY_SK); geminiApiKey=''; geminiKeyScope='session'; const inp=$('geminiKeyInput'); if(inp) inp.value=''; updateGeminiStatus(); toast('API klíč smazán. Režim je zpět na relaci.','warn'); }
 function updateGeminiStatus(){
-  const b=$('geminiStatus'); const inputKey=getGeminiInputKey(); if(inputKey && inputKey!==geminiApiKey) geminiApiKey=inputKey;
-  if(b){ if(geminiApiKey){ b.textContent=geminiKeyScope==='permanent'?'✓ Klíč uložen trvale':'✓ Klíč jen v této relaci'; b.style.color=geminiKeyScope==='permanent'?'var(--acc)':'var(--ok)'; } else { b.textContent=geminiKeyScope==='permanent'?'Klíč není nastaven – zvolen režim trvalého uložení':'Klíč není nastaven – zvolen režim relace'; b.style.color='var(--acc)'; } }
-  const sessionBtn=$('btnUseKeySession'), permBtn=$('btnSaveKeyPermanent'), clearBtn=$('btnClearKey');
-  sessionBtn?.classList.toggle('key-mode-selected',geminiKeyScope==='session'); permBtn?.classList.toggle('key-mode-selected',geminiKeyScope==='permanent'); clearBtn?.classList.toggle('key-clear-active',!geminiApiKey);
-  sessionBtn?.setAttribute('aria-pressed',String(geminiKeyScope==='session')); permBtn?.setAttribute('aria-pressed',String(geminiKeyScope==='permanent')); clearBtn?.setAttribute('aria-pressed',String(!geminiApiKey));
+  const b=$('geminiStatus');
+  const inputKey=getGeminiInputKey();
+  const storedPermanent=safeLocalGet(GEMINI_KEY_SK)||'';
+  const isPermanentConfirmed=Boolean(inputKey&&geminiKeyScope==='permanent'&&storedPermanent===inputKey);
+  const isSessionActive=Boolean(inputKey&&geminiKeyScope==='session');
+  if(b){
+    if(isPermanentConfirmed){b.textContent='✓ Klíč uložen trvale';b.style.color='var(--acc)';}
+    else if(isSessionActive){b.textContent='✓ Klíč jen v této relaci';b.style.color='var(--ok)';}
+    else if(inputKey){b.textContent='Klíč je vložený, ale trvalé uložení nebylo potvrzeno';b.style.color='var(--acc)';}
+    else {b.textContent='Klíč není nastaven – zvolen režim relace';b.style.color='var(--acc)';}
+  }
+  const sessionBtn=$('btnUseKeySession'),permBtn=$('btnSaveKeyPermanent'),clearBtn=$('btnClearKey');
+  sessionBtn?.classList.toggle('key-mode-selected',geminiKeyScope==='session');permBtn?.classList.toggle('key-mode-selected',isPermanentConfirmed);clearBtn?.classList.toggle('key-clear-active',!inputKey);
+  sessionBtn?.setAttribute('aria-pressed',String(geminiKeyScope==='session'));permBtn?.setAttribute('aria-pressed',String(isPermanentConfirmed));clearBtn?.setAttribute('aria-pressed',String(!inputKey));
 }
 
 const WC_MONTHS = new Set(['january','february','march','april','may','june','july','august','september','october','november','december']);

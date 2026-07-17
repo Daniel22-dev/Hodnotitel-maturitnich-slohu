@@ -3,6 +3,8 @@ function tokenizeSpaces(text){ return String(text||'').trim()?String(text).trim(
 function estimateTokens(s){ return Math.ceil(String(s||'').length/4); }
 
 function escapeRegExp(s){ return String(s||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+const DIACRITIC_EQUIV={a:'aáàâäãåāăą',c:'cčćç',d:'dďđ',e:'eéěèêëēėę',i:'iíìîïīį',l:'lĺľł',n:'nňńñ',o:'oóòôöõøōő',r:'rřŕ',s:'sšśş',t:'tťţ',u:'uúůùûüūűų',y:'yýÿ',z:'zžźż'};
+function diacriticInsensitiveSource(value){return [...String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')].map(ch=>{const chars=DIACRITIC_EQUIV[ch.toLowerCase()];return chars?`[${chars}]`:escapeRegExp(ch);}).join('');}
 function getOutboundStudentText(){
   syncStateFromFields(false);
   return getOutboundStudentTextFromValues(state.studentText, state.studentIdentity, state.studentCode, state.extraPii);
@@ -10,12 +12,12 @@ function getOutboundStudentText(){
 function getOutboundStudentTextFromValues(rawText, identity, codeValue, extraPiiValue){
   const code=(codeValue||'STUDENT_001').trim()||'STUDENT_001';
   let text=rawText||''; const map=[];
-  const add=(repl,label,wholeToken=false)=>{ if(!repl) return; const clean=String(repl).trim(); const esc=escapeRegExp(clean); if(!esc) return; const re=wholeToken?new RegExp(`(^|[^\\p{L}\\p{N}_])(${esc})(?=$|[^\\p{L}\\p{N}_])`,'giu'):new RegExp(esc,'gi'); if(re.test(text)){ re.lastIndex=0; text=wholeToken?text.replace(re,(_,prefix)=>prefix+label):text.replace(re,label); map.push(`${clean} → ${label}`); } };
+  const add=(repl,label,wholeToken=false,foldDiacritics=false)=>{ if(!repl) return; const clean=String(repl).trim(); const source=foldDiacritics?diacriticInsensitiveSource(clean):escapeRegExp(clean); if(!source) return; const re=wholeToken?new RegExp(`(^|[^\\p{L}\\p{N}_])(${source})(?=$|[^\\p{L}\\p{N}_])`,'giu'):new RegExp(source,'giu'); if(re.test(text)){ re.lastIndex=0; text=wholeToken?text.replace(re,(_,prefix)=>prefix+label):text.replace(re,label); map.push(`${clean} → ${label}`); } };
   const identityTerms=Array.from(new Set([String(identity||'').trim(),...String(identity||'').trim().split(/[\s,;]+/).map(x=>x.trim()).filter(x=>x.length>=3)])).filter(Boolean).sort((a,b)=>b.length-a.length);
-  identityTerms.forEach(term=>add(term,code,true));
+  identityTerms.forEach(term=>add(term,code,true,true));
   String(extraPiiValue||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach((x,i)=>add(x,`[OSOBA_UDÁJ_${i+1}]`));
   let n=0; text=text.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,m=>{map.push(`${m} → [EMAIL_${++n}]`); return `[EMAIL_${n}]`;});
-  n=0; text=text.replace(/(?<!\d)(?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|\+?420\d{9})(?!\d)/g,m=>{map.push(`${m} → [TELEFON_${++n}]`); return `[TELEFON_${n}]`;});
+  n=0; text=text.replace(/(^|[^\d])((?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|\+?420\d{9}))(?!\d)/g,(_,prefix,m)=>{map.push(`${m} → [TELEFON_${++n}]`); return `${prefix}[TELEFON_${n}]`;});
   n=0; text=text.replace(/https?:\/\/\S+/gi,m=>{map.push(`${m} → [URL_${++n}]`); return `[URL_${n}]`;});
   n=0; text=text.replace(/\b\d{6}\/\d{3,4}\b/g,m=>{map.push(`${m} → [RODNÉ_ČÍSLO_${++n}]`); return `[RODNÉ_ČÍSLO_${n}]`;});
   return {text,map,code};
@@ -37,11 +39,11 @@ function scanSensitiveText(text, identity='', extraPii='', scope='student'){
   const add=(type,value,reason,severity='warn',auto=false)=>{ value=privacyNormalizeValue(value); if(!value || value.length<2) return; const low=value.toLowerCase(); if(known.some(k=>k && low===k)) return; findings.push({scope,type,value,reason,severity,auto,selected:!auto,snippet:privacySnippet(raw,value)}); };
   const each=(re,type,reason,severity='warn',auto=false,group=0)=>{ let m; const r=new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g'); while((m=r.exec(raw))){ add(type,m[group]||m[0],reason,severity,auto); if(m[0].length===0) r.lastIndex++; } };
   each(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'e-mail','e-mail se nahrazuje automaticky', 'ok', true);
-  each(/(?<!\d)(?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|\+?420\d{9})(?!\d)/g,'telefon','telefonní číslo se nahrazuje automaticky', 'ok', true);
+  each(/(^|[^\d])((?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|\+?420\d{9}))(?!\d)/g,'telefon','telefonní číslo se nahrazuje automaticky', 'ok', true, 2);
   each(/https?:\/\/\S+/gi,'URL','odkaz se nahrazuje automaticky', 'ok', true);
   each(/\b\d{9,10}\b/g,'číselný identifikátor','devítimístná sekvence může být telefon nebo jiný identifikátor; ověř ručně', 'warn', false);
   each(/\b\d{6}\/\d{3,4}\b/g,'rodné číslo','rodné číslo / podobný číselný identifikátor', 'ok', true);
-  each(/\b\d{3}\s?\d{2}\b/g,'PSČ','poštovní směrovací číslo může identifikovat adresu', 'warn', false);
+  each(/\b\d{3}\s\d{2}\b/g,'PSČ','poštovní směrovací číslo může identifikovat adresu', 'warn', false);
   each(/\b[1-9]\.?\s?[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]\b/g,'třída','možné označení třídy', 'warn', false);
   each(/\b(?:Gymnázium|ZŠ|SŠ|SOŠ|SOU|Střední škola|Základní škola|school|college)\b[^\n.,;:!?]{0,70}/gi,'škola','možný název školy nebo instituce', 'warn', false);
   each(/\b(?:ulice|street|road|avenue|náměstí|namesti|č\.p\.|číslo popisné)\s+[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽA-Za-zÁ-ž0-9 .-]{2,70}/gi,'adresa','možná adresa', 'warn', false);
@@ -145,6 +147,7 @@ async function privacyGateBeforeSend(){
 }
 
 function fileExt(name){ return String(name||'').split('.').pop().toLowerCase(); }
+function assertPdfInlineSize(file){if((Number(file?.size)||0)>PDF_INLINE_MAX_BYTES)throw new Error('PDF je příliš velké pro inline odeslání (maximum 15 MB). Rozděl ho na menší PDF nebo jednotlivé obrázky.');}
 function formatSize(n){ if(n<1024) return n+' B'; if(n<1024*1024) return Math.round(n/1024)+' KB'; return (n/1024/1024).toFixed(1)+' MB'; }
 async function handleFiles(e){ await handleFileList(e.target.files); e.target.value=''; }
 async function handleFileList(list){ const files=Array.from(list||[]); if(!files.length) return; for(const f of files){ await processFile(f); } renderFiles(); updateStats(); updatePromptPreview(); saveState(); }
@@ -152,10 +155,10 @@ async function processFile(f){
   const ext=fileExt(f.name);
   try{
     if(['txt','md','markdown','csv','tsv'].includes(ext) || /^text\//.test(f.type)){
-      const text=await f.text(); appendStudentText(text, f.name); toast('Textový soubor načten: '+f.name); return;
+      const text=await f.text(); appendStudentText(text); toast('Textový soubor načten.'); return;
     }
     if(ext==='docx'){
-      const text=await extractDocxText(f); appendStudentText(text, f.name); toast('DOCX převeden na text: '+f.name); return;
+      const text=await extractDocxText(f); appendStudentText(text); toast('DOCX převeden na text.'); return;
     }
     if(/^image\//.test(f.type) || ['jpg','jpeg','png','webp','gif','heic','heif'].includes(ext)){
       const img=await prepareImageAttachment(f);
@@ -165,12 +168,12 @@ async function processFile(f){
       return;
     }
     if(ext==='pdf' || f.type==='application/pdf'){
-      const dataUrl=await readAsDataUrl(f); attachedFiles.push({name:f.name,size:f.size,originalSize:f.size,mime:'application/pdf',dataUrl,wasDownscaled:false}); state.privacyApprovedHash=''; toast('PDF přidáno pro Gemini: '+f.name,'warn'); return;
+      assertPdfInlineSize(f); const dataUrl=await readAsDataUrl(f); attachedFiles.push({name:f.name,size:f.size,originalSize:f.size,mime:'application/pdf',dataUrl,wasDownscaled:false}); state.privacyApprovedHash=''; toast('PDF přidáno pro Gemini: '+f.name,'warn'); return;
     }
     toast('Nepodporovaný typ souboru: '+f.name,'err');
   }catch(e){ toast((e&&e.message)||String(e),'err'); }
 }
-function appendStudentText(text,name){ state.privacyApprovedHash=''; const current=$('studentText').value.trim(); const safeLabel='NAHRANÝ_TEXT'; const chunk=(current?'\n\n':'')+'[ZDROJ: '+safeLabel+']\n'+String(text||'').trim(); $('studentText').value=current+chunk; syncStateFromFields(); }
+function appendStudentText(text){state.privacyApprovedHash='';const current=$('studentText').value.trim();const clean=String(text||'').trim();$('studentText').value=current+(current&&clean?'\n\n':'')+clean;syncStateFromFields();}
 function decodeDocxXmlText(value){
   return String(value||'')
     .replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCodePoint(parseInt(n,16)))
@@ -240,6 +243,7 @@ async function prepareImageAttachment(f){
 }
 function renderFiles(){
   const list=$('fileList'), strip=$('imgStrip'); if(!list||!strip) return;
+  $('transcribeSingleBtn')?.classList.toggle('hidden',attachedFiles.length===0);
   list.innerHTML=attachedFiles.map((f,i)=>{
     const isImg=/^image\//.test(f.mime); const sizeLabel=(f.originalSize&&f.originalSize!==f.size)?`${formatSize(f.originalSize)} → ${formatSize(f.size||0)}`:formatSize(f.size||0);
     const status=isImg?(f.wasDownscaled?'zmenšeno JPEG':'obrázek pro Gemini'):'příloha pro Gemini'; const cls=isImg?(f.wasDownscaled?'ok':'warn'):'';

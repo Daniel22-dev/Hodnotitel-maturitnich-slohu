@@ -298,8 +298,6 @@ function renderResult(){
     document.querySelectorAll('[data-download-batch]').forEach(b=>b.onclick=()=>downloadSingleBatchTxt(Number(b.dataset.downloadBatch)));
   }
   $('downloadZipBtn')?.classList.toggle('hidden',!isBatch);
-  if($('rawResult')) $('rawResult').textContent=text;
-  if($('rawResultWrap')) $('rawResultWrap').classList.toggle('hidden',!showRaw);
   if(typeof renderReportEnhancementControls==='function') renderReportEnhancementControls();
 }
 function renderResultSummary(text){

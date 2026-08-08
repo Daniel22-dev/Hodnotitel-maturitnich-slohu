@@ -39,7 +39,7 @@
 }
 .ghrab-platform-footer__brand span,
 .ghrab-platform-footer__meta span {
-  opacity: .72;
+  opacity: 1;
 }
 .ghrab-platform-footer__meta {
   text-align: right;

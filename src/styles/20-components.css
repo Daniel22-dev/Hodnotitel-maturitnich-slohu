@@ -97,3 +97,10 @@ body.focus-fullscreen .card { width: 100%; max-width: 100%; }
   .prog-labels { gap: 1px; }
   .prog-label { font-size: 8px; line-height: 1.15; }
 }
+/* WCAG 2.2 target-size hardening: keep the progress line visually 3px, but make the buttons at least 24px high. */
+.progress-seg,.progress-seg.done,.progress-seg.active{position:relative;height:24px;min-height:24px;background:transparent}
+.progress-seg::before{content:"";position:absolute;left:0;right:0;top:50%;height:3px;transform:translateY(-50%);border-radius:2px;background:var(--bdr2);pointer-events:none}
+.progress-seg.done::before{background:var(--acc)}
+.progress-seg.active::before{background:var(--acc-b)}
+.prog-label{min-height:24px;display:flex;align-items:center;justify-content:center}
+

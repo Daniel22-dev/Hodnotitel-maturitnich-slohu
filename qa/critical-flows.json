@@ -103,11 +103,11 @@
       "assertions": [
         {
           "file": "src/access-bootstrap.js",
-          "regex": "ghrabAccess='denied'"
+          "regex": "ghrabAccess\\s*=\\s*['\\\"]denied['\\\"]"
         },
         {
           "file": "src/access-bootstrap.js",
-          "notRegex": "Nouzový offline režim|addOfflineWarning|catch\\([^)]*\\)[\\s\\S]{0,250}loadApplication\\("
+          "notRegex": "Nouzový offline režim|addOfflineWarning|catch\\s*\\([^)]*\\)\\s*\\{[^}]{0,250}loadApplication\\s*\\("
         }
       ]
     }

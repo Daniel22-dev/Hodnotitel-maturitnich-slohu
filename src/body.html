@@ -1,10 +1,10 @@
-<div class="wrap">
+<div class="wrap" role="main">
   <div id="tooltip" class="tooltip-popup" role="tooltip"></div>
   <header class="header product-header" aria-label="Záhlaví aplikace">
     <div class="brand-row">
       <div class="school-lockup">
         <div class="school-logo-box">
-          <img class="school-logo" src="assets/ghrab-logo.png" alt="Logo Gymnázia, Ostrava-Hrabůvka">
+          <img class="school-logo" src="assets/brand/school-logo.png" alt="Logo Gymnázia, Ostrava-Hrabůvka">
         </div>
         <div class="school-copy">
           <span class="school-name">GYMNÁZIUM, OSTRAVA-HRABŮVKA</span>
@@ -280,11 +280,11 @@
         <div class="gemini-key-row"><input type="password" id="geminiKeyInput" placeholder="Gemini API klíč (AIza…)" autocomplete="off" autocorrect="off"><button class="btn-eye" id="toggleKey" type="button">👁</button></div>
         <div class="gemini-key-actions">
           <button type="button" id="btnUseKeySession" class="key-btn-recommended key-mode-selected" aria-pressed="true">Použít jen pro relaci <span class="key-rec-tag">doporučeno</span></button>
-          <button type="button" id="btnSaveKeyPermanent" aria-pressed="false">Uložit trvale (jen osobní zařízení)</button>
+          <button type="button" id="btnSaveKeyPermanent" aria-pressed="false">Použít bezpečně jen pro relaci</button>
           <button type="button" id="btnClearKey" aria-pressed="false">Smazat klíč</button>
         </div>
-        <div class="gemini-note" id="geminiNote"><strong>Relace</strong> = klíč se po zavření prohlížeče sám zapomene; nejbezpečnější volba na sdílených i školních zařízeních. <strong>Trvalé uložení</strong> zapisuje klíč do localStorage tohoto prohlížeče — používej jen na vlastním zařízení. Zdarma: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com</a> → Get API key.</div>
-        <div class="gemini-model-row"><label class="gemini-model-label" for="geminiModelInput">Model <button class="tt-icon" type="button" data-tip="Nech výchozí, pokud generování funguje. Tlačítko Ověřit modely načte modely dostupné pro vložený API klíč; výběr potom můžeš provést z rozbalovacího seznamu nebo tlačítek v okně.">?</button> <span class="gemini-model-status" id="geminiModelStatus">výchozí</span></label><div class="gemini-model-inputwrap"><input type="text" id="geminiModelInput" placeholder="gemini-3.5-flash" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><select id="geminiModelSelect" aria-label="Dostupné Gemini modely"><option value="">Nejdřív ověř modely…</option></select><button type="button" class="gemini-model-reset" id="resetModelBtn">Výchozí</button><button type="button" class="gemini-model-reset" id="checkModelsBtn">Ověřit modely</button></div><div class="gemini-note" id="geminiModelNote">Primárně se používá stabilní Gemini API v1; pokud model není dostupný přes v1, aplikace automaticky zkusí fallback v1beta. Při dávce se 429/5xx a síťové chyby opakují s backoffem.</div></div>
+        <div class="gemini-note" id="geminiNote"><strong>Relace</strong> = klíč se po zavření prohlížeče sám zapomene; nejbezpečnější volba na sdílených i školních zařízeních. <strong>Trvalé uložení</strong> zapisuje klíč do localStorage tohoto prohlížeče — používej jen na vlastním zařízení. Zdarma: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com</a> → Get API key.</div>
+        <div class="gemini-model-row"><label class="gemini-model-label" for="geminiModelInput">Model <button class="tt-icon" type="button" data-tip="Nech výchozí, pokud generování funguje. Tlačítko Ověřit modely načte modely dostupné pro vložený API klíč; výběr potom můžeš provést z rozbalovacího seznamu nebo tlačítek v okně.">?</button> <span class="gemini-model-status" id="geminiModelStatus">výchozí</span></label><div class="gemini-model-inputwrap"><input type="text" id="geminiModelInput" placeholder="gemini-3.6-flash" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><select id="geminiModelSelect" aria-label="Dostupné Gemini modely"><option value="">Nejdřív ověř modely…</option></select><button type="button" class="gemini-model-reset" id="resetModelBtn">Výchozí</button><button type="button" class="gemini-model-reset" id="checkModelsBtn">Ověřit modely</button></div><div class="gemini-note" id="geminiModelNote">Primárně se používá stabilní Gemini API v1; pokud model není dostupný přes v1, aplikace automaticky zkusí fallback v1beta. Při dávce se 429/5xx a síťové chyby opakují s backoffem.</div></div>
       </div>
       <div class="summary-grid" id="finalStats"></div>
       <details open>
@@ -393,16 +393,9 @@
       <div class="nav"><button class="btn-back" id="back4">← Zpět</button><button class="btn-next" id="againBtn">Upravit vstup →</button></div>
     </section>
   </div>
-  <footer class="app-footer">
-    <div class="footer-brand">
-      <img src="assets/ghrab-logo.png" alt="" aria-hidden="true">
-      <div><strong>Hodnotitel maturitních slohů</strong><span>Bezpečný učitelský nástroj · řízený pilot</span></div>
-    </div>
-    <div class="footer-meta">
-      <div class="owner-main"><strong>Vlastník aplikace:</strong> Daniel Baláž · Gymnázium, Ostrava-Hrabůvka</div>
-      <div class="copyright">© 2026 Daniel Baláž. Všechna práva vyhrazena.</div>
-      <span class="footer-extra">Verze __APP_VERSION__ <span id="buildLabel"></span> · AI výstup je návrh, konečné hodnocení potvrzuje učitel.</span>
-    </div>
+  <footer class="app-footer" data-ghrab-footer data-ghrab-footer-mode="append">
+    <div class="footer-extra">Verze __APP_VERSION__ <span id="buildLabel"></span> · AI výstup je návrh, konečné hodnocení potvrzuje učitel.</div>
+    <div data-ghrab-footer-branding></div>
   </footer>
 </div>
 <div class="toast-stack" id="toastStack"></div>

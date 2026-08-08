@@ -3,9 +3,10 @@ const SERIES_TYPICAL_WORKS=15;
 const DAILY_USAGE_KEY='maturitniHodnotitelDailyUsageV110';
 function localIsoDate(date=new Date()){const y=date.getFullYear();const m=String(date.getMonth()+1).padStart(2,'0');const d=String(date.getDate()).padStart(2,'0');return `${y}-${m}-${d}`;}
 const GEMINI_PRICE_TABLE=Object.freeze({
-  'gemini-3.5-flash':{standard:{input:1.50,output:9.00},batch:{input:0.75,output:4.50}},
-  'gemini-3.1-flash-lite':{standard:{input:0.25,output:1.50},batch:{input:0.125,output:0.75}},
-  'gemini-3-flash-preview':{standard:{input:0.50,output:3.00},batch:{input:0.25,output:1.50}}
+  // Orientační klientské ceny slouží jen GitHub režimu. Ve školním režimu je
+  // jedinou autoritou serverový usage ledger a jeho model-policy.
+  'gemini-3.6-flash':{standard:{input:1.50,output:9.00},batch:{input:0.75,output:4.50}},
+  'gemini-3.5-flash-lite':{standard:{input:0.25,output:1.50},batch:{input:0.125,output:0.75}}
 });
 function defaultSeriesState(){return {id:'SERIE_'+localIsoDate().replace(/-/g,'')+'_'+Math.random().toString(36).slice(2,6).toUpperCase(),name:'',className:'',assessmentDate:localIsoDate(),teacherName:'Daniel Baláž',rubricVersion:RUBRIC_VERSION,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),processingMode:'immediate',queueRpm:5,batchJob:null,status:'draft'};}
 function defaultDistributionSettings(){return {appsScriptUrl:'',sharedSecret:'',mode:'drafts',subjectTemplate:'Zpětná vazba – {series}',senderName:'Daniel Baláž',includeScore:true,includeOriginal:false};}
@@ -15,7 +16,7 @@ function ensureWorkflowState(){if(!state.series||typeof state.series!=='object')
 function seriesDisplayName(){ensureWorkflowState();return state.series.name||[state.series.className,state.taskTitle||currentTask().title].filter(Boolean).join(' – ')||'Hodnocení maturitních slohů';}
 function syncSeriesFromFields(){ensureWorkflowState();state.series.name=$('seriesName')?.value.trim()||'';state.series.className=$('seriesClass')?.value.trim()||'';state.series.assessmentDate=$('seriesDate')?.value||state.series.assessmentDate;state.series.teacherName=$('seriesTeacher')?.value.trim()||'';state.queueRpm=Math.max(1,Math.min(30,Number($('queueRpm')?.value)||5));state.series.queueRpm=state.queueRpm;state.series.updatedAt=new Date().toISOString();}
 function syncSeriesToFields(){ensureWorkflowState();if($('seriesName'))$('seriesName').value=state.series.name||'';if($('seriesClass'))$('seriesClass').value=state.series.className||'';if($('seriesDate'))$('seriesDate').value=state.series.assessmentDate||'';if($('seriesTeacher'))$('seriesTeacher').value=state.series.teacherName||'';if($('queueRpm'))$('queueRpm').value=state.queueRpm||5;if($('rubricVersionLabel'))$('rubricVersionLabel').textContent=rubricVersionLabel();}
-function priceForModel(model,mode='standard'){const key=Object.keys(GEMINI_PRICE_TABLE).find(k=>String(model||'').startsWith(k))||'gemini-3.5-flash';return GEMINI_PRICE_TABLE[key]?.[mode]||GEMINI_PRICE_TABLE['gemini-3.5-flash'][mode];}
+function priceForModel(model,mode='standard'){const key=Object.keys(GEMINI_PRICE_TABLE).find(k=>String(model||'').startsWith(k))||'gemini-3.6-flash';return GEMINI_PRICE_TABLE[key]?.[mode]||GEMINI_PRICE_TABLE['gemini-3.6-flash'][mode];}
 function estimateUsageCost(promptTokens,outputTokens,model=resolveGeminiModel(),mode='standard'){const p=priceForModel(model,mode);return ((Number(promptTokens)||0)/1e6)*p.input+((Number(outputTokens)||0)/1e6)*p.output;}
 function approximatePromptTokensForStudent(student){try{return estimateTokens(buildPrompt(student));}catch(_){return 9000;}}
 function estimateSeriesBudget(){const ready=batchStudents.filter(s=>String(s.text||'').trim()||(s.files||[]).length);const input=ready.reduce((a,s)=>a+approximatePromptTokensForStudent(s),0);const output=ready.length*(state.evalMode==='deep'?5500:3000);const mode=state.processingMode==='batch'?'batch':'standard';return {count:ready.length,promptTokens:input,outputTokens:output,costUsd:estimateUsageCost(input,output,resolveGeminiModel(),mode)};}

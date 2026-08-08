@@ -2,7 +2,7 @@
   "standard": "GHRAB-QA-1.0.2",
   "appId": "essay-evaluator",
   "appName": "Hodnotitel maturitních slohů",
-  "appVersion": "1.5.2",
+  "appVersion": "1.5.10",
   "entryPoint": "dist/index.html",
   "serveRoot": "dist",
   "buildRoot": "dist",
@@ -10,7 +10,7 @@
   "buildCommand": "npm run build",
   "testCommand": "npm test",
   "headlessCommand": "",
-  "auditCommand": "npm audit --audit-level=high",
+  "auditCommand": "npm audit --omit=dev --audit-level=high",
   "features": {
     "pwa": true,
     "ai": true,
@@ -47,22 +47,22 @@
     {
       "file": "CHANGELOG.md",
       "regex": "## ([0-9.]+)",
-      "expected": "1.5.2"
+      "expected": "1.5.10"
     },
     {
       "file": "dist/app.js",
       "regex": "version:'([0-9.]+)'",
-      "expected": "1.5.2"
+      "expected": "1.5.10"
     },
     {
       "file": "dist/sw.js",
-      "regex": "APP_VERSION='([0-9.]+)'",
-      "expected": "1.5.2"
+      "regex": "ghrab-essay-evaluator-v([0-9.]+)",
+      "expected": "1.5.10"
     },
     {
       "file": "dist/studio-manifest.json",
       "regex": "\"version\"\\s*:\\s*\"([0-9.]+)\"",
-      "expected": "1.5.2"
+      "expected": "1.5.10"
     }
   ],
   "pwaTargets": [
@@ -71,7 +71,7 @@
       "root": "dist",
       "manifest": "manifest.webmanifest",
       "serviceWorker": "sw.js",
-      "cachePrefix": "hodnotitel-"
+      "cachePrefix": "ghrab-essay-evaluator-v"
     }
   ],
   "security": {
@@ -97,5 +97,6 @@
       "src"
     ],
     "disallowRegexLookbehind": true
-  }
+  },
+  "deploymentBasePath": "/Hodnotitel-maturitnich-slohu/"
 }

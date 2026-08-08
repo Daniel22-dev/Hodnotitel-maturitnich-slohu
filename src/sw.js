@@ -1,15 +1,116 @@
-const APP_VERSION='__APP_VERSION__';
-const CACHE=`hodnotitel-${APP_VERSION}`;
-const CORE=['./','./index.html','./app.js','./access-bootstrap.js','./access-gate.css','./manifest.webmanifest','./manual/','./manual/index.html','./assets/ghrab-logo.png','./icons/hodnotitel-shield-20260711-32.png','./icons/hodnotitel-shield-20260711-180.png','./icons/hodnotitel-shield-20260711-192.png','./icons/hodnotitel-shield-20260711-512.png','./icons/hodnotitel-shield-20260711-maskable-512.png','./vendor/jszip.min.js'];
-self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('hodnotitel-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',event=>{
-  if(event.request.method!=='GET')return;
-  const url=new URL(event.request.url);
-  if(url.origin!==location.origin)return;
-  if(event.request.mode==='navigate'){
-    event.respondWith(fetch(event.request).then(response=>{const copy=response.clone();caches.open(CACHE).then(c=>c.put(event.request,copy));return response;}).catch(()=>caches.match(event.request).then(r=>r||caches.match('./index.html'))));
+const GHRAB_SW_CONTRACT='ghrab-service-worker-v1';
+/* GHRAB service-worker contract v1 · update activation is user-controlled. */
+const APP_VERSION = '__APP_VERSION__';
+const CACHE = "ghrab-essay-evaluator-v1.5.10";
+const CACHE_PREFIXES = ["ghrab-essay-evaluator-v", "hodnotitel-"];
+const CORE = [
+  "./",
+  "./index.html",
+  "./app.js",
+  "./access-bootstrap.js",
+  "./access-gate.css",
+  "./manifest.webmanifest",
+  "./access/access-gate.css",
+  "./access/deployment-config.js",
+  "./access/reporter-bootstrap.js",
+  "./access/error-reporter.js",
+  "./access/error-reporter.css",
+  "./access/error-reporter-adapter.js",
+  "./config/deployment.json",
+  "./config/deployment.school-server-p0.json",
+  "./config/deployment.school-server.example.json",
+  "./manual/",
+  "./manual/index.html",
+  "./assets/brand/school-logo.png",
+  "./icons/hodnotitel-shield-20260711-32.png",
+  "./icons/hodnotitel-shield-20260711-180.png",
+  "./icons/hodnotitel-shield-20260711-192.png",
+  "./icons/hodnotitel-shield-20260711-512.png",
+  "./icons/hodnotitel-shield-20260711-maskable-512.png",
+  "./vendor/jszip.min.js",
+  "./config/brand-manifest.json",
+  "./config/platform-manifest.json",
+  "./ghrab-platform.consumer.json"
+];
+
+self.addEventListener('message', (event) => {
+  if (['GHRAB_SKIP_WAITING', 'SKIP_WAITING'].includes(event.data?.type)) self.skipWaiting();
+});
+
+self.addEventListener('install', (event) => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    await cache.addAll(CORE);
+    const optionalAssets = [];
+    if (optionalAssets.length) {
+      const results = await Promise.allSettled(optionalAssets.map((asset) => cache.add(asset)));
+      const failed = results.filter((item) => item.status === 'rejected').length;
+      if (failed) console.warn(`[GHRAB SW] ${failed} volitelných assetů nebylo uloženo do offline cache.`);
+    }
+  })());
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys
+      .filter((key) => CACHE_PREFIXES.some((prefix) => key.startsWith(prefix)) && key !== CACHE)
+      .map((key) => caches.delete(key)));
+    await self.clients.claim();
+  })());
+});
+
+async function networkFirst(request, fallbackUrl = '') {
+  const cache = await caches.open(CACHE);
+  try {
+    const response = await fetch(request, { cache: 'no-store' });
+    if (!response || !response.ok) throw new Error(`HTTP ${response?.status || 0}`);
+    await cache.put(request, response.clone());
+    return response;
+  } catch (error) {
+    const cached = await cache.match(request, { ignoreSearch: true });
+    if (cached) return cached;
+    if (fallbackUrl) {
+      const fallback = await cache.match(fallbackUrl, { ignoreSearch: true });
+      if (fallback) return fallback;
+    }
+    throw error;
+  }
+}
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response?.ok) await cache.put(request, response.clone());
+  return response;
+}
+
+function isRuntimeRequest(url, scopePath) {
+  const relative = url.pathname.slice(scopePath.length);
+  return relative === 'runtime-config.js' ||
+    relative === 'config/deployment.json' ||
+    relative === 'config/deployment.school-server-p0.json' ||
+    relative === 'config/deployment.school-server.example.json' ||
+    /^(?:api|auth|session|health)(?:\/|$)/.test(relative);
+}
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  const scopePath = new URL('./', self.location.href).pathname;
+  if (!url.pathname.startsWith(scopePath) || request.cache === 'no-store' || isRuntimeRequest(url, scopePath)) return;
+  if (request.mode === 'navigate') {
+    const fallback = url.pathname.includes('/manual/') ? './manual/index.html' : './index.html';
+    event.respondWith(networkFirst(request, fallback));
     return;
   }
-  event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE).then(c=>c.put(event.request,copy));}return response;})));
+  if (url.pathname.endsWith('/manifest.webmanifest') || url.pathname.endsWith('/build-info.json')) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+  event.respondWith(cacheFirst(request));
 });

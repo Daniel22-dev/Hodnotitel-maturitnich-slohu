@@ -114,6 +114,7 @@ async function fetchGeminiModelsList(key,apiVersion,signal){
   return Array.isArray(data.models)?data.models:[];
 }
 async function checkGeminiModels(){
+  if(hodSchoolMode()){toast('Výběr konkrétních modelů spravuje školní server.','warn');return;}
   if(!geminiApiKey && getGeminiInputKey()) useGeminiKeyForSession();
   geminiApiKey=getGeminiInputKey()||geminiApiKey; updateGeminiStatus();
   if(!geminiApiKey){ toast('Zadej Gemini API key, aby bylo možné načíst dostupné modely.','err'); return; }

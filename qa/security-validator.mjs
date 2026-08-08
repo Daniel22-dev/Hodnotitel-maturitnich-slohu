@@ -11,7 +11,7 @@ export async function validateSecurity({root, finding}) {
   const findings=[];
   const require=(ok,code,message,evidence='')=>{if(!ok)findings.push(finding('security','MAJOR',code,message,evidence));};
   require(!/Nouzový offline režim|addOfflineWarning/.test(access) && !/catch\s*\([^)]*\)\s*\{[\s\S]{0,350}loadApplication\s*\(/.test(access),'OFFLINE_GUARD_FAIL_OPEN','Hodnotitel nesmí při chybě guardu spustit aplikaci bez ověření.');
-  require(/c\.addAll\(CORE\)/.test(sw) && !/\.add\([^)]*\)\.catch\s*\(/.test(sw),'PRECACHE_NOT_ATOMIC','PWA instalace musí selhat viditelně, pokud chybí povinný precache soubor.');
+  require(/(?:cache|c)\.addAll\(CORE\)/.test(sw) && !/\.add\([^)]*\)\.catch\s*\(/.test(sw),'PRECACHE_NOT_ATOMIC','PWA instalace musí selhat viditelně, pokud chybí povinný precache soubor.');
   require(/responseSchema|RESPONSE_SCHEMA|EVALUATION_RESPONSE_SCHEMA/i.test(contract) && /JSON\.parse[\s\S]{0,1200}finalizeEvaluation/i.test(manual) && /evaluationToLegacyResult/.test(manual),'MANUAL_AI_NOT_AUTHORITATIVE','Ruční AI import musí používat stejné schéma, deterministické vyhodnocení a převod výsledku jako API cesta.');
   require(/serializableBatchJob/.test(stateUi) && !/batchJob\s*:\s*state\.batchJob/.test(stateUi),'RAW_BATCH_PERSISTENCE','Ukládaný stav musí serializovat Batch úlohu přes whitelist bez surových odpovědí.');
   require(/metadata\?\.key|metadata\.key/.test(workflow) && !/responses?\s*\[\s*(?:i|index)\s*\]/i.test(workflow),'BATCH_INDEX_FALLBACK','Batch výsledek bez stabilního identifikačního klíče se nesmí přiřadit podle pořadí.');

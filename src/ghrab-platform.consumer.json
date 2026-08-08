@@ -1,0 +1,144 @@
+{
+  "schema": "ghrab-platform-consumer-v1",
+  "appId": "essay-evaluator",
+  "appName": "Hodnotitel maturitních slohů",
+  "appVersion": "1.5.10",
+  "platform": {
+    "version": "1.1.0",
+    "contract": "ghrab-platform-v1",
+    "requiredRange": ">=1.1.0 <2.0.0",
+    "compatibilityWindow": [
+      "1.1.x",
+      "1.2.x"
+    ]
+  },
+  "brand": {
+    "version": "1.0.0",
+    "logo": "assets/brand/school-logo.png",
+    "footerContract": "ghrab-footer-v1"
+  },
+  "theme": {
+    "supported": [
+      "light",
+      "dark"
+    ],
+    "default": "dark"
+  },
+  "storageMigration": {
+    "id": "p2-storage-namespace-v1",
+    "backup": "full",
+    "mappings": [
+      {
+        "legacy": "maturitniHodnotitelTheme",
+        "canonical": "ghrab.essay-evaluator.theme.v1"
+      },
+      {
+        "legacy": "maturitniHodnotitelStateV130",
+        "canonical": "ghrab.essay-evaluator.state.v1"
+      },
+      {
+        "legacy": "maturitniHodnotitelModelV061",
+        "canonical": "ghrab.essay-evaluator.ai.model.v1"
+      },
+      {
+        "legacy": "maturitniHodnotitelGeminiKeyV061",
+        "canonical": "ghrab.essay-evaluator.ai.key.local.v1"
+      },
+      {
+        "legacy": "maturitniHodnotitelGeminiKeySessionV061",
+        "canonical": "ghrab.essay-evaluator.ai.key.session.v1",
+        "store": "session"
+      },
+      {
+        "legacy": "maturitniHodnotitelPseudonymousHistoryV130",
+        "canonical": "ghrab.essay-evaluator.history.v1"
+      },
+      {
+        "legacy": "maturitniHodnotitelTasksV100",
+        "canonical": "ghrab.essay-evaluator.tasks.v1"
+      },
+      {
+        "legacyPrefix": "maturitniHodnotitel",
+        "canonicalPrefix": "ghrab.essay-evaluator.legacy."
+      }
+    ]
+  },
+  "bridge": {
+    "contract": "ghrab-studio-handoff-v2",
+    "acceptsLegacy": "ghrab-handoff-v1",
+    "maxBytes": 500000
+  },
+  "artifact": {
+    "schema": "ghrab-artifact-envelope-v1",
+    "checksum": "SHA-256",
+    "exports": [],
+    "imports": [],
+    "acceptsLegacyJson": false,
+    "nativeFormats": [
+      "docx",
+      "pdf",
+      "csv",
+      "zip"
+    ]
+  },
+  "cache": {
+    "name": "ghrab-essay-evaluator-v1.5.10",
+    "updateMessage": "GHRAB_SKIP_WAITING"
+  },
+  "html": {
+    "exclude": [],
+    "noFooter": [
+      "tests/"
+    ]
+  },
+  "quality": {
+    "schema": "ghrab-quality-consumer-v1",
+    "accessibilityContract": "ghrab-a11y-v1",
+    "performanceContract": "ghrab-performance-v1",
+    "moduleContract": "ghrab-lazy-modules-v1",
+    "requireBudget": true,
+    "performanceBudget": {
+      "distBytes": 1170000,
+      "entryHtmlBytes": 120000,
+      "entryCriticalBytes": 320000,
+      "largestInlineScriptBytes": 10000,
+      "precacheBytes": 1100000,
+      "largestFileBytes": 410000,
+      "duplicateLargeBytes": 20000
+    },
+    "modules": {
+      "required": []
+    },
+    "referenceProfile": {
+      "cpuSlowdown": 4,
+      "viewport": "1366x768",
+      "memoryClassGb": 4,
+      "viewportWidths": [
+        1280,
+        390,
+        320
+      ]
+    },
+    "stage": "P4",
+    "a11yContract": "ghrab-a11y-v1",
+    "requireRuntimeBudget": true,
+    "runtimeBudget": {
+      "maxDomNodes": 1000,
+      "maxRenderReadyMs": 3000,
+      "maxJsHeapUsedBytes": 8000000,
+      "maxLayoutDurationMs": 2200,
+      "maxTaskDurationMs": 3000
+    },
+    "finalRelease": true,
+    "cleanInstallRequired": true,
+    "a11yGate": "ghrab-p4-a11y-v1",
+    "releaseGate": "ghrab-p4-release-v1"
+  },
+  "performance": {
+    "stage": "P5",
+    "a11yGate": "ghrab-p5-accessibility-acceptance-v1",
+    "releaseGate": "ghrab-p5-acceptance-v1",
+    "finalRelease": false,
+    "preProductionAccepted": true
+  }
+}

@@ -1,0 +1,20 @@
+import { setupErrorReporter } from './error-reporter.js';
+
+const deployment = globalThis.__GHRAB_DEPLOYMENT_CONFIG__;
+const reporterStudioUrl = deployment?.studioBaseUrl || '/AI-Studio-GHRAB/';
+const reporterStudioBase = new URL(reporterStudioUrl, document.baseURI);
+const reporterGuideUrl = deployment?.access?.guideUrl || new URL('manualy/error-report.html', reporterStudioBase).href;
+
+const reporter = setupErrorReporter({
+  appId: 'essay-evaluator',
+  appName: 'Hodnotitel maturitních slohů',
+  appVersion: '1.5.10',
+  studioUrl: reporterStudioUrl,
+  supportEmail: 'balaz@ghrabuvka.cz',
+  guideUrl: reporterGuideUrl,
+  themeResolver: () => document.body.classList.contains('light') ? 'light' : 'dark',
+  launcherBottom: '82px',
+  captureBottom: '104px',
+});
+
+export default reporter;

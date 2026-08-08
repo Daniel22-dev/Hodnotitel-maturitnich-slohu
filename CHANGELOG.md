@@ -1,4 +1,51 @@
+## 1.5.10 — P5 (2026-08-05)
+
+
+## 1.5.10 — P5 R2
+
+- Opraven mobilní reflow.
+- P5 R2 runtime audit se skripty a odemčeným UI.
+
+
+- Předprodukční akceptace bez povinného školního serveru.
+- Nulové otevřené automatické a11y nálezy jsou podmínkou P5 brány.
+- Přidán aktualizovaný release-acceptance kontrakt a odložený GitHub upload.
+
 # Changelog
+
+## 1.5.8 — P4 FINAL (2026-08-04)
+
+- Finální certifikace, čisté buildy, přístupnost, výkon, bezpečnost a release evidence.
+- Přidána povinná `qa:p4:ci` brána.
+
+## 1.5.7 - 2026-08-04 (P3)
+
+- Platforma 1.1.0, pristupnost, performance budgety a modularizace P3.
+
+## 1.5.6 — P2: sjednocení platformy GHRAB (2026-08-04)
+
+- jeden kanonický školní logotyp a jednotná autorská patička;
+- GHRAB Platform 1.0.0: motiv, storage namespace s vratnou migrací, Studio Bridge 2.0 a artifact envelope v1;
+- jednotný název PWA cache `ghrab-essay-evaluator-v1.5.6` a řízená aktualizace;
+- platformní konformitní test je součástí buildu a CI.
+
+
+## 1.5.5 — P1 (2026-08-04)
+
+- Produkční bezpečnost, serverový profil, datové manifesty a jednotná observability vrstva.
+- GHRAB AI Core 1.0.0 a přepínání direct-gemini / school-gateway.
+
+# Changelog
+
+## 1.5.4 — 2026-08-04
+
+- Etapa P0: opraven service worker bezpečnostní vrstvy, reportér je mimo kritickou cestu startu a aplikace získala server-ready deployment konfiguraci.
+## 1.5.3 – Sjednocený technický reportér AI Studia
+
+- aplikace používá právě jednu lokální instanci společného reportéru a centrální instanci vypíná přes `errorReporter: false`;
+- otevřený reportér živě sleduje skutečný motiv `body.light`, podporuje až pět screenshotů, bezpečný koncept, ZIP a nativní Gmail odkaz;
+- reportér, CSS i adaptér jsou součástí PWA precache a lokální manuál odkazuje na centrální návod;
+- hodnoticí rubrika, vstupy, výsledky a data studentů nebyly měněny.
 
 ## 1.5.2 – Aktuální manuál v pracovním prostoru AI Studia
 

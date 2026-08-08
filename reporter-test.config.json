@@ -1,0 +1,33 @@
+{
+  "distEntry": "dist/index.html",
+  "appId": "essay-evaluator",
+  "appName": "Hodnotitel maturitních slohů",
+  "version": "1.5.10",
+  "reporterPath": "src/access/error-reporter.js",
+  "stylePath": "src/access/error-reporter.css",
+  "adapterPath": "src/access/error-reporter-adapter.js",
+  "bootstrapPaths": [
+    "src/access-bootstrap.js"
+  ],
+  "manualPath": "src/manual/index.html",
+  "serviceWorkerPaths": [
+    "src/sw.js"
+  ],
+  "versionPaths": [
+    "src/manual/index.html",
+    "README.md",
+    "CHANGELOG.md",
+    "QA_REPORT.md"
+  ],
+  "distCachePaths": [
+    "dist/access/error-reporter.js",
+    "dist/access/error-reporter.css",
+    "dist/access/error-reporter-adapter.js",
+    "dist/sw.js"
+  ],
+  "theme": {
+    "initial": "document.body.classList.add('light');",
+    "light": "document.body.classList.add('light');",
+    "dark": "document.body.classList.remove('light');"
+  }
+}

@@ -17,7 +17,7 @@
   "launchUrl": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/",
   "manualUrl": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/manual/",
   "repository": "daniel22-dev/Hodnotitel-maturitnich-slohu",
-  "icon": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/icons/hodnotitel-shield-20260711-512.png",
+  "icon": "assets/apps/essay-evaluator-v2.png",
   "accent": "#d7a04b",
   "tags": [
     {
@@ -62,7 +62,16 @@
     "teacher-comment-bank",
     "anonymous-class-analytics",
     "pseudonymous-progress",
-    "offline-docx-import"
+    "offline-docx-import",
+    "essay-evaluation",
+    "rubric",
+    "batch-processing",
+    "pdf",
+    "sensitive-student-content",
+    "ghrab-platform-v1",
+    "canonical-branding",
+    "storage-namespace-v1",
+    "artifact-envelope-v1"
   ],
   "limits": {
     "typicalSeriesSize": 15,
@@ -71,7 +80,42 @@
   "compatibility": {
     "studioMinVersion": "0.6.3",
     "materialSchema": "ghrab-material-v1",
-    "studioBridge": "1.1"
+    "studioBridge": "not-applicable",
+    "platformContract": "ghrab-platform-v1",
+    "platformRange": ">=1.1.0 <2.0.0"
   },
-  "publishedAt": "__BUILD_TIME__"
+  "publishedAt": "__BUILD_TIME__",
+  "aiCore": {
+    "schema": "ghrab-ai-app-integration-v1",
+    "status": "integrated-p1",
+    "coreVersion": "1.0.0",
+    "contractVersion": "1",
+    "serverReady": true,
+    "conformancePassed": true,
+    "operationsManifestUrl": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/ai-operations.json",
+    "runtimeSchema": "ghrab-runtime-config-v1",
+    "gatewayContract": "ghrab-ai-request-v1",
+    "certificationStatus": "certified-p1",
+    "certificationEvidence": "evidence/p1-ai-conformance.json",
+    "certifiedOperations": 4
+  },
+  "slug": "hodnotitel-slohu",
+  "paths": {
+    "app": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/",
+    "manual": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/manual/",
+    "manifest": "https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/studio-manifest.json"
+  },
+  "platform": {
+    "schema": "ghrab-platform-app-integration-v1",
+    "contract": "ghrab-platform-v1",
+    "requiredPlatformRange": ">=1.1.0 <2.0.0",
+    "platformVersion": "1.0.0",
+    "brandVersion": "1.0.0",
+    "themeContract": 1,
+    "swContract": 1,
+    "studioBridge": "not-applicable",
+    "artifactEnvelope": 1,
+    "storagePrefix": "ghrab.essay-evaluator.",
+    "cacheName": "ghrab-essay-evaluator-v1.5.10"
+  }
 }

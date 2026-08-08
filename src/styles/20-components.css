@@ -89,3 +89,11 @@ body.focus-fullscreen .card { width: 100%; max-width: 100%; }
 .prog-label{background:transparent}
 .progress-seg:disabled,.prog-label:disabled{cursor:not-allowed}
 .progress-seg:not(:disabled):focus-visible,.prog-label:not(:disabled):focus-visible{outline:3px solid var(--acc-b);outline-offset:3px}
+
+/* P5 R2: progress labels may shrink and wrap on 320 px screens. */
+.prog-labels { min-width: 0; max-width: 100%; overflow: hidden; }
+.prog-label { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+@media (max-width: 560px) {
+  .prog-labels { gap: 1px; }
+  .prog-label { font-size: 8px; line-height: 1.15; }
+}

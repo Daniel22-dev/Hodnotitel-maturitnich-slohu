@@ -51,13 +51,13 @@ const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
 const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workflows/deploy.yml'):'';
 
-check(pkg.version==='1.5.2','package verze 1.5.2');
+check(pkg.version==='1.5.10','package verze 1.5.10');
 check(contains(text('README.md'),pkg.version),'README obsahuje aktuální verzi');
 check(contains(text('CHANGELOG.md'),`## ${pkg.version}`),'CHANGELOG obsahuje aktuální verzi');
 check(contains(release,"version:'__APP_VERSION__'"),'release přebírá verzi z build tokenu');
-check(contains(sw,"APP_VERSION='__APP_VERSION__'"),'service worker přebírá verzi z build tokenu');
-check(contains(sw,'c.addAll(CORE)')&&!/\.add\([^)]*\)\.catch\s*\(/.test(sw),'service worker má atomický precache bez tichého ignorování chyb');
-check(/c\.put\(event\.request,copy\)/.test(sw),'service worker cacheuje skutečnou navigační URL');
+check(/APP_VERSION\s*=\s*['"]__APP_VERSION__['"]/.test(sw),'service worker přebírá verzi z build tokenu');
+check(/cache\.addAll\(CORE\)/.test(sw)&&!/\.add\([^)]*\)\.catch\s*\(/.test(sw),'service worker má atomický precache bez tichého ignorování chyb');
+check(/cache\.put\(request,\s*response\.clone\(\)\)/.test(sw),'service worker cacheuje skutečnou navigační URL');
 check(contains(body,'v__APP_VERSION__'),'UI přebírá verzi z build tokenu');
 check(contains(build,"const pkg=JSON.parse")&&contains(build,"replaceAll('__APP_VERSION__',version)"),'package.json je jediný zdroj verze buildu');
 check(jsFiles.length>=18,`nejméně 18 JS modulů (${jsFiles.length})`);
@@ -83,8 +83,8 @@ for(const id of requiredIds)check(contains(body,`id="${id}"`),`povinné UI ID ${
 check(contains(body,'typicky 15 · max. 20'),'UI komunikuje reálnou velikost série');
 check(contains(body+ui+distribution,'Schváleno učitelem'),'UI obsahuje učitelské schválení');
 check(contains(body,'Gmail koncepty'),'UI obsahuje Gmail workflow');
-check(contains(body,'assets/ghrab-logo.png'),'záhlaví používá kanonické logo školy');
-check(exists('src/assets/ghrab-logo.png')&&!exists('src/assets/ghrab-logo-white-20260711.png')&&!exists('src/assets/ghrab-logo-black-20260711.png'),'existuje jediný kanonický asset školního loga');
+check(contains(body,'assets/brand/school-logo.png'),'záhlaví používá kanonické logo školy');
+check(exists('src/assets/brand/school-logo.png')&&!exists('src/assets/ghrab-logo-white-20260711.png')&&!exists('src/assets/ghrab-logo-black-20260711.png'),'existuje jediný kanonický asset školního loga');
 check(contains(text('src/styles/90-product-shell.css'),'.product-header h1 em{font-weight:400;color:inherit'), 'hero název používá jednotnou barvu');
 const shellCss=text('src/styles/90-product-shell.css');
 const pwaManifestText=text('src/manifest.webmanifest');
@@ -98,10 +98,10 @@ check(pwaManifest.icons.some(icon=>icon.purpose==='any')&&pwaManifest.icons.some
 check(pwaManifest.id==='/Hodnotitel-maturitnich-slohu/'&&pwaManifest.start_url==='./','PWA manifest má stabilní identitu a start URL');
 check(!exists('src/manifest-v1.3.3.webmanifest')&&!exists('src/manifest-v1.3.4.webmanifest')&&!exists('src/manifest-v1.3.5.webmanifest'),'staré verzované manifesty jsou odstraněny');
 check(!exists('src/icons/icon-192.png')&&!exists('src/icons/icon-512.png')&&!exists('src/icons/apple-touch-icon.png'),'duplicitní legacy ikony jsou odstraněny');
-check(contains(body,'<strong>Vlastník aplikace:</strong> Daniel Baláž · Gymnázium, Ostrava-Hrabůvka')&&contains(body,'© 2026 Daniel Baláž. Všechna práva vyhrazena.'),'sjednocené autorství v zápatí');
+check(contains(body,'data-ghrab-footer')&&contains(body,'data-ghrab-footer-branding'),'sjednocené autorství v zápatí řídí ghrab-footer-v1');
 check(contains(body,'role="dialog"')&&contains(body,'aria-modal="true"'),'modální dialog má přístupnou sémantiku');
 check(contains(ui,'<button type="button" class="progress-seg')&&contains(ui,'<button type="button" class="prog-label'),'kroky workflow jsou ovladatelná tlačítka');
-check(contains(reportEnhancements,'report-letterhead')&&contains(reportEnhancements,"assets/ghrab-logo.png"),'výsledný report má školní hlavičku a kanonické logo');
+check(contains(reportEnhancements,'report-letterhead')&&contains(reportEnhancements,"assets/brand/school-logo.png"),'výsledný report má školní hlavičku a kanonické logo');
 check(contains(reportEnhancements,'renderReportDocument')&&contains(reportEnhancements,'report-meta-item'),'profesionální report má strukturovaná metadata');
 check(contains(reportEnhancements,'report-preview-a4')||contains(text('src/styles/85-report-studio.css'),'report-preview-a4'),'A4 režim náhledu');
 check(contains(reportEnhancements,'report-theme-friendly'),'dva vizuální režimy reportu');
@@ -123,8 +123,8 @@ check(contains(stateUi,"signature:'',customComments:[]")&&contains(ui,"signature
 check(contains(reportEnhancements,'r?.approved&&r?.validation?.ok!==false'),'analytika používá jen schválené validní výsledky');
 check(contains(reportEnhancements,'singleEffective?.verified'),'historie jednotlivce vyžaduje finální kontrolu učitele');
 check(contains(sw,"./vendor/jszip.min.js"),'service worker cacheuje lokální JSZip');
-check(contains(sw,"event.request.mode==='navigate'")&&contains(sw,"caches.match('./index.html')"),'HTML fallback service workeru je omezen na navigaci');
-check((sw.match(/caches\.match\('\.\/index\.html'\)/g)||[]).length===1,'index.html fallback existuje pouze v navigační větvi');
+check(contains(sw,"request.mode === 'navigate'")&&contains(sw,"event.respondWith(networkFirst(request, fallback))"),'HTML fallback service workeru je omezen na navigaci');
+check((sw.match(/event\.respondWith\(networkFirst\(request, fallback\)\)/g)||[]).length===1,'navigační fallback existuje pouze v navigační větvi');
 check(release.length<12000,'analytická rubrika je výrazně kratší než původní chatový prompt');
 check(!contains(release,'Můžu rovnou vložit konkrétní slohovou práci')&&!contains(release,'V závěru napíšeš získaný počet bodů')&&!contains(release,'Napravo od slohové práce'),'prompt neobsahuje chatovou archeologii ani instrukce k ruční anotaci');
 check(contains(release,'Konečné body, FAIL podmínky, počet slov, penalizace, součet a známku vždy vypočítá aplikace'),'prompt jasně odděluje analytickou a deterministickou vrstvu');
@@ -132,7 +132,7 @@ check(!contains(js,'RESULT_SUMMARY_INSTRUCTIONS'),'odstraněna mrtvá instrukce 
 check(!contains(js,'(?<'),'zdroj neobsahuje regex lookbehind');
 check(contains(contract,'includeSchema=false')&&contains(contract,'VÝSTUPNÍ JSON SCHÉMA'),'ruční prompt umí vložit úplné JSON schéma');
 check(contains(contract,'Obsah mezi značkami STUDENT_TEXT_START'),'prompt obsahuje pojistku proti instrukcím ve studentském textu');
-check(contains(sw,'c.put(event.request,copy)'),'service worker cacheuje skutečnou navigační URL');
+check(/cache\.put\(request,\s*response\.clone\(\)\)/.test(sw),'service worker cacheuje skutečnou navigační URL');
 check(contains(ui,'files:[]')&&contains(ui,'attachmentRestoreRequired')&&!contains(ui,'files:(s.files||[]).map(f=>({...f}))'),'snapshot dávky neukládá binární payload příloh');
 check(contains(stateUi,'scheduleBatchProgressSave(delay=550)')&&contains(stateUi,'warnBatchPersistenceFailure'),'ukládání dávky je debounced a hlásí selhání');
 check(contains(results,"register(`./sw.js?v=${encodeURIComponent(APP_VERSION)}`"),'registrace service workeru používá aktuální verzi aplikace');
@@ -463,7 +463,7 @@ try{
   docxContext.APP_VERSION=pkg.version;
   docxContext.seriesDisplayName=()=> 'Testovací série';
   docxContext.xmlEscape=value=>String(value??'').replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
-  const logoBytes=readFileSync(join(SRC,'assets','ghrab-logo.png'));
+  const logoBytes=readFileSync(join(SRC,'assets','brand','school-logo.png'));
   docxContext.location={href:'http://127.0.0.1/'};
   docxContext.fetch=async()=>({ok:true,arrayBuffer:async()=>logoBytes.buffer.slice(logoBytes.byteOffset,logoBytes.byteOffset+logoBytes.byteLength)});
   const docxFunctions=reportEnhancements.slice(reportEnhancements.indexOf('function docxRun'),reportEnhancements.indexOf('function reportPrintCss'));
@@ -503,8 +503,8 @@ check(access.includes("await import('./app.js')"),'aplikace se načítá dynamic
 check(exists('src/access-gate.css')&&contains(template,'href="access-gate.css"')&&!contains(template,'access/access-gate.css'),'vzhled brány je lokální a cacheovatelný');
 check(contains(access,'IMPORT_TIMEOUT_MS')&&contains(access,'CHECK_TIMEOUT_MS')&&contains(access,'clearTimeout(timer)'),'brána má timeout a uklízí časovač');
 check(!contains(access,'Nouzový offline režim')&&!contains(access,'addOfflineWarning'),'brána nemá fail-open offline režim');
-check(contains(access,"ghrabAccess='denied'")&&!/catch\s*\([^)]*\)\s*\{[\s\S]{0,350}loadApplication\s*\(/.test(access),'chyba a timeout guardu zůstávají fail-closed');
-check(contains(access,"if(allowed) await loadApplication();")&&contains(access,"else document.documentElement.dataset.ghrabAccess='denied'"),'explicitní zamítnutí přístupu se neobchází');
+check(/dataset\.ghrabAccess\s*=\s*['\"]denied['\"]/.test(access)&&!/catch\s*\([^)]*\)\s*\{[\s\S]{0,500}loadApplication\s*\(/.test(access),'chyba a timeout guardu zůstávají fail-closed');
+check(/if\s*\(!allowed\)\s*return/.test(access)&&/startReporterBestEffort/.test(access)&&/loadApplication\s*\(\s*\)/.test(access)&&!(/await\s+import\([^)]*error-reporter-adapter/.test(access)),'explicitní zamítnutí se neobchází a reportér je best-effort mimo kritickou cestu');
 check((js.match(/\binit\(\);/g)||[]).length===1,'právě jedno volání init()');
 check(bootstrap.trim().startsWith('init();'),'bootstrap začíná init()');
 check(contains(bootstrap,"document.documentElement.dataset.appReady='1'"),'ready příznak');
@@ -540,7 +540,7 @@ check(contains(build,"rubric.version!=='2026.04.27-r1'"),'build kontroluje verzi
 
 check(existsSync(join(ROOT,'src','manual','index.html')),'Zdrojový interaktivní manuál existuje.');
 const manualSource=readFileSync(join(ROOT,'src','manual','index.html'),'utf8');
-check(manualSource.includes('data-ghrab-access-bootstrap')&&manualSource.includes('const APP_ID="essay-evaluator"'),'Manuál dědí oprávnění Hodnotitele z AI Studia.');
+check(manualSource.includes('data-ghrab-access-bootstrap')&&/const APP_ID=['\"]essay-evaluator['\"]/.test(manualSource)&&manualSource.includes('deployment-config.js'),'Manuál dědí konfigurovatelné oprávnění Hodnotitele z AI Studia.');
 check(readFileSync(join(ROOT,'src','body.html'),'utf8').includes('manual-launch-btn'),'Záhlaví obsahuje samostatné tlačítko interaktivního manuálu.');
 
 

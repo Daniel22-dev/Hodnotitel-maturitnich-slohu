@@ -1,3 +1,11 @@
+## 1.5.11 — sjednocení reportéru (2026-08-13)
+
+- Reportér používá dvoukrokové vytvoření a skutečné stažení diagnostického ZIPu; Gmail je dostupný až po kliknutí na stažení.
+- Texty výslovně požadují ruční přiložení ZIPu pomocí kancelářské sponky.
+- Pomocné video je uvnitř reportéru, mimo obrazovku a skryté přes CSS i inline pojistku, aby nevznikal rekurzivní obraz.
+- Regresní sada fyzicky ověřuje stažený ZIP, příjemce a obsah Gmail konceptu, screenshoty, jednu instanci, motivy, mobilní zobrazení a klávesnici.
+- Hodnoticí workflow ani data studentů nebyly změněny; PWA cache je `ghrab-essay-evaluator-v1.5.11`.
+
 ## 1.5.10 — P5 (2026-08-05)
 
 

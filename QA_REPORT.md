@@ -1,4 +1,4 @@
-# QA report — Hodnotitel maturitních slohů 1.5.10
+# QA report — Hodnotitel maturitních slohů 1.5.11
 
 > Hotfix P5 R2: doplněn přístupný název tlačítka reportéru, opraven kontrast platformní patičky a přidána regresní kontrola. Hodnoticí rubrika, práce studentů ani datové formáty nebyly změněny.
 

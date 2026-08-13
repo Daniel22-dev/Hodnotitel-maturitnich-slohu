@@ -1,5 +1,5 @@
 /* ===================== GHRAB AI CORE 1.0.0 · HODNOTITEL P1 ===================== */
-const HOD_AI_APP=Object.freeze({id:'essay-evaluator',version:'1.5.10'});
+const HOD_AI_APP=Object.freeze({id:'essay-evaluator',version:'1.5.11'});
 const HOD_AI_SCHEMAS=Object.freeze({
   'essay-evaluator.transcription.v1':{type:'object',required:['text','legibility_percent','uncertain_fragments'],properties:{text:{type:'string'},legibility_percent:{type:'number'},uncertain_fragments:{type:'array',items:{type:'string'}}},additionalProperties:true},
   'essay-evaluator.evaluation.v1':{type:'object',additionalProperties:true}

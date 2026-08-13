@@ -1,7 +1,7 @@
 const GHRAB_SW_CONTRACT='ghrab-service-worker-v1';
 /* GHRAB service-worker contract v1 · update activation is user-controlled. */
 const APP_VERSION = '__APP_VERSION__';
-const CACHE = "ghrab-essay-evaluator-v1.5.10";
+const CACHE = "ghrab-essay-evaluator-v1.5.11";
 const CACHE_PREFIXES = ["ghrab-essay-evaluator-v", "hodnotitel-"];
 const CORE = [
   "./",

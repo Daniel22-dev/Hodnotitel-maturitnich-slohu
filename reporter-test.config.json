@@ -2,7 +2,7 @@
   "distEntry": "dist/index.html",
   "appId": "essay-evaluator",
   "appName": "Hodnotitel maturitních slohů",
-  "version": "1.5.11",
+  "version": "1.5.13",
   "reporterPath": "src/access/error-reporter.js",
   "stylePath": "src/access/error-reporter.css",
   "adapterPath": "src/access/error-reporter-adapter.js",

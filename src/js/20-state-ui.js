@@ -62,7 +62,7 @@ function showModal(title,body,actions){
 function uiConfirm(body,title='Potvrzení'){ return new Promise(resolve=>showModal(title, escapeHtml(body).replace(/\n/g,'<br>'), [{label:'Zrušit',onClick:()=>resolve(false)},{label:'Potvrdit',className:'primary',onClick:()=>resolve(true)}])); }
 function privacyIntroHtml(){ return `<div class="warn-box"><strong>Než začneš hodnotit:</strong> tento nástroj pracuje se studentskými texty, proto je nutné hlídat osobní údaje ještě před odesláním do AI.</div>
 <p><span class="privacy-intro-strong">Co nástroj dělá automaticky:</span></p>
-<ul class="privacy-intro-list"><li>u textu a Wordu nahrazuje e-maily, telefony, URL, možné rodné číslo a další rozpoznatelné identifikátory; zadané jméno nahrazuje jako celek i po jednotlivých částech dlouhých alespoň tři znaky,</li><li>při dávce přiděluje kódy typu STUDENT_001, STUDENT_002,</li><li>před odesláním spouští kontrolu citlivých údajů a v Privacy režimu zastaví odeslání, pokud něco najde,</li><li>studentské texty, identitu a výsledky ve výchozím stavu neukládá do trvalého úložiště prohlížeče; obnovu citlivé relace je nutné zapnout ručně,</li><li>mapu anonymizace drží jen lokálně v prohlížeči a neposílá ji do Gemini.</li></ul>
+<ul class="privacy-intro-list"><li>u textu a Wordu nahrazuje e-maily, telefony, URL, možné rodné číslo a další rozpoznatelné identifikátory; zadané jméno nahrazuje jako celek i po jednotlivých částech dlouhých alespoň tři znaky,</li><li>při dávce přiděluje kódy typu STUDENT_001, STUDENT_002,</li><li>před odesláním spouští kontrolu citlivých údajů a v Privacy režimu zastaví odeslání, pokud něco najde,</li><li>studentské texty, identitu a výsledky ve výchozím stavu neukládá do trvalého úložiště prohlížeče; obnovu citlivé relace je nutné zapnout ručně,</li><li>Apps Script tajemství a backendový přístupový token se neukládají ani při zapnuté obnově citlivé relace,</li><li>mapu anonymizace drží jen lokálně v prohlížeči a neposílá ji do Gemini.</li></ul>
 <p style="margin-top:10px"><span class="privacy-intro-strong">Co musí udělat uživatel:</span></p>
 <ul class="privacy-intro-list"><li>zkontrolovat náhled „co odejde do AI“,</li><li>doplnit do anonymizačního seznamu jména, školu, třídu, město, adresu nebo jiné údaje, které aplikace nemusela poznat; skloňované tvary, přezdívky a varianty jmen je nutné uvést samostatně,</li><li>u fotek a PDF zkontrolovat, zda není jméno vidět přímo v obrázku; jednosouborový nástroj neumí obrázek lokálně spolehlivě začernit,</li><li>API klíč se neukládá trvale; v přímém režimu zůstává jen do zavření relace,</li><li>zvolit API režim pouze tehdy, když opravdu chceš automatické hodnocení přes Gemini; offline příprava a ruční AI režim API klíč nepotřebují.</li></ul>
 <div class="ok-box" style="margin-top:12px"><strong>Doporučený bezpečný postup:</strong> Word nebo vložený text → doplnit jméno a další údaje → spustit kontrolu citlivých údajů → nahradit nebo potvrdit nálezy → zvolit offline / ruční AI / Gemini API podle potřeby.</div>`; }
@@ -76,7 +76,7 @@ function initTooltips(){ document.querySelectorAll('.tt-icon[data-tip]').forEach
 
 const CHANGELOG_MAX_ENTRIES = 10;
 const CHANGELOG = [
-  {version:APP_VERSION+' AI STUDIO EDITION', items:['Opraven ruční AI režim: prompt obsahuje úplné JSON schéma a vložený výsledek prochází stejným deterministickým bodováním a validační bránou jako API.', 'Opraveny hraniční chyby počtu slov, nadpisů a vstupního zámku; technická značka nahraného textu se už nikdy nepočítá.', 'Kódy studentů se po odebrání práce nerecyklují a nejednoznační jmenovci se nepárují automaticky.', 'Fotku nebo PDF je nyní nutné nejdřív přepsat a potvrdit; prázdný text už nemůže vytvořit automatickou známku 5.', 'Batch odpovědi s citacemi se neukládají do localStorage a výsledky bez identifikačního klíče se nepřiřazují podle pořadí.', 'Doplněny regresní testy, limit PDF, bezpečnější práce s API klíčem, kompatibilita bez regex lookbehind a opravy exportu DOCX/PWA cache., sjednocená certifikace GHRAB QA 1.0.2 a fail-closed přístupová brána.']},
+  {version:APP_VERSION+' AI STUDIO EDITION', items:['Deployment profil je zapečený do buildu a při chybě konfigurace zůstává aplikace i manuál bezpečně uzamčený.', 'ZIP a DOCX import odmítá nebezpečné cesty a příliš velký obsah po rozbalení; import zadání přijímá jen povolená pole.', 'CSV exporty neutralizují vzorce a devítimístná telefonní čísla se anonymizují i bez mezer.', 'Apps Script tajemství a backendový token se nikdy neukládají do stavu prohlížeče.', 'AI privacy metadata nyní pravdivě rozlišují zkontrolovaný text a obrazovou/PDF přílohu.', 'CSP nepovoluje inline JavaScript; manuál i tiskový náhled používají externí skripty a programové handlery.']},
   {version:'1.4.0 AI STUDIO EDITION', items:['Přidána anonymní technická telemetrie počtu zpracovaných slohů, úspěchů, chyb a zrušení.', 'Batch API zapisuje metriku až při dokončení a chrání se před dvojím započtením.', 'Text práce, výsledek, jméno ani jiné údaje studenta se do telemetrie neposílají.']},
   {version:'1.3.7 AI STUDIO EDITION', items:['Přidán úplný interaktivní manuál dostupný samostatným tlačítkem v záhlaví.', 'Manuál se otevírá v nové kartě, zachová rozpracovanou sérii a používá stejné oprávnění AI Studia.', 'Manuál je součástí offline PWA balíčku.']},
   {version:'1.3.6 AI STUDIO EDITION', items:['Stabilizována PWA identita, service worker, přístupová brána a bezpečná obnova dávky bez base64 příloh.', 'Sjednoceno školní logo a verze řízená výhradně z package.json.', 'Doplněny první funkční zlaté testy word-countu, snapshotu a pseudonymizace.']},
@@ -95,15 +95,15 @@ function loadTasks(){
   return makeDefaultTasks();
 }
 function normalizeImportedTask(setId,genreId,item,index){
-  const task=Object.assign(placeholderTask(setId,genreId,index+1),item&&typeof item==='object'?item:{});
-  task.id=String(task.id||`${setId}-${genreId}-${index+1}`);
-  task.set=setId;
-  task.genre=genreId;
-  task.number=Number.isFinite(Number(task.number))?Number(task.number):index+1;
-  task.title=String(task.title||placeholderTask(setId,genreId,index+1).title);
-  task.taskText=String(task.taskText||'');
-  task.requirements=Array.isArray(task.requirements)?task.requirements.map(x=>String(x||'').trim()).filter(Boolean):[];
-  task.sourceFile=String(task.sourceFile||'');
+  const source=item&&typeof item==='object'?item:{};
+  const fallback=placeholderTask(setId,genreId,index+1);
+  const task={...fallback};
+  task.id=String(source.id||fallback.id);
+  task.number=Number.isFinite(Number(source.number))?Number(source.number):index+1;
+  task.title=String(source.title||fallback.title);
+  task.taskText=String(source.taskText||'');
+  task.requirements=Array.isArray(source.requirements)?source.requirements.map(x=>String(x||'').trim()).filter(Boolean):[];
+  task.sourceFile=String(source.sourceFile||'');
   task.isPlaceholder=!task.taskText.trim();
   return task;
 }

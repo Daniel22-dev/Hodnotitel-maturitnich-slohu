@@ -2,7 +2,7 @@
   "standard": "GHRAB-QA-1.0.2",
   "appId": "essay-evaluator",
   "appName": "Hodnotitel maturitních slohů",
-  "appVersion": "1.5.11",
+  "appVersion": "1.5.13",
   "entryPoint": "dist/index.html",
   "serveRoot": "dist",
   "buildRoot": "dist",
@@ -47,22 +47,22 @@
     {
       "file": "CHANGELOG.md",
       "regex": "## ([0-9.]+)",
-      "expected": "1.5.11"
+      "expected": "1.5.13"
     },
     {
       "file": "dist/app.js",
       "regex": "version:'([0-9.]+)'",
-      "expected": "1.5.11"
+      "expected": "1.5.13"
     },
     {
       "file": "dist/sw.js",
       "regex": "ghrab-essay-evaluator-v([0-9.]+)",
-      "expected": "1.5.11"
+      "expected": "1.5.13"
     },
     {
       "file": "dist/studio-manifest.json",
       "regex": "\"version\"\\s*:\\s*\"([0-9.]+)\"",
-      "expected": "1.5.11"
+      "expected": "1.5.13"
     }
   ],
   "pwaTargets": [
@@ -78,7 +78,7 @@
     "allowedEmails": [
       "balaz@ghrabuvka.cz"
     ],
-    "requiresCsvFormulaProtection": false,
+    "requiresCsvFormulaProtection": true,
     "validator": "qa/security-validator.mjs",
     "auditDerivedControls": [
       "manual-ai-schema-roundtrip",

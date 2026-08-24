@@ -45,6 +45,10 @@ if (!deployment.appId || deployment.profile !== "school-server" || deployment.au
 }
 const appBaseUrl = trailingSlash(deployment.appBaseUrl || deployment.appBaseUrls?.[deployment.appId]);
 if (!appBaseUrl.startsWith("/")) throw new Error("School-server appBaseUrl musí být same-origin absolutní cesta.");
+fs.writeFileSync(
+  path.join(targetDist, "access", "deployment-baked.js"),
+  `globalThis.__GHRAB_DEPLOYMENT_CONFIG_OVERRIDE__=Object.freeze(${JSON.stringify(deployment)});\n`,
+);
 
 for (const manifestPath of files.filter((file) => file.endsWith(`${path.sep}studio-manifest.json`))) {
   const manifest = readJson(manifestPath);

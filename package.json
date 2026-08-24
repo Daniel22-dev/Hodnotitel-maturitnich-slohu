@@ -1,11 +1,11 @@
 {
   "name": "hodnotitel-maturitnich-slohu",
-  "version": "1.5.11",
+  "version": "1.5.13",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node tests/test.mjs",
+    "test": "node tests/test.mjs && node tests/security-regressions.mjs",
     "check": "npm test && npm run build",
     "qa:technical": "node scripts/qa-technical.mjs",
     "qa:security": "node scripts/qa-security.mjs",

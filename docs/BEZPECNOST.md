@@ -28,6 +28,8 @@ Citlivý obsah se standardně neukládá trvale. Bez výslovného zapnutí obnov
 
 Obnova citlivé relace patří pouze na vlastní zařízení. Její vypnutí nebo vymazání citlivé relace odstraní také pseudonymní historii.
 
+Sdílené tajemství Apps Scriptu a přístupový token budoucího backendu se neukládají nikdy, ani při zapnuté obnově citlivé relace. Po obnovení stránky se musí zadat znovu.
+
 ## Pseudonymní historie
 
 Historie je opt-in a ukládá pouze:
@@ -57,16 +59,29 @@ Osobní údaj přímo v obrazu nelze bezpečně odstranit prostou textovou náhr
 
 JSZip je součástí repozitáře v přesné verzi 3.10.1 a s licencí. Aplikace pro DOCX/ZIP/XLSX workflow nepoužívá externí CDN, čímž se snižuje riziko výpadku a nečekané změny třetí strany.
 
+Správce aplikace nejméně jednou za čtvrtletí a před každým vydáním ověří oficiální vydání JSZip a zveřejněná bezpečnostní upozornění. Při aktualizaci zaznamená verzi, licenci a kontrolní součet souboru, znovu sestaví aplikaci a spustí regresní testy importu ZIP/DOCX/XLSX. Vendored kopie se nemění bez tohoto ověření.
+
 ## API klíče
 
 - nepřidávat do repozitáře;
 - na sdíleném zařízení používat pouze relaci;
 - pro školní provoz používat samostatný projekt;
-- dlouhodobě přesunout klíč na školní backend.
+- školní sestavovací profil lokální provider klíče zakazuje;
+- dlouhodobě přesunout klíč na skutečný školní backend; tento repozitář zatím obsahuje pouze jeho kontrakt a klientský adaptér.
 
 ## Distribuce
 
 Aplikace povolí distribuci pouze výsledkům, které prošly validační bránou, mají právě jeden platný e-mail, nemají duplicitní adresu a byly schváleny učitelem. Doporučený režim je nejprve vytvořit Gmail koncepty.
+
+## Odchozí datové toky
+
+AI hodnocení a e-mailová distribuce jsou dva různé odchozí toky a škola je musí posuzovat odděleně:
+
+1. **AI služba:** odchází pseudonymní kód, učitelem zkontrolovaný nebo pseudonymizovaný text, zadání a hodnoticí instrukce. Jméno, e-mail, třída a lokální anonymizační mapa se neposílají. Fotografie nebo PDF mohou obsahovat údaje přímo v obrazu; před jejich odesláním se má odstranit identifikační záhlaví a učitel musí následně potvrdit přepis.
+2. **Apps Script a Gmail:** až po učitelském schválení mohou odejít skutečné jméno a e-mail, výsledné hodnocení a zpětná vazba; podle zvoleného nastavení také původní text práce. Přímý režim i kompatibilní formulářový režim předávají stejný obsah témuž školnímu Apps Scriptu. U kompatibilního režimu aplikace výsledek automaticky nepotvrdí, proto je nutná kontrola nové karty a Gmailu před opakováním.
+3. **Lokální exporty:** soubory zůstávají na zařízení, dokud je uživatel sám nepřenese nebo neuloží do další služby.
+
+Tato technická dokumentace sama neurčuje právní titul zpracování. Správce školy má oba síťové toky uvést v evidenci zpracování, nastavit příjemce, přístupy, dobu uchování a mazání a ověřit smluvní režim používaných služeb.
 
 ## Apps Script
 

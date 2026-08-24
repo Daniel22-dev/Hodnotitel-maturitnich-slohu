@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="cs" data-theme="dark" data-ghrab-access="checking" data-ghrab-app-id="essay-evaluator" data-ghrab-app-version="1.5.11">
+<html lang="cs" data-theme="dark" data-ghrab-access="checking" data-ghrab-app-id="essay-evaluator" data-ghrab-app-version="1.5.13">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://script.google.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://generativelanguage.googleapis.com https://script.google.com https://script.googleusercontent.com; media-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self'; manifest-src 'self'">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark light">
 <title>Hodnotitel maturitních slohů · Interaktivní manuál</title>
@@ -34,13 +35,13 @@ section{scroll-margin-top:90px;margin-top:54px}.section-head{display:flex;align-
 <body>
 <div class="app">
 <header class="topbar">
-  <div class="brand"><div class="brandmark">HS</div><div class="brandtext"><b>Hodnotitel slohů</b><small>Interaktivní manuál · pro aplikaci v1.5.11</small></div></div>
+  <div class="brand"><div class="brandmark">HS</div><div class="brandtext"><b>Hodnotitel slohů</b><small>Interaktivní manuál · pro aplikaci v1.5.13</small></div></div>
   <div class="top-actions">
     <div class="progress-pill"><div class="progress-ring" id="progressRing"><span id="progressNum">0%</span></div><span>prostudováno</span></div>
     <button class="iconbtn" id="searchBtn" title="Hledat v manuálu (Ctrl+K)">⌕</button>
     <button class="iconbtn" id="themeBtn" title="Světlý / tmavý režim">◐</button>
     <button class="iconbtn" id="fullscreenBtn" type="button" title="Zobrazit na celou obrazovku" aria-label="Zobrazit na celou obrazovku" aria-pressed="false"><svg class="fullscreen-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <button class="iconbtn" onclick="window.print()" title="Vytisknout rychlou příručku">⎙</button>
+    <button class="iconbtn" id="printBtn" type="button" title="Vytisknout rychlou příručku">⎙</button>
   </div>
 </header>
 <div class="layout">
@@ -58,7 +59,7 @@ section{scroll-margin-top:90px;margin-top:54px}.section-head{display:flex;align-
 </aside>
 <main>
 <section class="hero" id="start">
-  <div class="eyebrow"><span class="badge hot">Manuál 1.0.2</span><span class="badge">Pohled běžného učitele</span><span class="badge">aplikace v1.5.11</span><span class="badge">Gymnázium, Ostrava-Hrabůvka</span></div>
+  <div class="eyebrow"><span class="badge hot">Manuál 1.0.2</span><span class="badge">Pohled běžného učitele</span><span class="badge">aplikace v1.5.13</span><span class="badge">Gymnázium, Ostrava-Hrabůvka</span></div>
   <h1>Hodnotitel maturitních slohů</h1>
   <p class="lead">Řídí bezpečné dávkové hodnocení maturitních slohů podle pevné školní rubriky, od importu prací až po učitelskou kontrolu, reporty a distribuci.</p>
   <div class="hero-grid">
@@ -68,7 +69,7 @@ section{scroll-margin-top:90px;margin-top:54px}.section-head{display:flex;align-
   </div>
 </section>
 <section>
-  <div class="notice"><div class="notice-icon">↗</div><div><strong>Aktuální stav · Hodnotitel 1.5.11</strong><br>Manuál odpovídá aktuálnímu dávkovému hodnocení, potvrzení přepisu, osmipoložkové rubrice, validačním branám, reportům a exportům. <strong>Manuál uvnitř AI Studia se otevírá ve stejném pracovním prostoru, nikoli v nové kartě.</strong></div></div>
+  <div class="notice"><div class="notice-icon">↗</div><div><strong>Aktuální stav · Hodnotitel 1.5.13</strong><br>Manuál odpovídá aktuálnímu dávkovému hodnocení, potvrzení přepisu, osmipoložkové rubrice, validačním branám, reportům a exportům. <strong>Manuál uvnitř AI Studia se otevírá ve stejném pracovním prostoru, nikoli v nové kartě.</strong></div></div>
 </section>
 <section>
   <div class="section-head"><div><div class="kicker">Vyber svůj cíl</div><h2>Co chceš udělat?</h2><p>Klikni na nejbližší scénář. Zobrazí se nejkratší doporučená cesta.</p></div></div>
@@ -114,7 +115,7 @@ section{scroll-margin-top:90px;margin-top:54px}.section-head{display:flex;align-
   <div class="section-head"><div><div class="kicker">Před prvním ostrým použitím</div><h2>Kontrolní seznam</h2><p>Stav se ukládá pouze lokálně v tomto prohlížeči.</p></div><button class="chipbtn" id="resetProgress">Vynulovat průchod</button></div>
   <div class="checklist" id="checklist"><label class="check"><input type="checkbox"><span>Rozumím účelu aplikace a vybral(a) jsem správný pracovní scénář.</span></label><label class="check"><input type="checkbox"><span>Prošel/prošla jsem mapu prostředí a vím, kde se nachází hlavní pracovní kroky.</span></label><label class="check"><input type="checkbox"><span>Dokončil(a) jsem interaktivní prohlídku krok za krokem.</span></label><label class="check"><input type="checkbox"><span>Znám bezpečnostní pravidla a vím, které údaje nesmí odejít do AI.</span></label><label class="check"><input type="checkbox"><span>Vyzkoušel(a) jsem aplikaci na neostrém testovacím příkladu.</span></label><label class="check"><input type="checkbox"><span>Před prvním ostrým použitím provedu finální lidskou kontrolu výstupu.</span></label></div>
 </section>
-<div class="footer" data-ghrab-footer>Interaktivní manuál 1.0 · cílová aplikace Hodnotitel slohů v1.5.11 · integrováno do aplikace a AI Studia GHRAB<br>© 2026 Daniel Baláž · Gymnázium, Ostrava-Hrabůvka</div>
+<div class="footer" data-ghrab-footer>Interaktivní manuál 1.0 · cílová aplikace Hodnotitel slohů v1.5.13 · integrováno do aplikace a AI Studia GHRAB<br>© 2026 Daniel Baláž · Gymnázium, Ostrava-Hrabůvka</div>
 
 <section class="ghrab-central-error-guide" style="margin:20px 0;padding:18px;border:1px solid color-mix(in srgb,currentColor 22%,transparent);border-radius:14px;background:color-mix(in srgb,currentColor 5%,transparent)">
   <strong style="display:block;margin-bottom:7px">Potřebujete nahlásit technickou chybu?</strong>
@@ -126,75 +127,7 @@ section{scroll-margin-top:90px;margin-top:54px}.section-head{display:flex;align-
 <nav class="mobile-nav"><a href="#start"><b>⌂</b>Start</a><a href="#mapa"><b>◫</b>Mapa</a><a href="#prohlidka"><b>▶</b>Prohlídka</a><a href="#bezpecnost"><b>◆</b>Bezpečnost</a><a href="#hotovo"><b>✓</b>Hotovo</a></nav>
 </div>
 <div class="search-overlay" id="searchOverlay"><div class="searchbox"><input id="searchInput" placeholder="Hledat v manuálu…"><div class="results" id="searchResults"></div></div></div>
-<script type="application/ghrab-protected" data-ghrab-protected>
-const MANUAL={id:"essay-evaluator",version:"1.5.11",map:[{"n": "1", "title": "Série a zadání", "desc": "Název série, skupina, datum, učitel, databáze zadání a přesná verze rubriky."}, {"n": "2", "title": "Studenti a soubory", "desc": "Import z IS, ZIP, jednotlivé soubory, párování, prázdný student a dávka do 20 prací."}, {"n": "3", "title": "Soukromí a přepis", "desc": "Pseudonymizace, kontrola citlivých údajů, náhled toho, co odejde do AI, a potvrzení přepisu."}, {"n": "4", "title": "Provoz hodnocení", "desc": "Prohlížeč nebo budoucí školní server, okamžitá fronta, Batch API, model, API klíč, tokeny a náklady."}, {"n": "5", "title": "Výsledek a validace", "desc": "Osm kategorií, důkazní mapa, FAIL pravidla, počet slov, známka, AI indikátory a validační stav."}, {"n": "6", "title": "Finální kontrola učitele", "desc": "Ruční oprava bodů, známky a komentáře, potvrzení člověkem a schválení výsledku."}, {"n": "7", "title": "Report Studio a distribuce", "desc": "Studentský a učitelský report, A4, DOCX, XLSX, ZIP, analytika, historie a Gmail koncepty."}],tour:[{"title": "Založ sérii a zafixuj kontext", "body": "Vyplň název, skupinu, datum a učitele. Vyber přesné zadání; k sérii se váže verze rubriky 2026.04.27-r1.", "tip": "Zadání musí odpovídat skutečné práci. Chybná volba znehodnotí celé hodnocení."}, {"title": "Načti skupinu", "body": "Vlož seznam z IS. Aplikace rozpozná řádky, čárky, středníky i tabulátory a vytvoří studenty s lokální identitou.", "tip": "Po importu zkontroluj počet studentů a neplatné položky."}, {"title": "Nahraj a spáruj práce", "body": "Použij ZIP pro celou skupinu nebo jednotlivé DOCX, PDF a fotografie. U každé práce ověř přiřazeného studenta a e-mail.", "tip": "AI dostává pseudonymní kód; skutečná identita slouží lokálně k párování a distribuci."}, {"title": "Potvrď digitální přepis", "body": "U fotografií a PDF porovnej přepis s originálem, oprav nejasná místa a potvrď jej učitelem. Bez potvrzení se hodnocení nespustí.", "tip": "Nečitelný fragment nesmí být tiše domyšlen."}, {"title": "Proveď privacy kontrolu", "body": "Zobraz, co skutečně odejde do AI, zkontroluj citlivé údaje a potvrď náhrady. Citlivé ukládání je výchozí vypnuté.", "tip": "Pseudonymizace nenahrazuje lidskou kontrolu náhledu."}, {"title": "Vyber způsob zpracování", "body": "Okamžitá fronta vrací výsledky průběžně. Batch API je úspornější, ale výsledek se kontroluje později. Sleduj odhad tokenů a nákladů.", "tip": "Pro první ostrý provoz je přehlednější okamžitá fronta."}, {"title": "Rozliš AI analýzu a výpočet známky", "body": "AI navrhuje jazykovou analýzu a důkazy. Aplikace deterministicky počítá body, FAIL pravidla a výslednou známku podle rubriky.", "tip": "Ani validní JSON neznamená automaticky správné pedagogické hodnocení."}, {"title": "Proveď finální kontrolu člověkem", "body": "Ověř osm kategorií, počet slov, splnění zadání, FAIL podmínky, citace, chyby, jméno a e-mail. Ruční opravu ulož a označ výsledek jako zkontrolovaný.", "tip": "Bez finálního potvrzení učitele výsledek nerozesílej."}, {"title": "Připrav profesionální report", "body": "Vyber formální nebo studentský styl, obrazovku či A4, podpis, bodovou mapu, tři priority a revizní miniúkol.", "tip": "Kontrola souladu upozorní na rozpory mezi body, známkou a komentářem."}, {"title": "Exportuj a distribuuj bezpečně", "body": "Nejdřív zkontroluj studentský report a export. Potom vytvoř Gmail koncepty, ověř příjemce a obsah přímo v Gmailu a teprve pak odešli.", "tip": "Přímé hromadné odeslání používej až po testu na vlastním e-mailu."}]};
-const KEY='ghrab-manual-progress-'+MANUAL.id+'-'+MANUAL.version;
-let state={tour:[],checks:[]};try{state=Object.assign(state,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){ }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(_){ } updateProgress()}
-function updateProgress(){const total=MANUAL.tour.length+document.querySelectorAll('.check').length;const done=new Set(state.tour).size+new Set(state.checks).size;const p=total?Math.round(done/total*100):0;document.getElementById('progressNum').textContent=p+'%';document.getElementById('progressRing').style.setProperty('--p',p+'%')}
-// routes
-document.querySelectorAll('.route-card').forEach(c=>c.onclick=()=>{document.querySelectorAll('.route-card').forEach(x=>x.classList.remove('selected'));c.classList.add('selected')});
-// map
-function showMap(i){const x=MANUAL.map[i];document.querySelectorAll('.mock-block').forEach((b,k)=>b.classList.toggle('on',k===i));mapNum.textContent=x.n;mapTitle.textContent=x.title;mapDesc.textContent=x.desc}document.querySelectorAll('.mock-block').forEach((b,i)=>b.onclick=()=>showMap(i));showMap(0);
-// tour
-let ti=0;function renderTour(){const x=MANUAL.tour[ti];tourCount.textContent='Krok '+(ti+1)+' z '+MANUAL.tour.length;tourTitle.textContent=x.title;tourBody.textContent=x.body;tourTip.innerHTML='<b>Doporučení:</b> '+x.tip;document.querySelectorAll('.tour-tab').forEach((b,i)=>{b.classList.toggle('on',i===ti);b.textContent=(state.tour.includes(i)?'✓ ':'')+(i+1)+'. '+MANUAL.tour[i].title});tourPrev.disabled=ti===0;tourNext.disabled=ti===MANUAL.tour.length-1;tourDone.textContent=state.tour.includes(ti)?'✓ Krok je hotový':'Označit krok jako hotový'}
-document.querySelectorAll('.tour-tab').forEach((b,i)=>b.onclick=()=>{ti=i;renderTour()});tourPrev.onclick=()=>{ti=Math.max(0,ti-1);renderTour()};tourNext.onclick=()=>{ti=Math.min(MANUAL.tour.length-1,ti+1);renderTour()};tourDone.onclick=()=>{if(state.tour.includes(ti))state.tour=state.tour.filter(x=>x!==ti);else state.tour.push(ti);save();renderTour()};renderTour();
-// faq
-document.querySelectorAll('.acc button').forEach(b=>b.onclick=()=>b.parentElement.classList.toggle('open'));
-// checklist
-document.querySelectorAll('.check').forEach((c,i)=>{const cb=c.querySelector('input');cb.checked=state.checks.includes(i);c.classList.toggle('done',cb.checked);cb.onchange=()=>{if(cb.checked&&!state.checks.includes(i))state.checks.push(i);if(!cb.checked)state.checks=state.checks.filter(x=>x!==i);c.classList.toggle('done',cb.checked);save()}});resetProgress.onclick=()=>{state={tour:[],checks:[]};save();document.querySelectorAll('.check input').forEach(x=>x.checked=false);document.querySelectorAll('.check').forEach(x=>x.classList.remove('done'));renderTour()};updateProgress();
-// fullscreen
-const fullscreenBtn=document.getElementById('fullscreenBtn');
-const fullscreenRoot=document.documentElement;
-const isFullscreen=()=>Boolean(document.fullscreenElement||document.webkitFullscreenElement);
-const fullscreenOpenIcon='<svg class="fullscreen-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const fullscreenCloseIcon='<svg class="fullscreen-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-function syncFullscreenButton(){if(!fullscreenBtn)return;const active=isFullscreen();fullscreenBtn.innerHTML=active?fullscreenCloseIcon:fullscreenOpenIcon;fullscreenBtn.title=active?'Ukon\u010dit zobrazen\u00ed na celou obrazovku':'Zobrazit na celou obrazovku';fullscreenBtn.setAttribute('aria-label',fullscreenBtn.title);fullscreenBtn.setAttribute('aria-pressed',String(active));}
-async function toggleFullscreen(){try{if(isFullscreen()){const exit=document.exitFullscreen||document.webkitExitFullscreen;if(exit)await exit.call(document);}else{const request=fullscreenRoot.requestFullscreen||fullscreenRoot.webkitRequestFullscreen;if(request)await request.call(fullscreenRoot);} }catch(error){console.warn('Fullscreen se nepoda\u0159ilo p\u0159epnout.',error);}syncFullscreenButton();}
-if(fullscreenBtn){fullscreenBtn.addEventListener('click',toggleFullscreen);document.addEventListener('fullscreenchange',syncFullscreenButton);document.addEventListener('webkitfullscreenchange',syncFullscreenButton);syncFullscreenButton();}
-// theme
-const THEME='ghrab-manual-theme';try{document.documentElement.dataset.theme=localStorage.getItem(THEME)||'dark'}catch(_){ }themeBtn.onclick=()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem(THEME,n)}catch(_){ }};
-// active nav
-const links=[...document.querySelectorAll('.navlink')];const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id))}}),{rootMargin:'-25% 0px -65% 0px'});document.querySelectorAll('main section[id]').forEach(s=>obs.observe(s));
-// search
-const overlay=document.getElementById('searchOverlay'),input=document.getElementById('searchInput'),results=document.getElementById('searchResults');const index=[...document.querySelectorAll('main section')].map(s=>({id:s.id||'start',title:(s.querySelector('h2,h1')||{}).textContent||'Úvod',text:s.innerText.replace(/\s+/g,' ')}));function openSearch(){overlay.classList.add('open');input.value='';renderSearch('');setTimeout(()=>input.focus(),20)}function closeSearch(){overlay.classList.remove('open')}function renderSearch(q){q=q.trim().toLowerCase();const arr=index.filter(x=>!q||x.text.toLowerCase().includes(q));results.innerHTML=arr.map(x=>'<a class="result" href="#'+x.id+'"><b>'+x.title+'</b>'+(!q?'Otevřít část manuálu':x.text.slice(Math.max(0,x.text.toLowerCase().indexOf(q)-55),Math.max(0,x.text.toLowerCase().indexOf(q)-55)+170)+'…')+'</a>').join('')||'<div class="result">Nic nenalezeno.</div>';results.querySelectorAll('a').forEach(a=>a.onclick=closeSearch)}searchBtn.onclick=openSearch;overlay.onclick=e=>{if(e.target===overlay)closeSearch()};input.oninput=()=>renderSearch(input.value);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSearch()}if(e.key==='Escape')closeSearch()});
-</script>
-
-<script type="module" data-ghrab-access-bootstrap>
-const APP_ID='essay-evaluator';
-let studioUrl='/AI-Studio-GHRAB/';
-function fail(error){
-  console.error('GHRAB access bootstrap failed',error);
-  document.documentElement.dataset.ghrabAccess='denied';
-  document.body.style.visibility='visible';
-  document.body.className='ghrab-access-gate-body';
-  document.body.innerHTML='<main class="ghrab-access-gate" role="alert"><div class="ghrab-access-gate-mark">⬡</div><p class="ghrab-access-gate-eyebrow">AI STUDIO GHRAB</p><h1>Přístup k manuálu nelze ověřit</h1><p>Manuál používá stejné oprávnění jako aplikace. Otevřete jej z AI Studia nebo z povolené aplikace.</p><div class="ghrab-access-gate-actions"><a class="ghrab-access-gate-primary" data-ghrab-studio-link>Otevřít AI Studio</a></div></main>';
-  const link=document.querySelector('[data-ghrab-studio-link]');if(link)link.href=studioUrl;
-}
-function activatePage(){
-  document.documentElement.dataset.ghrabAccess='granted';
-  document.body.style.visibility='visible';
-  for(const source of [...document.querySelectorAll('script[type="application/ghrab-protected"]')]){
-    const executable=document.createElement('script');
-    for(const attr of source.attributes){if(!['type','data-ghrab-protected','data-ghrab-original-type'].includes(attr.name))executable.setAttribute(attr.name,attr.value);}
-    const originalType=source.getAttribute('data-ghrab-original-type');if(originalType)executable.type=originalType;
-    executable.textContent=source.textContent;source.replaceWith(executable);
-  }
-
-}
-const localPreview=location.protocol==='file:'||['localhost','127.0.0.1'].includes(location.hostname);
-if(localPreview){activatePage();}else{
-  try{
-    const deploymentModule=await import('../access/deployment-config.js');
-    const deployment=await deploymentModule.loadDeploymentConfig({appId:APP_ID});
-    const urls=deploymentModule.deploymentUrls(deployment);
-    studioUrl=urls.studioUrl;
-    const guide=document.querySelector('[data-ghrab-guide-link]');if(guide)guide.href=urls.reporterGuideUrl;
-    const {protectApp}=await import(urls.guardUrl);
-    const allowed=await protectApp(APP_ID,{studioUrl,telemetry:false,errorReporter:false});
-    if(allowed)activatePage();
-  }catch(error){fail(error);}
-}
-</script>
+<script src="../access/deployment-baked.js"></script>
+<script type="module" src="manual-access-bootstrap.js"></script>
 <noscript><style>html[data-ghrab-access="checking"] body{visibility:visible}</style><main style="max-width:42rem;margin:4rem auto;padding:1.5rem;font-family:system-ui">Interaktivní manuál vyžaduje JavaScript a platný přístup z AI Studia GHRAB.</main></noscript>
 </body></html>

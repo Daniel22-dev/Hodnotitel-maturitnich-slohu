@@ -1,0 +1,20 @@
+{
+  "schema": "ghrab-server-ready-build-v1",
+  "app": "hodnotitel-maturitnich-slohu",
+  "appId": "essay-evaluator",
+  "version": "1.5.13",
+  "phase": "P3",
+  "profile": "school-server",
+  "builtAt": "2026-08-24T20:03:19.026Z",
+  "activeAuthMode": "server-session",
+  "activeAiTransport": "school-gateway",
+  "telemetryMode": "server",
+  "appBaseUrl": "/apps/hodnotitel-slohu/",
+  "apiBaseUrl": "/api/v1/",
+  "containsSecrets": false,
+  "localProviderKeysAllowed": false,
+  "serverSessionReady": true,
+  "schoolGatewayReady": true,
+  "aiCoreVersion": "1.0.0",
+  "contractVersion": "1"
+}

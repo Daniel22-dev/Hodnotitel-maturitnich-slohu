@@ -271,11 +271,15 @@ async function handleZipImport(e){
   try{await importWorksZip(f);}catch(err){toast(err.message||String(err),'err');}
 }
 async function importWorksZip(file){
-  if(file.size>100*1024*1024)throw new Error('ZIP je větší než 100 MB.');
+  if(file.size>ZIP_MAX_BYTES)throw new Error('ZIP je větší než 50 MB.');
   const JSZip=await ensureJSZip();
   const zip=await JSZip.loadAsync(file);
   const entries=Object.values(zip.files).filter(x=>!x.dir&&!x.name.startsWith('__MACOSX/'));
   if(entries.length>100)throw new Error('ZIP obsahuje více než 100 souborů.');
+  entries.forEach(assertSafeArchivePath);
+  const expandedSizes=entries.map(zipEntryUncompressedSize);
+  if(expandedSizes.some(size=>size>ZIP_ENTRY_MAX_BYTES))throw new Error('ZIP obsahuje soubor větší než 20 MB po rozbalení.');
+  if(expandedSizes.reduce((sum,size)=>sum+size,0)>ZIP_TOTAL_UNCOMPRESSED_MAX_BYTES)throw new Error('ZIP by po rozbalení překročil bezpečnostní limit 120 MB.');
   const supported=entries.filter(e=>/\.(txt|md|csv|tsv|docx|pdf|jpe?g|png|webp|gif)$/i.test(e.name));
   if(!supported.length)throw new Error('ZIP neobsahuje podporované soubory.');
   const allPaths=supported.map(e=>e.name);
@@ -323,6 +327,6 @@ function exportPairingCsv(){
   ensureWorkflowState();
   const rows=[['kod','jmeno','email','soubory','stav']];
   for(const s of batchStudents)rows.push([s.code,s.displayName||s.identity||'',s.email||'',(s.sourceFiles||[s.sourceName]).filter(Boolean).join(' | '),s.pairingStatus||'unpaired']);
-  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');
+  const csv=rows.map(r=>r.map(csvCell).join(';')).join('\n');
   downloadBlob(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),`${safeFileName(seriesDisplayName())}_parovani.csv`);
 }

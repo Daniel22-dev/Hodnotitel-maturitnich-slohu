@@ -17,7 +17,7 @@ function getOutboundStudentTextFromValues(rawText, identity, codeValue, extraPii
   identityTerms.forEach(term=>add(term,code,true,true));
   String(extraPiiValue||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach((x,i)=>add(x,`[OSOBA_UDÁJ_${i+1}]`));
   let n=0; text=text.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,m=>{map.push(`${m} → [EMAIL_${++n}]`); return `[EMAIL_${n}]`;});
-  n=0; text=text.replace(/(^|[^\d])((?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|\+?420\d{9}))(?!\d)/g,(_,prefix,m)=>{map.push(`${m} → [TELEFON_${++n}]`); return `${prefix}[TELEFON_${n}]`;});
+  n=0; text=text.replace(/(^|[^\d])((?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|(?:\+?420)?\d{9}))(?!\d)/g,(_,prefix,m)=>{map.push(`${m} → [TELEFON_${++n}]`); return `${prefix}[TELEFON_${n}]`;});
   n=0; text=text.replace(/https?:\/\/\S+/gi,m=>{map.push(`${m} → [URL_${++n}]`); return `[URL_${n}]`;});
   n=0; text=text.replace(/\b\d{6}\/\d{3,4}\b/g,m=>{map.push(`${m} → [RODNÉ_ČÍSLO_${++n}]`); return `[RODNÉ_ČÍSLO_${n}]`;});
   return {text,map,code};
@@ -39,9 +39,9 @@ function scanSensitiveText(text, identity='', extraPii='', scope='student'){
   const add=(type,value,reason,severity='warn',auto=false)=>{ value=privacyNormalizeValue(value); if(!value || value.length<2) return; const low=value.toLowerCase(); if(known.some(k=>k && low===k)) return; findings.push({scope,type,value,reason,severity,auto,selected:!auto,snippet:privacySnippet(raw,value)}); };
   const each=(re,type,reason,severity='warn',auto=false,group=0)=>{ let m; const r=new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g'); while((m=r.exec(raw))){ add(type,m[group]||m[0],reason,severity,auto); if(m[0].length===0) r.lastIndex++; } };
   each(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'e-mail','e-mail se nahrazuje automaticky', 'ok', true);
-  each(/(^|[^\d])((?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|\+?420\d{9}))(?!\d)/g,'telefon','telefonní číslo se nahrazuje automaticky', 'ok', true, 2);
+  each(/(^|[^\d])((?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|(?:\+?420)?\d{9}))(?!\d)/g,'telefon','telefonní číslo se nahrazuje automaticky', 'ok', true, 2);
   each(/https?:\/\/\S+/gi,'URL','odkaz se nahrazuje automaticky', 'ok', true);
-  each(/\b\d{9,10}\b/g,'číselný identifikátor','devítimístná sekvence může být telefon nebo jiný identifikátor; ověř ručně', 'warn', false);
+  each(/\b\d{10}\b/g,'číselný identifikátor','desetimístná sekvence může být citlivý identifikátor; ověř ručně', 'warn', false);
   each(/\b\d{6}\/\d{3,4}\b/g,'rodné číslo','rodné číslo / podobný číselný identifikátor', 'ok', true);
   each(/\b\d{3}\s\d{2}\b/g,'PSČ','poštovní směrovací číslo může identifikovat adresu', 'warn', false);
   each(/\b[1-9]\.?\s?[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]\b/g,'třída','možné označení třídy', 'warn', false);
@@ -148,6 +148,8 @@ async function privacyGateBeforeSend(){
 
 function fileExt(name){ return String(name||'').split('.').pop().toLowerCase(); }
 function assertPdfInlineSize(file){if((Number(file?.size)||0)>PDF_INLINE_MAX_BYTES)throw new Error('PDF je příliš velké pro inline odeslání (maximum 15 MB). Rozděl ho na menší PDF nebo jednotlivé obrázky.');}
+function zipEntryUncompressedSize(entry){return Number(entry?._data?.uncompressedSize)||0;}
+function assertSafeArchivePath(entry){const name=String(entry?.unsafeOriginalName||entry?.name||'').replace(/\\/g,'/');if(name.startsWith('/')||/(^|\/)\.\.(\/|$)/.test(name))throw new Error('Archiv obsahuje nebezpečnou cestu souboru.');}
 function formatSize(n){ if(n<1024) return n+' B'; if(n<1024*1024) return Math.round(n/1024)+' KB'; return (n/1024/1024).toFixed(1)+' MB'; }
 async function handleFiles(e){ await handleFileList(e.target.files); e.target.value=''; }
 async function handleFileList(list){ const files=Array.from(list||[]); if(!files.length) return; for(const f of files){ await processFile(f); } renderFiles(); updateStats(); updatePromptPreview(); saveState(); }
@@ -203,10 +205,12 @@ function docxXmlToText(xml,fileName='DOCX'){
   return text;
 }
 async function extractDocxText(f){
+  if((Number(f?.size)||0)>DOCX_MAX_BYTES)throw new Error(f.name+': DOCX je větší než 15 MB.');
   const JSZip=await ensureJSZip();
   const zip=await JSZip.loadAsync(await f.arrayBuffer());
   const documentPart=zip.file('word/document.xml');
   if(!documentPart)throw new Error(f.name+': soubor nemá platnou strukturu DOCX.');
+  if(zipEntryUncompressedSize(documentPart)>DOCX_XML_MAX_BYTES)throw new Error(f.name+': textová část DOCX je po rozbalení příliš velká.');
   return docxXmlToText(await documentPart.async('string'),f.name);
 }
 function readAsDataUrl(f){ return new Promise((resolve,reject)=>{const r=new FileReader(); r.onload=()=>resolve(String(r.result||'')); r.onerror=()=>reject(r.error||new Error('Soubor se nepodařilo přečíst.')); r.readAsDataURL(f);}); }

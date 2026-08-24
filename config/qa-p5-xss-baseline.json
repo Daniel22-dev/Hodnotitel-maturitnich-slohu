@@ -2,12 +2,12 @@
   "schema": "ghrab-p5-xss-baseline-v1",
   "appId": "essay-evaluator",
   "counts": {
-    "innerHTML": 49,
+    "innerHTML": 45,
     "insertAdjacentHTML": 0,
     "outerHTML": 0,
-    "documentWrite": 1,
+    "documentWrite": 0,
     "eval": 0,
     "newFunction": 1
   },
-  "note": "P5 R2 baseline; increases fail. Existing sinks still require review and CSP hardening."
+  "note": "P5 security-candidate baseline; increases fail. Remaining sinks are reviewed templates with escaped dynamic values; deployment headers and in-document meta CSP both forbid inline scripts."
 }

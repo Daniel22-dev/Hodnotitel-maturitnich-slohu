@@ -1,7 +1,7 @@
 const GHRAB_SW_CONTRACT='ghrab-service-worker-v1';
 /* GHRAB service-worker contract v1 · update activation is user-controlled. */
 const APP_VERSION = '__APP_VERSION__';
-const CACHE = "ghrab-essay-evaluator-v1.5.11";
+const CACHE = "ghrab-essay-evaluator-v__APP_VERSION__";
 const CACHE_PREFIXES = ["ghrab-essay-evaluator-v", "hodnotitel-"];
 const CORE = [
   "./",
@@ -12,15 +12,16 @@ const CORE = [
   "./manifest.webmanifest",
   "./access/access-gate.css",
   "./access/deployment-config.js",
+  "./access/deployment-baked.js",
   "./access/reporter-bootstrap.js",
   "./access/error-reporter.js",
   "./access/error-reporter.css",
   "./access/error-reporter-adapter.js",
   "./config/deployment.json",
-  "./config/deployment.school-server-p0.json",
-  "./config/deployment.school-server.example.json",
   "./manual/",
   "./manual/index.html",
+  "./manual/manual.js",
+  "./manual/manual-access-bootstrap.js",
   "./assets/brand/school-logo.png",
   "./icons/hodnotitel-shield-20260711-32.png",
   "./icons/hodnotitel-shield-20260711-180.png",

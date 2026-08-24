@@ -26,7 +26,7 @@ const RUBRIC_SPEC=Object.freeze({
   errorScoring:{local:[[0,5,3],[6,11,2],[12,17,1],[18,99999,0]],global:[[0,1,3],[2,3,2],[4,5,1],[6,99999,0]]},
   gradeBands:RUBRIC_GRADE_BANDS
 });
-const SECTION_RESPONSE_SCHEMA={type:'object',properties:{score_suggested:{type:'integer',minimum:0,maximum:3},verdict:{type:'string',enum:['splneno','castecne','nesplneno']},evidence:{type:'array',minItems:1,items:{type:'string'}},reasoning:{type:'string'}},required:['score_suggested','verdict','evidence','reasoning']};
+const SECTION_RESPONSE_SCHEMA={type:'object',properties:{score_suggested:{type:'integer',minimum:0,maximum:3},verdict:{type:'string',enum:['splneno','castecne','nesplneno']},evidence:{type:'array',minItems:1,maxItems:2,items:{type:'string'}},reasoning:{type:'string'}},required:['score_suggested','verdict','evidence','reasoning']};
 const ERROR_RESPONSE_SCHEMA={type:'object',properties:{paragraph:{type:'string'},quote:{type:'string'},correction:{type:'string'},reason:{type:'string'},cause_key:{type:'string'},repeat_count:{type:'integer'},subtype:{type:'string'}},required:['paragraph','quote','correction','reason','cause_key','repeat_count','subtype']};
 const EVALUATION_RESPONSE_SCHEMA=Object.freeze({
   type:'object',

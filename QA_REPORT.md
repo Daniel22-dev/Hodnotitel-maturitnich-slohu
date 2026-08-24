@@ -1,6 +1,29 @@
-# QA report — Hodnotitel maturitních slohů 1.5.11
+# QA report — Hodnotitel maturitních slohů 1.5.13
 
-> Hotfix P5 R2: doplněn přístupný název tlačítka reportéru, opraven kontrast platformní patičky a přidána regresní kontrola. Hodnoticí rubrika, práce studentů ani datové formáty nebyly změněny.
+> Bezpečnostní kandidát GARP ze dne 2026-08-24. Hodnoticí rubrika, vzhled, práce studentů ani datové formáty nebyly změněny.
+
+## Aktuální ověření 1.5.13
+
+- Projektová sada: `431 PASS / 0 FAIL`.
+- Cílené bezpečnostní regrese: `32 PASS / 0 FAIL`.
+- Běžný GitHub build a school-server build: PASS.
+- Security, technical a PWA QA: PASS, vždy 0 nálezů.
+- GHRAB Platform conformance: `110/110`.
+- P3 quality: `31/31`; lock audit: PASS.
+- XSS sink gate: PASS; 45 evidovaných `innerHTML`, 0 `document.write`, 1 kompatibilní `new Function` pouze ve vendored JSZip. CSP nepovoluje inline skripty ani `unsafe-eval`.
+- Všechna externí GitHub Actions jsou připnutá na přesný commit; checkout neponechává token dalším krokům a synchronizační workflow jej aktivuje až pro závěrečné publikování návrhu změny.
+- Lokální browser/runtime QA a axe byly spuštěny jako kontrola dostupnosti, ale prostředí neobsahovalo Chromium ani spustitelnou instalaci axe-core. Povinně je musí dokončit GitHub Actions; navazující P5 release/acceptance report proto zůstal lokálně nezelený pouze kvůli chybějícím reportům z prohlížeče.
+- Živé Gemini, Apps Script, e-mail, vzdálené oprávnění a produkční GitHub Pages nebyly při tomto zdrojovém auditu volány.
+
+## Známá zbývající rizika 1.5.13
+
+- Centrální kryptografii oprávnění, role, revokace a časové limity implementuje aktuální bundle AI Studia; tato aplikace ověřuje jeho přesnou verzi, ale jeho vnitřní logiku nelze dokázat jen z tohoto repozitáře.
+- Vestavěná sada označená jako „ostrá maturitní verze“ je ve veřejném zdroji. Pokud mají zadání zůstat tajná, musí být před ostrým použitím přesunuta do neveřejného importu.
+- Školní serverový profil je sestavitelný a zakazuje lokální AI klíče, ale živý školní server ještě není součástí tohoto kandidáta.
+
+---
+
+Následující části jsou historické dodatky starších etap a nejsou vydávány za aktuální výsledek 1.5.13.
 
 ## Etapa P2 · verze 1.5.6
 

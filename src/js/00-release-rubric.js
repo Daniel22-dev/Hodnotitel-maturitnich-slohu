@@ -22,6 +22,16 @@ const BATCH_PROGRESS_LOCAL_SK = 'maturitniHodnotitelBatchProgressLocalV078';
 const IMAGE_MAX_DIM = 2000;
 const IMAGE_JPEG_QUALITY = 0.82;
 const PDF_INLINE_MAX_BYTES = 15 * 1024 * 1024;
+const DOCX_MAX_BYTES = 15 * 1024 * 1024;
+const DOCX_XML_MAX_BYTES = 8 * 1024 * 1024;
+const ZIP_MAX_BYTES = 50 * 1024 * 1024;
+const ZIP_ENTRY_MAX_BYTES = 20 * 1024 * 1024;
+const ZIP_TOTAL_UNCOMPRESSED_MAX_BYTES = 120 * 1024 * 1024;
+function csvFormulaSafeValue(value){
+  const text=String(value??'');
+  return /^[\s\u0000-\u001f]*[=+\-@]/.test(text)?`'${text}`:text;
+}
+function csvCell(value){return '"'+csvFormulaSafeValue(value).replace(/"/g,'""')+'"';}
 const GENRES = [
   {id:'opinion', label:'Opinion essay', desc:'Jasný osobní názor, argumentace, závěr.'},
   {id:'for_against', label:'For and against essay', desc:'Argumenty pro i proti, vyvážený závěr.'},

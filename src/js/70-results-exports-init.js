@@ -241,7 +241,7 @@ function summaryRows(){
   else { const e=getEffectiveReview(state.result); rows.push({poradi:1,kod:e.student_code||state.studentCode||'',stav:'hotovo',body:e.score_total??'',znamka:e.grade??'',slova:e.final_word_count??'',fail:e.fail_signal?'ano':'ne',souhrn:e.source||'',zadani:baseTask,overeno:e.verified?'ano':'ne',poznamka:e.note||'',lokalni:state.studentIdentity||''}); }
   return rows;
 }
-function rowsToCsv(rows){ const headers=['poradi','kod','stav','body','znamka','slova','fail','souhrn','zadani','overeno','poznamka','lokalni']; return [headers.join(';')].concat(rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replace(/"/g,'""')+'"').join(';'))).join('\n'); }
+function rowsToCsv(rows){ const headers=['poradi','kod','stav','body','znamka','slova','fail','souhrn','zadani','overeno','poznamka','lokalni']; return [headers.join(';')].concat(rows.map(r=>headers.map(h=>csvCell(r[h])).join(';'))).join('\n'); }
 function downloadCsvSummary(){ syncTeacherReviewFromFields(true); saveState(); const csv=rowsToCsv(summaryRows()); const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${safeFileName(state.taskTitle||currentTask().title||'hodnoceni')}_souhrn.csv`; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove(); toast('CSV souhrn stažen.'); }
 function columnName(n){ let s=''; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; }
 async function createXlsxBlob(rows){
@@ -387,4 +387,3 @@ function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;',
 window.addEventListener('beforeunload',saveState);
 function registerAppServiceWorker(){ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){ navigator.serviceWorker.register(`./sw.js?v=${encodeURIComponent(APP_VERSION)}`,{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{}); } }
 function renderBuildLabel(){ const el=$('buildLabel'); if(el && RELEASE.build && RELEASE.build!=='__BUILD__') el.textContent='· build '+RELEASE.build; }
-

@@ -1,3 +1,23 @@
+## 1.5.13 — reakce na bezpečnostní audit Claude, kolo 1 (2026-08-24)
+
+- Studentský text se do hodnoticího promptu vkládá jako JSON řetězec s escapovanými řídicími znaky; nemůže vytvořit druhý oddělovač ani předstírat systémovou instrukci.
+- Validační brána ověřuje 1–2 doslovné citace také ve všech osmi bodovaných sekcích a odmítne důkaz, který ve studentském textu není.
+- Hlavní aplikace i manuál obsahují CSP přímo v HTML, takže zákaz inline JavaScriptu platí také na GitHub Pages bez vlastních HTTP hlaviček.
+- Přepis fotografií a PDF výslovně ignoruje pokyny uvnitř přílohy; kompatibilní Apps Script formulář izoluje nově otevřenou kartu.
+- Bezpečnostní dokumentace rozlišuje tok do AI od toku skutečných jmen, e-mailů a výsledků přes Apps Script/Gmail a stanovuje pravidelnou kontrolu vendored JSZip.
+
+## 1.5.12 — bezpečnostní kandidát GARP (2026-08-24)
+
+- Deployment konfigurace je zapečena do sestavení a její výpadek už nikdy nepřepne školní profil do otevřenějšího režimu; aplikace i manuál zůstávají fail-closed.
+- Přístupový kontrakt používá aktuální veřejnou verzi z AI Studia `access-p1-20260824175535Z-k_wtm7Zj`.
+- ZIP/DOCX import omezuje komprimovanou i rozbalenou velikost a odmítá nebezpečné cesty; import zadání používá výslovný seznam povolených polí.
+- CSV exporty neutralizují formula injection a devítimístná telefonní čísla se automaticky pseudonymizují i bez oddělovačů.
+- Apps Script tajemství a backendové access tokeny zůstávají pouze v aktuální relaci a nikdy se nezapisují do uloženého stavu.
+- Metadata AI privacy odpovídají skutečnému průchodu kontrolou; fotografie/PDF se již falešně neoznačují jako klientsky anonymizované.
+- Manuál a hlavní stránka nepoužívají spustitelný inline JavaScript; CSP povoluje skripty pouze ze stejného originu a školní profil přidává HSTS.
+- Všechny externí GitHub Actions jsou připnuté na konkrétní neměnné revize a checkout neponechává token dostupný testům; synchronizační workflow aktivuje zápis až v posledním publikačním kroku.
+- Vestavěná „ostrá maturitní“ sada zůstává na výslovné rozhodnutí autora beze změny a ve veřejném repozitáři ji nelze považovat za tajnou.
+
 ## 1.5.11 — sjednocení reportéru (2026-08-13)
 
 - Reportér používá dvoukrokové vytvoření a skutečné stažení diagnostického ZIPu; Gmail je dostupný až po kliknutí na stažení.

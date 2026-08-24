@@ -5,6 +5,7 @@
 - Hlavní aplikace i manuál obsahují CSP přímo v HTML, takže zákaz inline JavaScriptu platí také na GitHub Pages bez vlastních HTTP hlaviček.
 - Přepis fotografií a PDF výslovně ignoruje pokyny uvnitř přílohy; kompatibilní Apps Script formulář izoluje nově otevřenou kartu.
 - Bezpečnostní dokumentace rozlišuje tok do AI od toku skutečných jmen, e-mailů a výsledků přes Apps Script/Gmail a stanovuje pravidelnou kontrolu vendored JSZip.
+- Konfigurace regresního testu reportéru nyní samostatně ukazuje na obsah manuálu a jeho externí přístupovou bránu; odstraňuje falešný pád GitHub Actions bez změny chování aplikace.
 
 ## 1.5.12 — bezpečnostní kandidát GARP (2026-08-24)
 

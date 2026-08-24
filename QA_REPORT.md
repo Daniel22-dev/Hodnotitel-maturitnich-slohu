@@ -6,6 +6,7 @@
 
 - Projektová sada: `431 PASS / 0 FAIL`.
 - Cílené bezpečnostní regrese: `32 PASS / 0 FAIL`.
+- Statická část sjednoceného reportéru: `52 PASS / 0 FAIL`; konfigurace správně kontroluje externí přístupovou bránu manuálu.
 - Běžný GitHub build a school-server build: PASS.
 - Security, technical a PWA QA: PASS, vždy 0 nálezů.
 - GHRAB Platform conformance: `110/110`.

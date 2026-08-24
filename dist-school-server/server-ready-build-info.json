@@ -5,7 +5,7 @@
   "version": "1.5.13",
   "phase": "P3",
   "profile": "school-server",
-  "builtAt": "2026-08-24T20:03:19.026Z",
+  "builtAt": "2026-08-24T20:16:10.565Z",
   "activeAuthMode": "server-session",
   "activeAiTransport": "school-gateway",
   "telemetryMode": "server",

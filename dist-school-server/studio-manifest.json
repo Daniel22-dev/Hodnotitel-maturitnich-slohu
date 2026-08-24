@@ -84,7 +84,7 @@
     "platformContract": "ghrab-platform-v1",
     "platformRange": ">=1.1.0 <2.0.0"
   },
-  "publishedAt": "2026-08-24T20:03:13.209Z",
+  "publishedAt": "2026-08-24T20:16:10.397Z",
   "aiCore": {
     "schema": "ghrab-ai-app-integration-v1",
     "status": "integrated-p1",

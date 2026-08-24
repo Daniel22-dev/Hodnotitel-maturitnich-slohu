@@ -10,6 +10,8 @@
     "src/access-bootstrap.js"
   ],
   "manualPath": "src/manual/index.html",
+  "manualContentPath": "src/manual/index.html",
+  "manualGuardPath": "src/manual/manual-access-bootstrap.js",
   "serviceWorkerPaths": [
     "src/sw.js"
   ],

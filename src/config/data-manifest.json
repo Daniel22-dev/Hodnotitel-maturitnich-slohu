@@ -1,7 +1,7 @@
 {
   "schema": "ghrab-data-manifest-v1",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.13",
+  "appVersion": "1.5.18",
   "manifestVersion": 3,
   "dataCategories": [
     "settings",
@@ -30,8 +30,8 @@
       "kind": "sessionStorage",
       "category": "session-data",
       "patterns": [
-        "ghrab.essay-evaluator.GeminiKeySessionV061",
-        "ghrab.essay-evaluator.BatchProgressSessionV078"
+        "ghrab.essay-evaluator.ai.key.session.v1",
+        "ghrab.essay-evaluator.legacy.BatchProgressSessionV078"
       ],
       "sensitivity": "confidential",
       "authority": "client",
@@ -41,8 +41,7 @@
       "kind": "localStorage",
       "category": "credential",
       "patterns": [
-        "ghrab.essay-evaluator.GeminiKeyV061",
-        "ghrab.essay-evaluator.GeminiKeySessionV061"
+        "ghrab.essay-evaluator.ai.key.local.v1"
       ],
       "sensitivity": "secret",
       "authority": "client-direct-mode-only",
@@ -52,8 +51,7 @@
       "kind": "sessionStorage",
       "category": "credential",
       "patterns": [
-        "ghrab.essay-evaluator.GeminiKeyV061",
-        "ghrab.essay-evaluator.GeminiKeySessionV061"
+        "ghrab.essay-evaluator.ai.key.session.v1"
       ],
       "sensitivity": "secret",
       "authority": "client-direct-mode-only",
@@ -74,7 +72,9 @@
   "retention": {
     "defaultDays": 30,
     "sessionEndsOnLogout": true,
-    "serverLogsDays": 30
+    "serverLogsDays": 30,
+    "clientSensitiveDays": 30,
+    "clientEnforced": true
   },
   "export": {
     "supported": true,
@@ -92,18 +92,19 @@
   "deletion": {
     "supported": true,
     "clientVerified": true,
-    "serverEndpoint": "data/essay-evaluator"
+    "serverEndpoint": "data/essay-evaluator",
+    "serverVerified": false
   },
   "sharedDevice": {
     "supported": true,
     "defaultInSchoolProfile": true,
-    "control": "GHRABPlatform.endWork()"
+    "control": "endSensitiveWork()"
   },
   "storageNamespace": {
     "schema": "ghrab-storage-namespace-v1",
     "prefix": "ghrab.essay-evaluator.",
     "migrationId": "p2-storage-namespace-v1",
-    "backup": "full",
+    "backup": "metadata",
     "rollbackSupported": true
   },
   "import": {

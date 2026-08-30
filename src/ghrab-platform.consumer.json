@@ -2,7 +2,7 @@
   "schema": "ghrab-platform-consumer-v1",
   "appId": "essay-evaluator",
   "appName": "Hodnotitel maturitních slohů",
-  "appVersion": "1.5.13",
+  "appVersion": "1.5.18",
   "platform": {
     "version": "1.1.0",
     "contract": "ghrab-platform-v1",
@@ -26,7 +26,7 @@
   },
   "storageMigration": {
     "id": "p2-storage-namespace-v1",
-    "backup": "full",
+    "backup": "metadata",
     "mappings": [
       {
         "legacy": "maturitniHodnotitelTheme",
@@ -82,7 +82,7 @@
     ]
   },
   "cache": {
-    "name": "ghrab-essay-evaluator-v1.5.13",
+    "name": "ghrab-essay-evaluator-v1.5.18",
     "updateMessage": "GHRAB_SKIP_WAITING"
   },
   "html": {

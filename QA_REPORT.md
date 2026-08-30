@@ -1,92 +1,77 @@
-# QA report — Hodnotitel maturitních slohů 1.5.13
+# QA report — Hodnotitel maturitních slohů 1.5.18
 
-> Bezpečnostní kandidát GARP ze dne 2026-08-24. Hodnoticí rubrika, vzhled, práce studentů ani datové formáty nebyly změněny.
+> Třetí, uživatelem výslovně autorizované GARP 2.3 kolo, 2026-08-30. Použita výhradně syntetická data. PASS je uveden jen tam, kde existuje provedený důkaz; nedostupné runtime/provider/organizační hranice zůstávají NOT TESTED / NOT READY.
 
-## Aktuální ověření 1.5.13
+## Aktuální ověření 1.5.18
 
-- Projektová sada: `431 PASS / 0 FAIL`.
-- Cílené bezpečnostní regrese: `32 PASS / 0 FAIL`.
-- Statická část sjednoceného reportéru: `52 PASS / 0 FAIL`; konfigurace správně kontroluje externí přístupovou bránu manuálu.
-- Běžný GitHub build a school-server build: PASS.
-- Security, technical a PWA QA: PASS, vždy 0 nálezů.
-- GHRAB Platform conformance: `110/110`.
-- P3 quality: `31/31`; lock audit: PASS.
-- XSS sink gate: PASS; 45 evidovaných `innerHTML`, 0 `document.write`, 1 kompatibilní `new Function` pouze ve vendored JSZip. CSP nepovoluje inline skripty ani `unsafe-eval`.
-- Všechna externí GitHub Actions jsou připnutá na přesný commit; checkout neponechává token dalším krokům a synchronizační workflow jej aktivuje až pro závěrečné publikování návrhu změny.
-- Lokální browser/runtime QA a axe byly spuštěny jako kontrola dostupnosti, ale prostředí neobsahovalo Chromium ani spustitelnou instalaci axe-core. Povinně je musí dokončit GitHub Actions; navazující P5 release/acceptance report proto zůstal lokálně nezelený pouze kvůli chybějícím reportům z prohlížeče.
-- Živé Gemini, Apps Script, e-mail, vzdálené oprávnění a produkční GitHub Pages nebyly při tomto zdrojovém auditu volány.
+- Projektová sada: `434 PASS / 0 FAIL`.
+- Cílené bezpečnostní regrese: `86 PASS / 0 FAIL`.
+- GHRAB Platform conformance: `111/111 PASS`.
+- Repository secret scan: `PASS, 0 nálezů`.
+- Security QA: `PASS, 0 nálezů`; PWA QA: `PASS, 0 nálezů`; Technical QA: `PASS, 0 nálezů`.
+- P3 quality: `31/31 PASS`, `0 warnings`; precache `1 085 654 <= 1 100 000 B`.
+- Lock audit: PASS.
+- Statická část sjednoceného error reporteru: `52 PASS / 0 FAIL`; browser část reportéru `NOT_READY` kvůli spravované Chromium `URLBlocklist`.
+- XSS sink inventory: PASS jako regresní inventura; sama o sobě není důkazem bezpečnosti každého HTML sinku.
+- Funkční prompt-boundary korpus: `28` mutací přes `7` nedůvěryhodných promptových kanálů = `196/196 PASS`.
+- `qa:browser`: PASS pouze pro izolovaný `Page.setDocumentContent` kontrakt (`resourceCount: 0`), nikoli pro served-app lifecycle.
+- `qa:runtime`: FAIL/NOT READY v tomto prostředí: `Runtime page timeout: index.html`.
+- `qa:axe`: `not-ready-environment`, `scanned: 0`.
+- Přímý pokus spustit systémový Chromium končí timeoutem už na triviálním `data:` dokumentu; browser lifecycle proto není přeznačen na PASS.
+- Živý produkční AI model, Apps Script, e-mail, skutečný school backend ani produkční session/identity nebyly v tomto kole volány.
 
-## Známá zbývající rizika 1.5.13
+## Změny třetího kola
 
-- Centrální kryptografii oprávnění, role, revokace a časové limity implementuje aktuální bundle AI Studia; tato aplikace ověřuje jeho přesnou verzi, ale jeho vnitřní logiku nelze dokázat jen z tohoto repozitáře.
-- Vestavěná sada označená jako „ostrá maturitní verze“ je ve veřejném zdroji. Pokud mají zadání zůstat tajná, musí být před ostrým použitím přesunuta do neveřejného importu.
-- Školní serverový profil je sestavitelný a zakazuje lokální AI klíče, ale živý školní server ještě není součástí tohoto kandidáta.
+### D-08 — ostrá maturitní zadání
 
----
+- Skutečné ostré zadání už není součástí `src/js/10-task-database.js`, `dist/app.js` ani school-server buildu.
+- Budoucí důvěrná sada se načítá explicitním JSON importem pouze do aktuální browser relace.
+- Úplná task databáze se drží v `sessionStorage`; persistentní localStorage dostává jen placeholdery ostré sady.
+- Persistentní obecný state i persistentní Batch snapshot vždy redigují `taskTitle`, `taskText` a `taskReqs` pro `set === 'exam'`, a to i při zapnutém opt-in ukládání citlivé práce.
+- Starší persistentní ostrý task context se při obnově rediguje před `Object.assign` a přepisuje sanitizovanou hodnotou.
+- Export databáze varuje, pokud JSON obsahuje ostrou sadu.
+- CI secret scan parsuje skutečný exportní/importní JSON tvar s top-level větví `exam` a blokuje jakýkoli neprázdný `taskText` uvnitř ní; zachována je i detekce legacy tvaru `set: "exam"`. `.gitignore` zůstává pouze první vrstvou.
+- Důležitá provozní skutečnost: legacy ostrá sada byla již dříve commitnuta ve veřejném GitHub repozitáři. Odstranění z 1.5.18 nemaže Git historii, klony ani cache. Tato stará sada musí být považována za kompromitovanou a pro skutečnou zkoušku nahrazena novou/rotovanou sadou mimo veřejný repozitář.
 
-Následující části jsou historické dodatky starších etap a nejsou vydávány za aktuální výsledek 1.5.13.
+### RT-16 / release governance
 
-## Etapa P2 · verze 1.5.6
+- Do CI a release workflow je zapojen blokující `qa:secrets`.
+- GitHub Pages deploy se již nespouští automaticky pushnutím do `main`; veřejný upload/deploy je pouze `workflow_dispatch`.
+- Před veřejným artefaktem běží `qa:github-governance`, který fail-closed vyžaduje `main.protected === true` z GitHub API.
+- Externě ověřený současný stav repozitáře: `main` je nyní nechráněná a repository rulesets jsou prázdné. Kandidát tedy správně veřejný deploy zablokuje, dokud vlastník ochranu větve skutečně nenastaví.
+- MFA, key custody, nativní GitHub secret scanning a přesná pravidla review/status checks nelze z tohoto ZIPu potvrdit a zůstávají externími podmínkami GREEN.
 
-GHRAB Platform 1.0.0, kanonický branding, namespacované úložiště, jednotný service worker a reportér GHRAB 1.1.0 byly ověřeny společnou konformitní sadou.
-# QA report — Hodnotitel maturitních slohů 1.5.4
+## Negative controls třetího kola
 
-> Etapa P0 1.5.4: reportér mimo kritickou cestu, scope-safe service worker a server-ready deployment kontrakt. Finální výsledky QA jsou uvedeny v centrálním protokolu etapy.
+Všechny mutace proběhly pouze v jednorázových kopiích mimo kandidáta:
 
-**Datum kontroly:** 2026-08-04
-**QA standard:** GHRAB-QA-1.0.2
-**Lokální verdikt:** `AUTOMATED_READY` — deployed smoke test zatím nebyl proveden.
+1. odstranění redakce ostrého task contextu z persistentního state -> `security-regressions` správně FAIL;
+2. syntetický `.env` / fake API-key pattern -> `qa-secret-scan` správně FAIL;
+3. návrat automatického `push main` Pages deploye -> `security-regressions` správně FAIL;
+4. syntetický legacy JSON s `set: "exam"` a neprázdným `taskText` -> `qa-secret-scan` správně FAIL;
+5. B3-01 negative control: syntetický JSON přesně ve skutečném exportním tvaru `{"practice":...,"exam":...}` -> `qa-secret-scan` správně `SECRET SCAN FAIL`.
 
-## Co verze 1.5.4 představuje
+Čistý strom po negative controls: `86/86 PASS` a secret scan `0 nálezů`.
 
-Verze 1.5.4 zachovává auditní opravy a přidává jednotný lokální technický reportér AI Studia bez zásahu do hodnoticí rubriky nebo dat studentů.
+## Zbývající blokátory GREEN
 
-## Interní release brána
+- Centrální autorizace/permit kryptografie, token confusion, role, revokace a časové limity: RT-01/03/04/11 a relevantní SIM-01/02 vyžadují skutečný centrální guard/backend.
+- Browser lifecycle: multi-tab, Back/reopen, cache, cross-student A→B izolace, plný retention/deletion a SW recovery vyžadují funkční served E2E prostředí; RT-06/17/20 a SIM-03/04/07 nelze z tohoto prostředí plně uzavřít.
+- Behaviorální AI-RED proti přesnému produkčnímu modelu nebyl proveden. Strukturální `196/196` není live-model attack-success rate; relevantní AIR zůstává behaviorálně NOT TESTED.
+- Produkční HTTP security headers, session cookies a živý school backend nebyly runtime ověřeny; statický school-server build má správnou same-origin CSP.
+- Aktuální GitHub `main` není chráněná; před GREEN musí vlastník skutečně zapnout branch protection/ruleset a doložit MFA/key custody. Kandidát 1.5.18 pouze zajišťuje, že bez ochrany větve odmítne veřejný deploy.
+- Legacy ostrá sada je již veřejně kompromitovaná; pro ostrý provoz je nutná nová/rotovaná sada, která nikdy nevstoupí do veřejné Git historie.
+- Poslední nezávislá Claude kontrola 1.5.17 potvrdila všechny předchozí opravy a našla jediný MEDIUM nález B3-01 v CI scanneru. Verze 1.5.18 je přesně tato cílená oprava. Protože po poslední nezávislé kontrole došlo ke změně release/CI kódu, Release Integrity zůstává konzervativně AMBER bez čtvrtého nezávislého kola.
 
-- Přesný výsledek aktuální automatické sady je uveden v release reportu vytvořeném při sestavení.
-- Historické počty z verze 1.5.2 nejsou vydávány za výsledek této verze.
-- 19 JavaScriptových modulů a 6 CSS modulů.
-- Osmipoložková rubrika a její pravidla nebyly měněny.
-- Build: verze 1.5.4, rubrika `2026.04.27-r1`.
-- `npm ci` a `npm audit --audit-level=high` jsou díky lockfilu reprodukovatelné.
+## Gate po cílené opravě posledního Claude nálezu B3-01
 
-## Společné GHRAB QA brány
+- SECURITY: **AMBER**
+- PRIVACY: **AMBER**
+- RED TEAM: **AMBER**
+- RELEASE INTEGRITY: **AMBER**
+- OVERALL: **AMBER**
 
-- projektové testy a build: PASS;
-- technická kontrola: PASS;
-- bezpečnostní kontrola včetně devíti auditních invariantů: PASS;
-- PWA kontrola: PASS;
-- kombinatorika: 10 scénářů ze 108 teoretických kombinací, 100% pairwise pokrytí;
-- Chromium galerie: 11 povinných stavů;
-- kritická workflow: 6;
-- ruční vizuální kontrola: dokončena bez známé vady BLOCKER nebo MAJOR;
-- deployed smoke test: neproveden.
+Důvod AMBER nejsou známé neopravené HIGH/CRITICAL/MEDIUM chyby v kandidátu: B3-01 je opraven. AMBER drží skutečně otevřené externí/runtime důkazy, aktuálně nechráněný veřejný `main` a absence dalšího nezávislého auditu přesného 1.5.18 artefaktu.
 
-## Ověřené auditní regrese
-
-- ruční prompt obsahuje úplné response schema;
-- ruční JSON import spouští autoritativní finalizaci a deterministickou známku;
-- AI návrh FAIL kódu není sám autoritativní;
-- technický marker staré relace nemění počet slov ani obsah;
-- pseudonymní kódy se nerecyklují;
-- fotografie/PDF bez potvrzeného textu nelze hodnotit;
-- snapshot ani hlavní stav neukládají binární přílohy nebo surovou Batch odpověď;
-- Batch výsledek bez `metadata.key` se nepřiřazuje podle indexu;
-- nejednoznační jmenovci se automaticky nespárují;
-- `MAX_TOKENS`, oříznutý nebo neplatný JSON mají řízenou chybu;
-- PDF limit platí ve všech importních cestách;
-- trvalé uložení API klíče vyžaduje výslovné potvrzení;
-- runtime neobsahuje regex lookbehind;
-- centrální guard nemá nouzový fail-open režim;
-- chybějící povinný precache soubor není tiše ignorován;
-- service worker ukládá skutečnou navigační URL.
-
-## Známé provozní hranice
-
-Automatická sada nemůže sama potvrdit skutečné živé volání Gemini, Batch API, Apps Script, doručení e-mailu ani vzdálený permit na produkční adrese. Tyto oblasti jsou součástí deployed smoke testu.
-
-Veřejná databázová zadání a klientské používání API klíče zůstávají dokumentovanými provozními rozhodnutími. Nejde o nově skryté vady verze 1.5.4; případný přesun zadání do privátního importu a API volání na školní backend je samostatná budoucí architektonická změna.
-
-## Dodatek P1 – verze 1.5.5
-
-P1 zachovává kanonický reportér 1.1.0 a doplňuje serverovou AI vrstvu. Výsledky finální projektové sady jsou evidovány samostatně; tento dodatek pouze svazuje QA dokument s verzí 1.5.5.
+TESTOVACÍ PROVOZ POUZE SE SYNTETICKÝMI DATY  
+REÁLNÁ STUDENTSKÁ DATA: NEPOUŽÍVAT

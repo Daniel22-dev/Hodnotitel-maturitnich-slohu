@@ -3,12 +3,8 @@ function structuredGenerationConfig(){return {temperature:0.05,topP:0.8,maxOutpu
 function geminiPartsForStudent(student){const parts=[{text:buildPrompt(student)}];const useFiles=(student?.files||[]).length&&!String(student?.text||'').trim();for(const f of(useFiles?student.files:[]))parts.push({inline_data:{mime_type:f.mime,data:dataUrlToBase64(f.dataUrl)}});return parts;}
 let lastQueueRequestAt=0;
 async function queueThrottle(){const rpm=Math.max(1,Number(state.queueRpm)||5);const minGap=Math.ceil(60000/rpm);const wait=Math.max(0,lastQueueRequestAt+minGap-Date.now());if(wait)await sleepWithAbort(wait,abortController?.signal);lastQueueRequestAt=Date.now();}
-async function postStructuredRequest(student,key,model,signal,repairContext=''){
-  const prompt=repairContext?`${buildPrompt(student)}
-
-OPRAVNÁ VALIDACE: Předchozí JSON měl tyto nedostatky:
-${repairContext}
-Vrať znovu celý JSON a oprav pouze tyto nedostatky.`:buildPrompt(student);
+async function postStructuredRequest(student,key,model,signal,repairIssues=[]){
+  const prompt=Array.isArray(repairIssues)&&repairIssues.length?buildRepairPrompt(student,repairIssues):buildPrompt(student);
   const operation=state.inputMode==='batch'?'essay-series-evaluation':'essay-evaluation';
   const useFiles=(student?.files||[]).length&&!String(student?.text||'').trim();
   try{
@@ -22,7 +18,7 @@ Vrať znovu celý JSON a oprav pouze tyto nedostatky.`:buildPrompt(student);
     throw error;
   }
 }
-async function evaluateStudentStructured(student,key,model,signal,priceMode='standard'){const first=await postStructuredRequest(student,key,model,signal);let evaluation=finalizeEvaluation(first.raw,student);let usage=registerUsage(first.usage,priceMode);if(!evaluation.validation.ok){const repair=await postStructuredRequest(student,key,model,signal,evaluation.validation.issues.map(x=>'- '+x).join('\n'));evaluation=finalizeEvaluation(repair.raw,student);const extra=registerUsage(repair.usage,priceMode);usage={promptTokens:usage.promptTokens+extra.promptTokens,outputTokens:usage.outputTokens+extra.outputTokens,totalTokens:usage.totalTokens+extra.totalTokens,costUsd:usage.costUsd+extra.costUsd};}return {evaluation,result:evaluationToLegacyResult(evaluation),usage};}
+async function evaluateStudentStructured(student,key,model,signal,priceMode='standard'){const first=await postStructuredRequest(student,key,model,signal);let evaluation=finalizeEvaluation(first.raw,student);let usage=registerUsage(first.usage,priceMode);if(!evaluation.validation.ok){const repair=await postStructuredRequest(student,key,model,signal,evaluation.validation.issues);evaluation=finalizeEvaluation(repair.raw,student);const extra=registerUsage(repair.usage,priceMode);usage={promptTokens:usage.promptTokens+extra.promptTokens,outputTokens:usage.outputTokens+extra.outputTokens,totalTokens:usage.totalTokens+extra.totalTokens,costUsd:usage.costUsd+extra.costUsd};}return {evaluation,result:evaluationToLegacyResult(evaluation),usage};}
 function batchReadyStudents(){return batchStudents.map(ensureBatchStudentShape).filter(s=>String(s.text||'').trim()||(s.files||[]).length);}
 function validateBatchPreflight(){const ready=batchReadyStudents();if(!ready.length)return 'Přidej alespoň jeden sloh.';if(ready.length>SERIES_MAX_WORKS)return `Jedna série může obsahovat maximálně ${SERIES_MAX_WORKS} prací.`;const notConfirmed=ready.filter(requiresTranscriptReview);if(notConfirmed.length)return `${notConfirmed.length} obrazových/PDF prací nemá potvrzený digitální přepis.`;return '';}
 async function prepareApiRun(){syncStateFromFields();syncSeriesFromFields();commitTaskFieldsToDb(false);ensureWorkflowState();updateStats();if(!hasTaskBasics()){toast('Doplň přesné zadání a povinné body R1–Rn.','err');goTo(1);return null;}if(!(await privacyGateBeforeSend()))return null;if(!hodSchoolMode()){if(!geminiApiKey&&getGeminiInputKey())useGeminiKeyForSession();geminiApiKey=getGeminiInputKey()||geminiApiKey;updateGeminiStatus();}if(!hodAiAvailable()){toast('AI služba není dostupná. V GitHub režimu zadej Gemini API klíč; ve školním režimu ověř relaci.','err');return null;}const model=resolveGeminiModel();if(!hodSchoolMode())setGeminiModel(model);window.__GHRAB_ESSAY_WORKFLOW_ID__=window.GHRAB_PLATFORM?.uuid?.('essay-workflow')||`essay-workflow-${Date.now()}`;return model;}
@@ -100,9 +96,13 @@ async function runImmediateBatchQueue(model){
 }
 function batchApiCreateUrl(model){return `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(String(model||GEMINI_MODEL_DEFAULT).replace(/^models\//,''))}:batchGenerateContent`;}
 function batchApiStatusUrl(name){return `https://generativelanguage.googleapis.com/v1beta/${String(name||'').replace(/^\/+/, '')}`;}
-function batchInlineRequest(student){return {request:{contents:[{role:'user',parts:geminiPartsForStudent(student)}],generationConfig:structuredGenerationConfig()},metadata:{key:student.code}};}
+function newBatchRequestRef(){if(typeof globalThis.crypto?.randomUUID==='function')return `BATCH_${globalThis.crypto.randomUUID()}`;if(typeof globalThis.crypto?.getRandomValues==='function'){const bytes=new Uint8Array(16);globalThis.crypto.getRandomValues(bytes);return 'BATCH_'+[...bytes].map(x=>x.toString(16).padStart(2,'0')).join('');}throw new Error('Pro bezpečné Batch mapování není dostupný kryptografický generátor.');}
+function makeBatchEntries(students){const used=new Set();return students.map(student=>{let ref='';do{ref=newBatchRequestRef();}while(used.has(ref));used.add(ref);return {student,ref};});}
+function batchRequestMap(entries){return Object.fromEntries(entries.map(({student,ref})=>[ref,student.code]));}
+function batchStudentCode(job,ref){const key=String(ref||'').trim();if(!key)return '';return String(job?.requestMap?.[key]||(job?.requestMap?'' : key)).trim();}
+function batchInlineRequest(student,requestRef){return {request:{systemInstruction:{parts:[{text:hodTrustedInstructionsForOperation('essay-series-evaluation')}]},contents:[{role:'user',parts:geminiPartsForStudent(student)}],generationConfig:structuredGenerationConfig()},metadata:{key:requestRef}};}
 function estimateBatchPayloadBytes(body){try{return new Blob([JSON.stringify(body)]).size;}catch(_){return JSON.stringify(body).length*2;}}
-async function submitGeminiBatchJob(model){const ready=batchReadyStudents().filter(s=>!batchResultDone(s.code));if(!ready.length){toast('Všechny práce už mají výsledek.','warn');return;}if(hodSchoolMode())return submitSchoolBatchJob(ready,model);const body={batch:{display_name:`${seriesDisplayName()} ${new Date().toISOString()}`,input_config:{requests:{requests:ready.map(batchInlineRequest)}}}};try{$('runBtn').disabled=true;$('runStatus').textContent='Odesílám úspornou Batch API úlohu…';const payloadBytes=estimateBatchPayloadBytes(body);if(payloadBytes>19*1024*1024)throw new Error('Inline Batch požadavek překračuje bezpečný limit 19 MB. Použij okamžitou frontu nebo budoucí serverový režim.');const res=await fetch(batchApiCreateUrl(model),{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':geminiApiKey},body:JSON.stringify(body)});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error?.message||`Batch API HTTP ${res.status}`);state.batchJob={name:data.name||data.batch?.name,state:data.state||data.metadata?.state||data.batch?.state||'JOB_STATE_PENDING',codes:ready.map(s=>s.code),model,submittedAt:new Date().toISOString(),lastCheckedAt:null};state.series.batchJob=state.batchJob;saveState();renderBatchJobPanel();toast('Batch úloha byla přijata. Výsledky načteš tlačítkem Zkontrolovat Batch úlohu.');}catch(e){toast('Batch API: '+(e.message||e),'err');}finally{$('runBtn').disabled=false;renderWorkMode();}}
+async function submitGeminiBatchJob(model){const ready=batchReadyStudents().filter(s=>!batchResultDone(s.code));if(!ready.length){toast('Všechny práce už mají výsledek.','warn');return;}if(hodSchoolMode())return submitSchoolBatchJob(ready,model);const entries=makeBatchEntries(ready),requestMap=batchRequestMap(entries);const body={batch:{display_name:`${seriesDisplayName()} ${new Date().toISOString()}`,input_config:{requests:{requests:entries.map(({student,ref})=>batchInlineRequest(student,ref))}}}};try{$('runBtn').disabled=true;$('runStatus').textContent='Odesílám úspornou Batch API úlohu…';const payloadBytes=estimateBatchPayloadBytes(body);if(payloadBytes>19*1024*1024)throw new Error('Inline Batch požadavek překračuje bezpečný limit 19 MB. Použij okamžitou frontu nebo budoucí serverový režim.');const res=await fetch(batchApiCreateUrl(model),{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':geminiApiKey},body:JSON.stringify(body)});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error?.message||`Batch API HTTP ${res.status}`);state.batchJob={name:data.name||data.batch?.name,state:data.state||data.metadata?.state||data.batch?.state||'JOB_STATE_PENDING',codes:ready.map(s=>s.code),requestMap,model,submittedAt:new Date().toISOString(),lastCheckedAt:null};state.series.batchJob=state.batchJob;saveState();renderBatchJobPanel();toast('Batch úloha byla přijata. Výsledky načteš tlačítkem Zkontrolovat Batch úlohu.');}catch(e){toast('Batch API: '+(e.message||e),'err');}finally{$('runBtn').disabled=false;renderWorkMode();}}
 async function checkGeminiBatchJob(){
   ensureWorkflowState();const job=state.batchJob||state.series?.batchJob;if(!job?.name){toast('Není uložená žádná Batch úloha.','warn');return;}
   if(job.transport==='school-gateway'||hodSchoolMode())return checkSchoolBatchJob(job);
@@ -119,7 +119,7 @@ async function importGeminiBatchResponses(data,job){
   const rows=data?.dest?.inlinedResponses||data?.response?.inlinedResponses||data?.dest?.inlined_responses||data?.output?.inlinedResponses||data?.batch?.dest?.inlinedResponses||[];
   let successful=0,failed=0;
   for(let i=0;i<rows.length;i++){
-    const row=rows[i];const code=String(row.metadata?.key||'').trim();if(!code){failed++;job.unassignedResponses=(job.unassignedResponses||0)+1;continue;}const student=batchStudents.find(s=>s.code===code);if(!student){failed++;job.unassignedResponses=(job.unassignedResponses||0)+1;continue;}
+    const row=rows[i];const ref=String(row.metadata?.key||'').trim(),code=batchStudentCode(job,ref);if(!code){failed++;job.unassignedResponses=(job.unassignedResponses||0)+1;continue;}const student=batchStudents.find(s=>s.code===code);if(!student){failed++;job.unassignedResponses=(job.unassignedResponses||0)+1;continue;}
     const text=(row.response?.candidates||[]).flatMap(c=>(c.content?.parts||[]).map(p=>p.text||'')).join('').trim();
     try{
       const raw=JSON.parse(text.replace(/^```(?:json)?\s*/i,'').replace(/```$/,'').trim());const evaluation=finalizeEvaluation(raw,student);const usage=registerUsage(row.response?.usageMetadata||{},'batch');
@@ -134,10 +134,11 @@ async function importGeminiBatchResponses(data,job){
 }
 
 async function submitSchoolBatchJob(ready,model){
+  const entries=makeBatchEntries(ready),requestMap=batchRequestMap(entries);
   try{
     $('runBtn').disabled=true;$('runStatus').textContent='Odesílám zabezpečenou serverovou dávku…';
-    const data=await hodSubmitSchoolBatchJob(ready);
-    state.batchJob={name:data.jobId,state:data.status||'queued',codes:ready.map(student=>student.code),model,transport:'school-gateway',submittedAt:new Date().toISOString(),lastCheckedAt:null};
+    const data=await hodSubmitSchoolBatchJob(entries);
+    state.batchJob={name:data.jobId,state:data.status||'queued',codes:ready.map(student=>student.code),requestMap,model,transport:'school-gateway',submittedAt:new Date().toISOString(),lastCheckedAt:null};
     state.series.batchJob=state.batchJob;saveState();renderBatchJobPanel();toast('Serverová dávka byla přijata. Výsledky načteš tlačítkem Zkontrolovat Batch úlohu.');
   }catch(error){toast('Serverová Batch úloha: '+(error.message||error),'err');}
   finally{$('runBtn').disabled=false;renderWorkMode();}
@@ -152,7 +153,7 @@ async function checkSchoolBatchJob(job){
 }
 async function importSchoolBatchResponses(data,job){
   const rows=Array.isArray(data.results)?data.results:[];let successful=0,failed=0;
-  for(const row of rows){const code=String(row.key||'').trim();const student=batchStudents.find(item=>item.code===code);if(!student){failed++;continue;}if(row.error){failed++;student.status='chyba';upsertBatchResult({code,result:'CHYBA BATCH: '+row.error,status:'chyba'});continue;}
+  for(const row of rows){const ref=String(row.key||'').trim(),code=batchStudentCode(job,ref);const student=batchStudents.find(item=>item.code===code);if(!student){failed++;continue;}if(row.error){failed++;student.status='chyba';upsertBatchResult({code,result:'CHYBA BATCH: '+row.error,status:'chyba'});continue;}
     try{const evaluation=finalizeEvaluation(row.result,student);const usage=registerUsage(hodUsageToGemini(row.usage||{}),'batch');student.status=evaluation.validation.ok?'hotovo':'kontrola';student.validation=evaluation.validation;student.usage=usage;successful++;upsertBatchResult({code,identity:student.identity||'',displayName:student.displayName||'',email:student.email||'',rosterId:student.rosterId||'',result:evaluationToLegacyResult(evaluation),finalEvaluation:evaluation,validation:evaluation.validation,usage,status:student.status,approved:false,deliveryStatus:'not-ready',savedAt:new Date().toISOString()});}catch(error){failed++;student.status='chyba';upsertBatchResult({code,result:'CHYBA BATCH: '+(error.message||error),status:'chyba'});}
   }
   const attempted=Math.max((job.codes||[]).length,rows.length);failed+=Math.max(0,attempted-successful-failed);if(!job.telemetryRecordedAt){recordEssayTelemetry(attempted,successful,failed);job.telemetryRecordedAt=new Date().toISOString();}

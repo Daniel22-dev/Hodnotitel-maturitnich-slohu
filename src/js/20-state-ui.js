@@ -76,22 +76,42 @@ function initTooltips(){ document.querySelectorAll('.tt-icon[data-tip]').forEach
 
 const CHANGELOG_MAX_ENTRIES = 10;
 const CHANGELOG = [
-  {version:APP_VERSION+' AI STUDIO EDITION', items:['Deployment profil je zapečený do buildu a při chybě konfigurace zůstává aplikace i manuál bezpečně uzamčený.', 'ZIP a DOCX import odmítá nebezpečné cesty a příliš velký obsah po rozbalení; import zadání přijímá jen povolená pole.', 'CSV exporty neutralizují vzorce a devítimístná telefonní čísla se anonymizují i bez mezer.', 'Apps Script tajemství a backendový token se nikdy neukládají do stavu prohlížeče.', 'AI privacy metadata nyní pravdivě rozlišují zkontrolovaný text a obrazovou/PDF přílohu.', 'CSP nepovoluje inline JavaScript; manuál i tiskový náhled používají externí skripty a programové handlery.']},
-  {version:'1.4.0 AI STUDIO EDITION', items:['Přidána anonymní technická telemetrie počtu zpracovaných slohů, úspěchů, chyb a zrušení.', 'Batch API zapisuje metriku až při dokončení a chrání se před dvojím započtením.', 'Text práce, výsledek, jméno ani jiné údaje studenta se do telemetrie neposílají.']},
-  {version:'1.3.7 AI STUDIO EDITION', items:['Přidán úplný interaktivní manuál dostupný samostatným tlačítkem v záhlaví.', 'Manuál se otevírá v nové kartě, zachová rozpracovanou sérii a používá stejné oprávnění AI Studia.', 'Manuál je součástí offline PWA balíčku.']},
-  {version:'1.3.6 AI STUDIO EDITION', items:['Stabilizována PWA identita, service worker, přístupová brána a bezpečná obnova dávky bez base64 příloh.', 'Sjednoceno školní logo a verze řízená výhradně z package.json.', 'Doplněny první funkční zlaté testy word-countu, snapshotu a pseudonymizace.']},
-  {version:'1.3.5 AI STUDIO EDITION', items:['Sjednoceno školní logo a název školy s ostatními aplikacemi AI Studia.', 'Autorské údaje v zápatí používají společný dvouřádkový formát celé sady.']},
-  {version:'1.3.4 AI STUDIO EDITION', items:['Opraven křehký CI test, který blokoval celé nasazení kvůli volitelnému oznámení AI Studiu.', 'Build a GitHub Pages se spustí i bez volitelného repository dispatch.', 'Import seznamu z IS je ověřen pro čárky, středníky, tabulátory i nové řádky.']},
-  {version:'1.3.3 AI STUDIO EDITION', items:['Připravena vycentrovaná PWA ikona štítu, pera a potvrzení v běžné i maskable variantě.', 'Regresní test potvrzuje import 16 e-mailů z jednoho čárkového exportu IS.']},
-  {version:'1.3.2 AI STUDIO EDITION', items:['Opraven import skupiny z IS a přidán živý náhled počtu rozpoznaných studentů.', 'Barevnost názvu, školní logo a PWA ikona byly sjednoceny.']},
-  {version:'1.3.0 AI STUDIO EDITION', items:['Dokončeno Report Studio, skutečně formátovaný DOCX, komentářová banka, anonymní třídní analytika a pseudonymní historie.', 'DOCX import i exporty používají lokální knihovnu bez CDN.', 'Odstraněny překryté staré implementace reportu a exportů.']},
-  {version:'1.2.0 AI STUDIO EDITION', items:['Přepracován studentský i učitelský report a opraven přenos odečteného počtu slov.', 'Opraveno pokračování dávky, izolace učitelské korekce a validace kontaktů.', 'Studentská zpětná vazba dostala přehlednější akční strukturu.']},
+  {version:APP_VERSION+' AI STUDIO EDITION', items:['Ostrá maturitní zadání už nejsou součástí veřejného zdroje ani buildu a po importu zůstávají jen v aktuální browser relaci.', 'Zpevněna AI trust boundary všech vstupů.', 'School-server je same-origin a fail-closed.', 'Citlivé snapshoty expirují za 30 dní; migrace nezálohuje jejich obsah.', 'Rozšířeny GARP 2.3 bezpečnostní regrese.']},
+  {version:'1.4.0 AI STUDIO EDITION', items:['Anonymní provozní telemetrie bez studentského obsahu.', 'Batch metriky se zapisují až po dokončení.']},
+  {version:'1.3.7 AI STUDIO EDITION', items:['Přidán interaktivní manuál se stejným oprávněním AI Studia.', 'Manuál je součástí offline PWA.']},
+  {version:'1.3.6 AI STUDIO EDITION', items:['Stabilizována PWA, přístupová brána a bezpečná obnova dávky.', 'Verze řízena z package.json; doplněny zlaté testy.']},
+  {version:'1.3.5 AI STUDIO EDITION', items:['Sjednocen branding a autorské zápatí AI Studia.']},
+  {version:'1.3.4 AI STUDIO EDITION', items:['Stabilizován CI/deploy a import seznamu z IS.']},
+  {version:'1.3.3 AI STUDIO EDITION', items:['Upravena PWA ikona a regrese importu e-mailů z IS.']},
+  {version:'1.3.2 AI STUDIO EDITION', items:['Opraven import skupiny z IS a sjednocen vzhled.']},
+  {version:'1.3.0 AI STUDIO EDITION', items:['Dokončeno Report Studio, DOCX, komentáře, analytika a historie.', 'DOCX běží lokálně bez CDN.']},
+  {version:'1.2.0 AI STUDIO EDITION', items:['Přepracovány reporty, dávka, validace kontaktů a studentská zpětná vazba.']},
 ];
 function latestChangelog(){ return CHANGELOG.slice(0, CHANGELOG_MAX_ENTRIES); }
 function showChangelog(){ const items=latestChangelog(); const html=`<p class="small-muted" style="margin-bottom:10px">Zobrazuje se posledních ${items.length} změn. Starší položky se v nových verzích průběžně odstraňují.</p>`+items.map(v=>`<h3 style="color:var(--acc);margin:8px 0 4px">${escapeHtml(v.version)}</h3><ul style="margin-left:18px">${v.items.map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul>`).join(''); showModal('Co je nového',html,[{label:'Zavřít',className:'primary'}]); }
 
+function buildPersistentTaskSnapshot(sourceTasks=tasks){
+  const snapshot=cloneTaskData(sourceTasks||makeDefaultTasks());
+  // Ostrá zadání jsou důvěrný učitelský obsah: do persistentního localStorage nikdy nejdou.
+  snapshot.exam=cloneTaskData(makeDefaultTasks().exam);
+  return snapshot;
+}
 function loadTasks(){
-  try{ const raw=safeLocalGet(TASK_STORAGE_KEY); if(raw) return mergeTasks(makeDefaultTasks(), JSON.parse(raw)); }catch(e){}
+  try{
+    const sessionRaw=safeSessionGet(TASK_SESSION_STORAGE_KEY);
+    if(sessionRaw) return mergeTasks(makeDefaultTasks(), JSON.parse(sessionRaw));
+  }catch(e){}
+  try{
+    const raw=safeLocalGet(TASK_STORAGE_KEY);
+    if(raw){
+      const loaded=mergeTasks(makeDefaultTasks(), JSON.parse(raw));
+      // Migrace starších verzí: historický obsah ostré sady přesunout pouze do session
+      // a persistentní kopii okamžitě redigovat na placeholdery.
+      safeSessionSet(TASK_SESSION_STORAGE_KEY,JSON.stringify(loaded));
+      safeLocalSet(TASK_STORAGE_KEY,JSON.stringify(buildPersistentTaskSnapshot(loaded)));
+      return loaded;
+    }
+  }catch(e){}
   return makeDefaultTasks();
 }
 function normalizeImportedTask(setId,genreId,item,index){
@@ -118,10 +138,16 @@ function mergeTasks(base, incoming){
   }
   return base;
 }
-function saveTasks(){ safeLocalSet(TASK_STORAGE_KEY, JSON.stringify(tasks)); }
+function saveTasks(){
+  const sessionOk=safeSessionSet(TASK_SESSION_STORAGE_KEY,JSON.stringify(tasks));
+  const localOk=safeLocalSet(TASK_STORAGE_KEY,JSON.stringify(buildPersistentTaskSnapshot(tasks)));
+  return sessionOk&&localOk;
+}
 function sensitiveSaveEnabled(){ return safeLocalGet(SENSITIVE_SAVE_PREF_SK)==='1'; }
-function purgeLegacySensitiveStorage(){ LEGACY_STATE_KEYS.forEach(k=>safeLocalRemove(k)); }
-function clearAllSavedState(){ safeLocalRemove(STORAGE_KEY); safeLocalRemove(SENSITIVE_SAVE_PREF_SK); safeLocalRemove('maturitniHodnotitelPseudonymousHistoryV130'); clearBatchProgress(); purgeLegacySensitiveStorage(); }
+function sensitiveSnapshotExpired(savedAt){const ts=Date.parse(String(savedAt||''));return !Number.isFinite(ts)||Date.now()-ts>SENSITIVE_RETENTION_MS;}
+function purgeLegacySensitiveStorage(){ LEGACY_STATE_KEYS.forEach(k=>safeLocalRemove(k)); safeLocalRemove(PLATFORM_MIGRATION_BACKUP_SK); }
+function clearAllSavedState(){ safeLocalRemove(STORAGE_KEY); safeLocalRemove(SENSITIVE_SAVE_PREF_SK); safeSessionRemove(TASK_SESSION_STORAGE_KEY); safeLocalRemove('maturitniHodnotitelPseudonymousHistoryV130'); safeSessionRemove(GEMINI_KEY_SESSION_SK); safeLocalRemove(GEMINI_KEY_SK); clearBatchProgress(); purgeLegacySensitiveStorage(); }
+function endSensitiveWork(){try{abortController?.abort?.();}catch(_){}clearAllSavedState();geminiApiKey='';geminiKeyScope='session';state.studentText='';state.studentIdentity='';state.extraPii='';state.result='';state.privacyApprovedHash='';state.roster=[];state.lastEvaluation=null;state.teacherReview=defaultTeacherReview();attachedFiles=[];batchStudents=[];batchResults=[];location.reload();}
 function purgeSensitiveSavedState(){
   try{
     const raw=safeLocalGet(STORAGE_KEY); if(raw){ const data=JSON.parse(raw); SENSITIVE_STATE_FIELDS.forEach(k=>{ data[k]=k==='roster'?[]:''; }); if(data.reportSettings)data.reportSettings={...data.reportSettings,signature:'',customComments:[]}; safeLocalSet(STORAGE_KEY, JSON.stringify(data)); }
@@ -153,10 +179,13 @@ let batchPersistenceWarningShown=false;
 function warnBatchPersistenceFailure(){if(batchPersistenceWarningShown)return;batchPersistenceWarningShown=true;toast('Průběh dávky se nepodařilo uložit do úložiště prohlížeče. Stáhni si průběžný export nebo zmenši dávku; přílohy se do snapshotu neukládají.','warn');}
 function saveBatchProgress(){
   if(!batchStudents.length && !batchResults.length){ clearBatchProgress(); return true; }
-  let raw='';
-  try{raw=JSON.stringify(buildBatchProgressSnapshot());}catch(_){warnBatchPersistenceFailure();return false;}
-  const sessionOk=safeSessionSet(BATCH_PROGRESS_SESSION_SK,raw);
-  const localOk=sensitiveSaveEnabled()?safeLocalSet(BATCH_PROGRESS_LOCAL_SK,raw):safeLocalRemove(BATCH_PROGRESS_LOCAL_SK);
+  let sessionRaw='',localRaw='';
+  try{
+    sessionRaw=JSON.stringify(buildBatchProgressSnapshot());
+    if(sensitiveSaveEnabled()) localRaw=JSON.stringify(buildBatchProgressSnapshot({persistent:true}));
+  }catch(_){warnBatchPersistenceFailure();return false;}
+  const sessionOk=safeSessionSet(BATCH_PROGRESS_SESSION_SK,sessionRaw);
+  const localOk=sensitiveSaveEnabled()?safeLocalSet(BATCH_PROGRESS_LOCAL_SK,localRaw):safeLocalRemove(BATCH_PROGRESS_LOCAL_SK);
   if(!sessionOk||!localOk){warnBatchPersistenceFailure();return false;}
   batchPersistenceWarningShown=false;return true;
 }
@@ -204,13 +233,13 @@ async function toggleAppFullscreen(){
 function bindEvents(){
   $('btnTheme').onclick=()=>{document.body.classList.toggle('light');safeLocalSet('maturitniHodnotitelTheme',document.body.classList.contains('light')?'light':'dark');updateThemeBtn();};
   $('btnFs').onclick=toggleAppFullscreen;
-  $('changesBtn').onclick=showChangelog; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=()=>{clearAllSavedState(); location.reload();};
+  $('changesBtn').onclick=showChangelog; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=()=>{clearAllSavedState(); location.reload();}; $('endSensitiveWorkBtn')?.addEventListener('click',endSensitiveWork);
   $('next0').onclick=()=>goTo(1); $('back1').onclick=()=>goTo(0); if($('againBtn')) $('againBtn').onclick=()=>goTo(2); $('next1').onclick=()=>{commitTaskFieldsToDb();goTo(2)}; $('back2').onclick=()=>goTo(1); $('next2').onclick=()=>goTo(3); $('back3').onclick=()=>goTo(2); $('next3').onclick=()=>goTo(4); $('back4').onclick=()=>goTo(3); $('newEvalBtn').onclick=()=>{state.studentText='';state.result='';state.studentIdentity='';state.extraPii='';state.teacherReview=defaultTeacherReview();attachedFiles=[];batchStudents=[];batchResults=[];clearBatchProgress();state.privacyApprovedHash='';goTo(0);syncFieldsFromState();renderFiles();renderBatchList();renderResult();updateStats();saveState();};
   ['taskTitle','taskText','taskReqs','studentText','studentIdentity','studentCode','extraPii'].forEach(id=>$(id).addEventListener('input',()=>{state.privacyApprovedHash='';updateStats();updatePromptPreview();saveState(false);renderPrivacyMode();}));
   $('anonymizeBtn').onclick=applyPseudonymizationToField; $('previewAnonBtn').onclick=showAnonPreview; $('clearTextBtn').onclick=()=>{$('studentText').value=''; attachedFiles=[]; syncStateFromFields(); renderFiles(); updateStats(); updatePromptPreview(); saveState();}; $('togglePrivacyBtn')?.addEventListener('click',togglePrivacyMode); $('runPrivacyCheckBtn')?.addEventListener('click',()=>{syncStateFromFields(); renderPrivacyReport(runPrivacyScan(), false);}); $('applyPrivacyFixBtn')?.addEventListener('click',applySelectedPrivacyFindings); $('approvePrivacyBtn')?.addEventListener('click',approvePrivacyCheck); $('toggleSensitiveSaveBtn')?.addEventListener('click',toggleSensitiveStateSaving); $('clearSensitiveSavedBtn')?.addEventListener('click',clearSensitiveSavedData);
   $('fileInput').addEventListener('change',handleFiles); $('transcribeSingleBtn')?.addEventListener('click',transcribeSingleAttachments); const ua=$('uploadArea'); ua.onclick=()=>$('fileInput').click(); ua.addEventListener('dragover',e=>{e.preventDefault(); ua.classList.add('dragover')}); ua.addEventListener('dragleave',()=>ua.classList.remove('dragover')); ua.addEventListener('drop',e=>{e.preventDefault(); ua.classList.remove('dragover'); handleFileList(e.dataTransfer.files)});
   $('batchFileInput')?.addEventListener('change',handleBatchFiles); $('pickBatchFilesBtn')?.addEventListener('click',()=>$('batchFileInput').click()); $('addBatchStudentBtn')?.addEventListener('click',()=>addBatchStudent()); $('clearBatchBtn')?.addEventListener('click',()=>{batchStudents=[];batchResults=[];clearBatchProgress();state.privacyApprovedHash='';renderBatchList();updateStats();saveState();renderPrivacyMode();}); $('clearBatchResultsBtn')?.addEventListener('click',()=>{resetBatchResultsOnly();});
-  $('exportTasksBtn').onclick=()=>{$('taskJson').value=JSON.stringify(tasks,null,2); toast('Databáze zadání vypsána do JSON pole.');};
+  $('exportTasksBtn').onclick=()=>{const exported=JSON.stringify(tasks,null,2);$('taskJson').value=exported;const containsExam=Object.values(tasks.exam||{}).some(arr=>(arr||[]).some(t=>String(t?.taskText||'').trim()));toast(containsExam?'JSON obsahuje důvěrnou ostrou sadu. Ulož jej pouze do chráněného soukromého úložiště.':'Databáze zadání vypsána do JSON pole.',containsExam?'warn':'ok');};
   $('importTasksBtn').onclick=importTasks; $('resetTasksBtn').onclick=()=>{tasks=makeDefaultTasks(); saveTasks(); renderTasks(); fillTaskFieldsFromSelection(); toast('Vrácena výchozí vestavěná databáze.','warn');};
   document.querySelectorAll('[data-work-mode]').forEach(el=>{el.onclick=()=>{state.workMode=el.dataset.workMode; renderWorkMode(); updateStats(); updatePromptPreview(); saveState();};});
   $('copyManualPromptBtn')?.addEventListener('click',copyPromptWithPrivacyGate); $('downloadPromptBundleBtn')?.addEventListener('click',downloadPromptBundleWithPrivacyGate); $('importManualResultBtn')?.addEventListener('click',importManualResult);

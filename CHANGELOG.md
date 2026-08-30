@@ -1,3 +1,46 @@
+## 1.5.18 – GARP 2.3 finální oprava po třetím Claude kole (2026-08-30)
+
+- Opraven nález B3-01 / MEDIUM z poslední nezávislé Claude kontroly.
+- Repository secret scanner už nečeká pouze legacy objekt `set: "exam"`; parsuje skutečný JSON export/import databáze a blokuje top-level větev `exam`, pokud obsahuje neprázdný `taskText`.
+- Zachována detekce staršího `set: "exam"` tvaru i běžných tajných hodnot a citlivých souborů.
+- Bezpečnostní regrese používá skutečný tvar `JSON.stringify(tasks, null, 2)` a samostatná negative control potvrzuje blokující FAIL nad syntetickým exportem ostré sady.
+- Dokumentace EXAM-TASK-SECURITY byla opravena tak, aby přesně popisovala skutečně vynucenou CI ochranu.
+- Žádná změna runtime hodnocení, prompt assembly, AI egressu ani storage modelu proti 1.5.17.
+
+## 1.5.17 – GARP 2.3 třetí kolo (2026-08-30)
+- D-08: skutečný obsah ostrých maturitních zadání odstraněn ze zdroje i veřejného buildu; budoucí důvěrná sada se importuje pouze lokálně.
+- Importovaná ostrá sada se drží v `sessionStorage`; persistentní task databáze, obecný state i Batch snapshot vždy redigují `taskTitle/taskText/taskReqs` ostrého zadání, i při opt-in obnově citlivé práce.
+- Starší persistentní kopie ostrého task contextu se při načtení migračně mažou; export JSON výslovně varuje, pokud obsahuje ostrou sadu.
+- Přidán blokující repository secret scan do CI včetně detekce omylem commitnutého JSONu s neprázdným ostrým `taskText`; scanner je striktně omezen na kořen aplikace a `.gitignore` vyhrazuje soukromé názvy/adresář.
+- Legacy ostrá sada byla již dříve zveřejněna ve veřejném GitHubu, proto musí být považována za kompromitovanou a pro skutečnou zkoušku nahrazena novou/rotovanou sadou uloženou mimo repozitář.
+- Kvůli aktuálně nechráněné větvi `main` je veřejný GitHub Pages deployment pouze ruční (`workflow_dispatch`); kandidát před veřejným artefaktem fail-closed ověřuje `main.protected === true`. Push/PR dále spouští QA bez automatického nasazení.
+
+## 1.5.16 — GARP 2.3 finalizační kolo po druhé Claude kontrole (2026-08-30)
+
+- `state.genre` se po obnově běžného i Batch stavu whitelistuje proti aplikačnímu enumu a prompt používá výhradně whitelistovaný label bez raw fallbacku.
+- Sdílený prompt-boundary harness pokrývá 28variantní AI-RED korpus přes šest primárních vstupů a sekundární validační retry (196/196 strukturálních pokusů).
+- Validační retry už nepřipojuje modelový text do důvěryhodné instrukční pozice; předchozí validační chyby jsou vloženy jako escapovaný `REPAIR_VALIDATION_JSON` datový blok.
+- Bezpečnostní regrese obsahují funkční ochranu obnovy `genre`, prompt fallbacku i repair-boundary a byly ověřeny mutačními negative controls.
+- Jde o druhé a poslední automatické GARP kolo; distribuovaný kód se po druhé Claude kontrole změnil, proto Release Integrity zůstává AMBER bez nového výslovně zahájeného nezávislého cyklu.
+
+## 1.5.15 — GARP 2.3 opravné kolo po Claude B (2026-08-29)
+
+- rozšířená prompt trust-boundary pro zadání, povinné body, word-count audit i studentský text; 28variantní korpus běží přes 5 kanálů (140 strukturálních pokusů),
+- funkční prompt-boundary kontrola přidána do `security-regressions` i `qa:security`,
+- school-server build aplikuje vlastní same-origin CSP z `schoolServerProfile` do HTML a ověřuje shodu,
+- error reporter fail-closed rediguje nelabelovaný lidský obsah, názvy souborů, telefony a canary; DOCX parser nevkládá filename do chyb,
+- GitHub Pages artefakt se po QA a před uploadem zbavuje QA-only reportů,
+- navazující kandidát vyžaduje druhou nezávislou Claude kontrolu podle GARP 2.3.
+
+## 1.5.14 — GARP 2.3 bezpečnostní hardening (2026-08-29)
+
+- Sjednoceny všechny AI cesty pod stejnou trust boundary: přímý Batch i školní gateway používají explicitní trusted instrukce a nedůvěryhodný studentský text zůstává oddělený.
+- Odstraněn legacy AI bypass a latentní raw-series backend egress; školní profil je aplikačně fail-closed, same-origin a zakazuje lokální provider klíč.
+- Interní studentský kód se již neposílá do AI promptu ani provider Batch metadata; párování používá kryptograficky náhodné opaque reference a lokální mapu.
+- Citlivé lokální snapshoty expirují po 30 dnech a přibylo explicitní ukončení citlivé relace, které maže stav, dávku i provider klíče.
+- Distribuční JSON už neexportuje sdílené tajemství; Apps Script egress zůstává omezen na explicitní allowlist a odeslání vyžaduje akci učitele.
+- Rozšířeny GARP/AI-RED regrese, canary kontroly a negative controls pro trust boundary, same-origin, retention, secret export a prompt encoding.
+
 ## 1.5.13 — reakce na bezpečnostní audit Claude, kolo 1 (2026-08-24)
 
 - Studentský text se do hodnoticího promptu vkládá jako JSON řetězec s escapovanými řídicími znaky; nemůže vytvořit druhý oddělovač ani předstírat systémovou instrukci.

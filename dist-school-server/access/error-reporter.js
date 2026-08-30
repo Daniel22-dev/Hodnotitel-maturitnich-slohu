@@ -326,15 +326,26 @@ function installThemeSync(root, options = {}) {
   return apply;
 }
 
-function sanitizeTechnicalText(value, max = 420) {
+export function sanitizeTechnicalText(value, max = 420) {
   let text = clipText(value, max * 2);
   text = text
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[e-mail odstraněn]")
     .replace(/(?:bearer\s+)[A-Z0-9._~+\/-]+/gi, "Bearer [token odstraněn]")
+    .replace(/\bGARP-(?:STUDENT|AIRED)(?:-[A-Z0-9._-]+)?\b/gi, "[canary odstraněn]")
+    .replace(/(^|[^\d])((?:\+?420[ .-]?)?(?:\d[ .-]?){9})(?!\d)/g, (_match, prefix) => `${prefix}[telefon odstraněn]`)
+    .replace(/(?:^|[\s(])[^\s/\\<>:\"|?*]{1,100}\.(?:docx?|pdf|rtf|odt|txt|jpe?g|png|webp|heic|zip)(?=$|[\s),;:])/gi, (match) => `${match.startsWith(' ') ? ' ' : ''}[název souboru odstraněn]`)
     .replace(/((?:api[_ -]?key|authorization|access[_ -]?token|refresh[_ -]?token|password|heslo)\s*[:=]\s*)[^,;\s]+/gi, "$1[odstraněno]")
     .replace(/((?:prompt|puvodni text|původní text|original text|working text|pracovni text|pracovní text|model response|odpoved modelu|odpověď modelu|document content|obsah dokumentu|student data|data zaka|data žáka)\s*[:=]\s*)(?:["'`][^"'`\n]*["'`]|[^,;\n]+)/gi, "$1[obsah odstraněn]")
     .replace(/(["'`])[^\n]{120,}\1/g, "[dlouhý obsah odstraněn]");
   return clipText(text, max);
+}
+export function sanitizeTechnicalMessage(value, type = "error", max = 420) {
+  const text = sanitizeTechnicalText(value, max);
+  if (!text) return "[technická zpráva redigována]";
+  if (String(type || "").toLowerCase() === "http") return text;
+  if (/^\[(?:e-mail|token|canary|telefon|název souboru|obsah|dlouhý obsah)[^\]]*odstraněn[^\]]*\]$/i.test(text)) return text;
+  if (/^[A-Z0-9_.:-]{2,100}$/.test(text) || /^[a-z][a-z0-9._-]{2,100}$/.test(text)) return text;
+  return "[technická zpráva redigována]";
 }
 
 function button(label, className = "secondary") {
@@ -481,9 +492,12 @@ function safeTechnicalUrl(value) {
   }
 }
 function safeStack(value) {
-  return clipText(value, 1800).replace(/https?:\/\/[^\s)]+/g, (match) =>
-    safeTechnicalUrl(match),
-  );
+  const frames = clipText(value, 4000)
+    .split(/\r?\n/)
+    .filter((line) => /^\s*at\s+/.test(line))
+    .slice(0, 16)
+    .map((line) => sanitizeTechnicalText(line.replace(/https?:\/\/[^\s)]+/g, (match) => safeTechnicalUrl(match)), 320));
+  return frames.join("\n");
 }
 function technicalMessage(value) {
   if (value instanceof Error) return value.message || value.name || "Error";
@@ -717,11 +731,13 @@ export function setupErrorReporter(options = {}) {
   });
 
   const pushTechnicalError = (raw) => {
+    const safeType = sanitizeTechnicalText(raw?.type || "error", 40);
     const item = {
       at: new Date().toISOString(),
-      type: sanitizeTechnicalText(raw?.type || "error", 40),
-      message: sanitizeTechnicalText(
+      type: safeType,
+      message: sanitizeTechnicalMessage(
         raw?.message || "Neznámá technická chyba",
+        safeType,
         420,
       ),
       status: raw?.status ? Number(raw.status) : null,

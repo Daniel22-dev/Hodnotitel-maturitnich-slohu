@@ -2,7 +2,7 @@
   "schema": "ghrab-release-acceptance-v1",
   "stage": "P5",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.13",
+  "appVersion": "1.5.18",
   "releaseStatus": "pre-production-accepted",
   "primaryRuntime": {
     "mode": "standalone-github-pages",

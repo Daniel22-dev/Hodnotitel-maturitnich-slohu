@@ -67,10 +67,10 @@
         <div class="field-label">Sada zadání <button class="tt-icon" type="button" data-tip="Vybereš, zda hodnotíš cvičné nebo ostré maturitní zadání. Do AI se odesílá jen aktuálně vybrané zadání, ne celá databáze.">?</button></div>
         <div class="grid two">
           <div class="task-card active" data-set="practice"><div class="tc-title">Cvičná sada</div><div class="tc-desc">13 vložených zadání: 6 útvarů, stížnost má 3 varianty. Vhodné pro trénink a kalibraci hodnocení.</div><span class="tc-tag">practice</span></div>
-          <div class="task-card" data-set="exam"><div class="tc-title">Ostrá maturitní verze</div><div class="tc-desc">12 vložených zadání: 6 útvarů × 2 zadání. Učitelský režim – nesdílet se studenty.</div><span class="tc-tag">exam</span></div>
+          <div class="task-card" data-set="exam"><div class="tc-title">Ostrá maturitní verze</div><div class="tc-desc">Důvěrná sada není vložená ve veřejném kódu. Učitel ji načte přes import JSON pouze pro aktuální browser relaci.</div><span class="tc-tag">exam · session only</span></div>
         </div>
       </div>
-      <div id="examWarning" class="warn-box hidden"><strong>Ostrá sada:</strong> pokud je tento HTML soubor předán studentům, zadání jsou technicky dohledatelná ve zdrojovém kódu. Pro studenty používej jen výstupy, ne celý nástroj.</div>
+      <div id="examWarning" class="warn-box hidden"><strong>Ostrá sada:</strong> její skutečný obsah není součástí veřejného zdroje ani buildu. Načti důvěrný JSON přes import níže; aplikace jej drží pouze v sessionStorage aktuální karty/relace a po jejím ukončení jej znovu neobnoví.</div>
       <div class="field">
         <div class="field-label">Útvar <button class="tt-icon" type="button" data-tip="Útvar určuje hodnoticí očekávání: opinion, for and against, review, narration, complaint nebo motivation letter. Ovlivňuje zejména formální prvky, komunikační záměr a vhodné B2 struktury.">?</button></div>
         <div class="grid three" id="genreCards"></div>
@@ -100,7 +100,7 @@
       </div>
       <details>
         <summary>Databáze zadání – import/export JSON <button class="tt-icon" type="button" data-tip="Slouží hlavně pro zálohování nebo ruční opravy zadání. Import přepíše lokální databázi uloženou v tomto prohlížeči.">?</button></summary>
-        <div class="small-muted">JSON slouží pro zálohu nebo ruční úpravu vestavěné databáze. Import přepíše lokální databázi v tomto prohlížeči.</div>
+        <div class="small-muted">JSON slouží pro zálohu nebo ruční úpravu databáze. Cvičná sada se může uložit lokálně; obsah ostré sady se po importu drží pouze v aktuální browser relaci a do persistentního localStorage se ukládají jen prázdné placeholdery.</div>
         <textarea id="taskJson" class="json-area" rows="10"></textarea>
         <div class="split-actions">
           <button class="btn-mini" id="exportTasksBtn">Vypsat aktuální databázi</button>
@@ -205,6 +205,7 @@
           <div class="privacy-actions" style="border-top:1px dashed var(--bdr);padding-top:9px;margin-top:10px">
             <button class="btn-mini" id="toggleSensitiveSaveBtn" type="button">Obnova citlivé relace: vypnuto</button>
             <button class="btn-mini" id="clearSensitiveSavedBtn" type="button">Vymazat uložené citlivé údaje</button>
+            <button class="btn-mini danger" id="endSensitiveWorkBtn" type="button">Ukončit práci a smazat citlivou relaci</button>
           </div>
           <div class="small-muted" id="sensitiveSaveNote">Studentské texty, identita, anonymizační údaje a výsledky se ve výchozím stavu neukládají do trvalého úložiště prohlížeče. Obnovu citlivé relace zapínej jen na vlastním zařízení.</div>
         </div>
@@ -242,7 +243,7 @@
         <div class="workflow-form three"><label><span>Max. požadavků za minutu</span><input id="queueRpm" type="number" min="1" max="30" value="5"></label><div id="seriesBudget" class="usage-card"><strong>—</strong><span>odhad série</span></div><div id="todayUsage" class="usage-card"><strong>—</strong><span>dnešní spotřeba</span></div></div>
         <div id="workflowDashboard" class="workflow-dashboard"></div>
         <div id="batchJobPanel" class="batch-job hidden"><div><strong>Uložená Batch API úloha</strong><span id="batchJobState"></span></div><button class="btn-mini" id="checkBatchJobBtn" type="button">Zkontrolovat Batch úlohu</button></div>
-        <details class="backend-panel"><summary>Budoucí školní server</summary><div class="workflow-form three"><label><span>Provozní režim</span><select id="backendMode"><option value="browser">Prohlížeč</option><option value="server">Školní server</option></select></label><label><span>HTTPS adresa backendu</span><input id="backendBaseUrl" type="url" placeholder="https://ai.ghrabuvka.cz/api"></label><label><span>Přístupový token</span><input id="backendAccessToken" type="password" autocomplete="off"></label></div><div class="split-actions"><button class="btn-mini" id="backendHealthBtn" type="button">Ověřit spojení</button><span id="backendStatus" class="status-note">Aktivní je lokální provoz v prohlížeči.</span></div></details>
+        <details class="backend-panel"><summary>Školní server</summary><div class="workflow-form three"><label><span>Provozní režim</span><select id="backendMode" disabled><option value="browser">Prohlížeč</option><option value="server">Školní server (deployment)</option></select></label><label><span>Serverový endpoint</span><input id="backendBaseUrl" type="url" readonly disabled placeholder="Řídí deployment profil"></label><label><span>Přístupový token</span><input id="backendAccessToken" type="text" readonly disabled value="Spravuje serverová relace"></label></div><div class="split-actions"><button class="btn-mini" id="backendHealthBtn" type="button">Ověřit spojení</button><span id="backendStatus" class="status-note">Endpoint a přihlášení nelze přepsat z aplikace.</span></div></details>
       </div>
       <div class="work-panel">
         <div class="field-label">Režim práce <button class="tt-icon" type="button" data-tip="Cílem je používat API jen tehdy, když je skutečně potřeba. Offline příprava a ruční AI režim nevolají Gemini API z aplikace.">?</button></div>

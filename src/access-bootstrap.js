@@ -2,6 +2,8 @@ const APP_ID = 'essay-evaluator';
 const FALLBACK_STUDIO_URL = '/AI-Studio-GHRAB/';
 const IMPORT_TIMEOUT_MS = 4500;
 const CHECK_TIMEOUT_MS = 8000;
+const SENSITIVE_MIGRATION_BACKUP_KEY = 'ghrab.essay-evaluator.migration.p2-storage-namespace-v1.backup';
+try { localStorage.removeItem(SENSITIVE_MIGRATION_BACKUP_KEY); } catch (_) {}
 let studioUrl = FALLBACK_STUDIO_URL;
 
 class GuardTimeoutError extends Error {

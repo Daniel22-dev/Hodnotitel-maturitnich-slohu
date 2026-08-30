@@ -101,7 +101,6 @@ function extractMiniSummary(txt){
 }
 
 function cancelRun(){ if(abortController){ abortController.abort(); toast('Generování zrušeno.','warn'); } }
-function geminiGenerateUrl(apiVersion, model){ return `https://generativelanguage.googleapis.com/${apiVersion}/models/${encodeURIComponent(model)}:generateContent`; }
 function geminiModelsUrl(apiVersion){ return `https://generativelanguage.googleapis.com/${apiVersion}/models`; }
 function makeGeminiApiError(message,status,apiVersion,raw){ const e=new Error(message); e.httpStatus=status||0; e.apiVersion=apiVersion; e.raw=raw; return e; }
 function shouldFallbackToV1Beta(e){ return e && e.apiVersion===GEMINI_API_VERSION_PRIMARY && (e.httpStatus===400 || e.httpStatus===404 || /not found|not supported|not available|model/i.test(e.message||'')); }
@@ -168,28 +167,4 @@ function updateRetryStatus(context,attempt,delay,e){
   if($('runStatus')) $('runStatus').textContent=`${context}: ${status}. Opakuji pokus ${attempt+1}/${GEMINI_RETRY_MAX_ATTEMPTS} za ${sec} s…`;
 }
 
-async function callGemini(key,model,prompt,files,signal){
-  const parts=[{text:prompt}];
-  for(const f of files)parts.push({inline_data:{mime_type:f.mime,data:dataUrlToBase64(f.dataUrl)}});
-  const body={contents:[{role:'user',parts}],generationConfig:{temperature:0.05,topP:0.8,maxOutputTokens:16384,responseMimeType:'application/json'}};
-  async function post(apiVersion){
-    for(let attempt=1;attempt<=GEMINI_RETRY_MAX_ATTEMPTS;attempt++){
-      try{
-        const res=await fetch(geminiGenerateUrl(apiVersion,model),{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),signal});
-        const data=await res.json().catch(()=>({}));
-        if(!res.ok){const err=makeGeminiApiError(data?.error?.message||`HTTP ${res.status}`,res.status,apiVersion,data);err.retryAfterMs=parseRetryAfterMs(res.headers?.get?.('retry-after'));throw err;}
-        const finish=data?.candidates?.[0]?.finishReason||'';
-        if(finish==='MAX_TOKENS')throw makeGeminiApiError('Přepis je delší než výstupní limit modelu. Rozděl přílohy na méně stran na jednoho studenta.',422,apiVersion,data);
-        const text=(data.candidates||[]).flatMap(c=>(c.content?.parts||[]).map(p=>p.text||'')).join('').trim();
-        if(!text)throw makeGeminiApiError('Gemini nevrátilo textový přepis.',0,apiVersion,data);
-        return text;
-      }catch(e){
-        if(e?.name==='AbortError')throw makeGeminiApiError('Přepis byl zrušen.',0,apiVersion,e);
-        if(!Number.isFinite(e?.httpStatus))e=makeGeminiApiError('Spojení s Gemini při přepisu selhalo: '+(e?.message||e),0,apiVersion,e);
-        if(!isRetryableGeminiError(e)||attempt>=GEMINI_RETRY_MAX_ATTEMPTS)throw e;
-        const delay=geminiRetryDelayMs(attempt,e);updateRetryStatus('Přepis přílohy',attempt,delay,e);await sleepWithAbort(delay,signal);
-      }
-    }
-  }
-  try{return await post(GEMINI_API_VERSION_PRIMARY);}catch(e){if(shouldFallbackToV1Beta(e))return post(GEMINI_API_VERSION_FALLBACK);throw e;}
-}
+async function callGemini(){ throw Object.assign(new Error('AI Core transkripční adaptér ještě není inicializovaný.'),{code:'CONFIGURATION_ERROR'}); }

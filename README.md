@@ -1,12 +1,12 @@
-# Hodnotitel maturitních slohů 1.5.13
+# Hodnotitel maturitních slohů 1.5.18
 
-**Aktuální verze:** 1.5.13  
+**Aktuální verze:** 1.5.18  
 **Platforma:** GHRAB Platform 1.1.0 · etapa P3
 
 
 Modulární webová aplikace pro anonymizaci, individuální i dávkové hodnocení, učitelskou kontrolu, profesionální reporty a bezpečné rozeslání zpětné vazby k maturitním slohům z anglického jazyka. Aplikace je součástí ekosystému **AI Studio GHRAB**.
 
-## Základ 1.5.5 zachovaný ve verzi 1.5.13
+## Základ 1.5.5 zachovaný ve verzi 1.5.18
 
 - plně funkční ruční AI režim: prompt obsahuje JSON schéma a importovaný JSON prochází deterministickým bodováním a validační bránou;
 - opravený počet slov bez technické značky nahraného souboru a bezpečnější rozpoznání skutečného nadpisu;
@@ -64,7 +64,9 @@ API klíč nepatří do zdrojového kódu. Trvalé uložení vyžaduje samostatn
 
 ## Ostrá zadání
 
-Repozitář aktuálně obsahuje i vestavěnou sadu označenou jako ostrá maturitní verze. Je proto nutné počítat s tím, že obsah veřejného repozitáře a výsledného `app.js` není tajný. Přesun této sady do neveřejného lokálního importu je samostatné provozní rozhodnutí autora a verze 1.5.13 jej bez výslovného souhlasu nemění.
+Verze 1.5.18 už skutečný obsah ostré maturitní sady **neobsahuje** ve veřejném zdroji ani v distribuovaném `app.js`. Učitel načítá budoucí důvěrnou sadu explicitním JSON importem pouze pro aktuální browser relaci; persistentní task/state/Batch snapshoty její zadání redigují.
+
+Dřívější ostrá sada však byla v minulosti zveřejněna ve veřejném repozitáři, a proto ji nelze znovu považovat za tajnou. Pro skutečnou ostrou zkoušku je nutná nová/rotovaná sada uložená mimo veřejný GitHub; viz `docs/EXAM-TASK-SECURITY.md`.
 
 ## Autorství
 
@@ -72,6 +74,10 @@ Autor a vývojový garant: **Daniel Baláž**
 Školní projekt Gymnázia, Ostrava-Hrabůvka.
 
 
-## Jednotná certifikace 1.5.13
+## Jednotná certifikace 1.5.18
 
 Úplný lokální průchod se spouští příkazy `npm ci` a `npm run qa:release`. Auditní regrese 1.5.0 jsou zachovány a navíc jsou zapojené do GHRAB QA 1.0.2. Automatické PASS bez ruční galerie a deployed smoke testu neznamená stav READY.
+
+
+### Důvěrná ostrá zadání
+Ostrá maturitní zadání nejsou součástí veřejného zdroje ani distribuovaného JavaScriptu. Učitel je načítá přes JSON import; úplná ostrá sada zůstává pouze v sessionStorage aktuální relace a po jejím ukončení se znovu neobnoví.

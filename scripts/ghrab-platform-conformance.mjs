@@ -176,9 +176,13 @@ try {
   sampleStore.setItem(legacyKey, 'updated-value');
   check(sampleStore.getItem(canonicalKey) === 'updated-value', 'storage alias writes canonical key');
   check(api.migrateStorage().status === 'already-done', 'storage migration idempotent');
+  const migrationBackupKey = `ghrab.${consumer.appId}.migration.${consumer.storageMigration.id}.backup`;
+  const migrationBackup = JSON.parse(localStorage.map.get(migrationBackupKey) || '{\"entries\":[]}');
+  check(consumer.storageMigration.backup === 'full' || migrationBackup.entries.every((entry) => !Object.prototype.hasOwnProperty.call(entry, 'value')), 'non-full storage backup omits migrated values');
   const rollback = api.rollbackStorageMigration();
   check(rollback.status === 'restored', 'storage migration rollback');
-  check(sampleStore.map.get(legacyKey) === 'original-value', 'rollback restored original value');
+  const expectedRollbackValue = consumer.storageMigration.backup === 'full' ? 'original-value' : 'updated-value';
+  check(sampleStore.map.get(legacyKey) === expectedRollbackValue, consumer.storageMigration.backup === 'full' ? 'rollback restored original value' : 'metadata rollback restored current canonical value');
   const material = { schema: 'ghrab-material-v1', id: 'runtime-test', title: 'Test', subject: 'Test', content: { text: 'Ahoj' } };
   const handoff = api.bridge.create({ target: consumer.appId, sourceAppId: 'ai-studio', sourceAppVersion: '1.0.0', targetVersionRange: '*', material });
   check(handoff?.schema === 'ghrab-studio-handoff-v2', 'Studio Bridge v2 create');

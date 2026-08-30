@@ -14,7 +14,7 @@ function getOutboundStudentTextFromValues(rawText, identity, codeValue, extraPii
   let text=rawText||''; const map=[];
   const add=(repl,label,wholeToken=false,foldDiacritics=false)=>{ if(!repl) return; const clean=String(repl).trim(); const source=foldDiacritics?diacriticInsensitiveSource(clean):escapeRegExp(clean); if(!source) return; const re=wholeToken?new RegExp(`(^|[^\\p{L}\\p{N}_])(${source})(?=$|[^\\p{L}\\p{N}_])`,'giu'):new RegExp(source,'giu'); if(re.test(text)){ re.lastIndex=0; text=wholeToken?text.replace(re,(_,prefix)=>prefix+label):text.replace(re,label); map.push(`${clean} → ${label}`); } };
   const identityTerms=Array.from(new Set([String(identity||'').trim(),...String(identity||'').trim().split(/[\s,;]+/).map(x=>x.trim()).filter(x=>x.length>=3)])).filter(Boolean).sort((a,b)=>b.length-a.length);
-  identityTerms.forEach(term=>add(term,code,true,true));
+  identityTerms.forEach(term=>add(term,'STUDENT',true,true));
   String(extraPiiValue||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach((x,i)=>add(x,`[OSOBA_UDÁJ_${i+1}]`));
   let n=0; text=text.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,m=>{map.push(`${m} → [EMAIL_${++n}]`); return `[EMAIL_${n}]`;});
   n=0; text=text.replace(/(^|[^\d])((?:(?:\+?420[\s.-]*)?\d{3}[\s.-]+\d{3}[\s.-]+\d{3}|(?:\+?420)?\d{9}))(?!\d)/g,(_,prefix,m)=>{map.push(`${m} → [TELEFON_${++n}]`); return `${prefix}[TELEFON_${n}]`;});
@@ -195,22 +195,22 @@ function docxParagraphText(xml){
 }
 function docxXmlToText(xml,fileName='DOCX'){
   const source=String(xml||'');
-  if(!/<(?:[A-Za-z_][\w.-]*:)?document\b/i.test(source)||!/<(?:[A-Za-z_][\w.-]*:)?body\b/i.test(source))throw new Error(fileName+': dokument.xml nemá platnou strukturu WordprocessingML.');
+  if(!/<(?:[A-Za-z_][\w.-]*:)?document\b/i.test(source)||!/<(?:[A-Za-z_][\w.-]*:)?body\b/i.test(source))throw new Error('DOCX dokument.xml nemá platnou strukturu WordprocessingML.');
   const paragraphs=[];
   const pattern=/<(?:[A-Za-z_][\w.-]*:)?p\b[^>]*>([\s\S]*?)<\/(?:[A-Za-z_][\w.-]*:)?p\s*>/gi;
   let match;
   while((match=pattern.exec(source))){const text=docxParagraphText(match[1]);if(text.trim())paragraphs.push(text);}
   const text=paragraphs.join('\n').replace(/\n{3,}/g,'\n\n').trim();
-  if(!text)throw new Error(fileName+': DOCX se podařilo otevřít, ale neobsahuje čitelný text.');
+  if(!text)throw new Error('DOCX se podařilo otevřít, ale neobsahuje čitelný text.');
   return text;
 }
 async function extractDocxText(f){
-  if((Number(f?.size)||0)>DOCX_MAX_BYTES)throw new Error(f.name+': DOCX je větší než 15 MB.');
+  if((Number(f?.size)||0)>DOCX_MAX_BYTES)throw new Error('DOCX je větší než 15 MB.');
   const JSZip=await ensureJSZip();
   const zip=await JSZip.loadAsync(await f.arrayBuffer());
   const documentPart=zip.file('word/document.xml');
-  if(!documentPart)throw new Error(f.name+': soubor nemá platnou strukturu DOCX.');
-  if(zipEntryUncompressedSize(documentPart)>DOCX_XML_MAX_BYTES)throw new Error(f.name+': textová část DOCX je po rozbalení příliš velká.');
+  if(!documentPart)throw new Error('Soubor nemá platnou strukturu DOCX.');
+  if(zipEntryUncompressedSize(documentPart)>DOCX_XML_MAX_BYTES)throw new Error('Textová část DOCX je po rozbalení příliš velká.');
   return docxXmlToText(await documentPart.async('string'),f.name);
 }
 function readAsDataUrl(f){ return new Promise((resolve,reject)=>{const r=new FileReader(); r.onload=()=>resolve(String(r.result||'')); r.onerror=()=>reject(r.error||new Error('Soubor se nepodařilo přečíst.')); r.readAsDataURL(f);}); }

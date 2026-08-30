@@ -62,6 +62,9 @@ jobs:
           BUILD_ID: ${{ github.event.client_payload.buildId }}
         run: node scripts/sync-ghrab-ai-core.mjs /tmp/core-manifest.json
 
+      - name: Run repository secret scan
+        run: npm run qa:secrets
+
       - name: Conformance and application release gate
         run: npm test
 

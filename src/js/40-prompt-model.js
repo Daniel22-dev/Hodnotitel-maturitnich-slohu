@@ -39,8 +39,8 @@ function isEmbeddedBrowserEnv(){ const ua=navigator.userAgent||''; return /FBAN|
 function applyKeyEnvUI(){ if(!isEmbeddedBrowserEnv()) return; const btn=$('btnSaveKeyPermanent'); if(btn){btn.classList.add('hidden'); btn.disabled=true;} const note=$('geminiNote'); if(note) note.innerHTML='Jsi pravděpodobně ve <strong>vestavěném prohlížeči aplikace</strong>, kde je trvalé uložení nespolehlivé — klíč použij <strong>jen pro relaci</strong>, nebo otevři nástroj v běžném Chrome/Safari.'; }
 function getGeminiInputKey(){ return ($('geminiKeyInput')?.value||'').trim(); }
 function setGeminiKey(key,scope){ geminiApiKey=String(key||'').trim(); geminiKeyScope=scope || geminiKeyScope || 'session'; const inp=$('geminiKeyInput'); if(inp && geminiApiKey && inp.value!==geminiApiKey) inp.value=geminiApiKey; updateGeminiStatus(); }
-function loadGeminiKey(){ if(window.GHRAB_PLATFORM?.isSchoolProfile?.()){safeSessionRemove(GEMINI_KEY_SESSION_SK);safeLocalRemove(GEMINI_KEY_SK);setGeminiKey('','server');return;} let sessionKey=safeSessionGet(GEMINI_KEY_SESSION_SK)||''; const storedKey=safeLocalGet(GEMINI_KEY_SK)||''; if(!sessionKey&&storedKey){sessionKey=storedKey;safeSessionSet(GEMINI_KEY_SESSION_SK,storedKey);} safeLocalRemove(GEMINI_KEY_SK); setGeminiKey(sessionKey,sessionKey?'session':'session'); }
-function persistCurrentKeyForScope(){ const key=getGeminiInputKey(); geminiApiKey=key; geminiKeyScope=window.GHRAB_PLATFORM?.isSchoolProfile?.()?'server':'session'; if(geminiKeyScope==='session'){ if(key) safeSessionSet(GEMINI_KEY_SESSION_SK,key); else safeSessionRemove(GEMINI_KEY_SESSION_SK); } safeLocalRemove(GEMINI_KEY_SK); updateGeminiStatus(); }
+function loadGeminiKey(){ if(hodSchoolMode()){safeSessionRemove(GEMINI_KEY_SESSION_SK);safeLocalRemove(GEMINI_KEY_SK);setGeminiKey('','server');return;} let sessionKey=safeSessionGet(GEMINI_KEY_SESSION_SK)||''; const storedKey=safeLocalGet(GEMINI_KEY_SK)||''; if(!sessionKey&&storedKey){sessionKey=storedKey;safeSessionSet(GEMINI_KEY_SESSION_SK,storedKey);} safeLocalRemove(GEMINI_KEY_SK); setGeminiKey(sessionKey,sessionKey?'session':'session'); }
+function persistCurrentKeyForScope(){ const key=getGeminiInputKey(); geminiApiKey=key; geminiKeyScope=hodSchoolMode()?'server':'session'; if(geminiKeyScope==='session'){ if(key) safeSessionSet(GEMINI_KEY_SESSION_SK,key); else safeSessionRemove(GEMINI_KEY_SESSION_SK); } safeLocalRemove(GEMINI_KEY_SK); updateGeminiStatus(); }
 function useGeminiKeyForSession(){ geminiKeyScope='session'; persistCurrentKeyForScope(); toast(getGeminiInputKey()?'Klíč se použije jen pro tuto relaci.':'Zvolen režim relace. Vlož API klíč.','ok'); }
 async function saveGeminiKeyPermanent(){
   const key=getGeminiInputKey();
@@ -53,7 +53,7 @@ async function saveGeminiKeyPermanent(){
 function clearGeminiKey(){ safeSessionRemove(GEMINI_KEY_SESSION_SK); safeLocalRemove(GEMINI_KEY_SK); geminiApiKey=''; geminiKeyScope='session'; const inp=$('geminiKeyInput'); if(inp) inp.value=''; updateGeminiStatus(); toast('API klíč smazán. Režim je zpět na relaci.','warn'); }
 function updateGeminiStatus(){
   const b=$('geminiStatus');
-  const school=window.GHRAB_PLATFORM?.isSchoolProfile?.()===true;
+  const school=hodSchoolMode()===true;
   const inputKey=getGeminiInputKey();
   if(b){
     if(school){b.textContent='✓ Klíč spravuje školní server';b.style.color='var(--ok)';}

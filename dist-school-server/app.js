@@ -1011,7 +1011,7 @@
 
 ;
 /* 00-release-rubric.js */
-const RELEASE = Object.freeze({version:'1.5.18', build:'__BUILD__', appId:'essay-evaluator', status:'controlled-pilot'});
+const RELEASE = Object.freeze({version:'1.5.19', build:'__BUILD__', appId:'essay-evaluator', status:'controlled-pilot'});
 const APP_VERSION = RELEASE.version;
 const RUBRIC_PROMPT = "ANALYTICKÁ RUBRIKA PRO MATURITNÍ SLOH – VERZE 2026.04.27-r1\n\nROLE MODELU\nJsi pouze analytická vrstva. Vyhledáváš důkazy, jazykové jevy a chyby. Konečné body, FAIL podmínky, počet slov, penalizace, součet a známku vždy vypočítá aplikace. Nepřepisuj závazný lokální word-count audit a nevytvářej vlastní výslednou známku.\n\nOBECNÁ PRAVIDLA\n- Hodnoť přesně zadaný útvar: opinion essay, for and against essay, review, narration, letter of complaint nebo motivation letter.\n- Každé tvrzení opři o konkrétní důkaz ze studentského textu. Citace musí být doslovná a označená P1, P2 atd.\n- Nevymýšlej citace ani obsah, který v textu není. K uznání bodu zadání smí být potřeba nejvýše jeden rozumný inferenční krok.\n- Parafráze zadání je plně přípustná. Jeden odstavec může plnit více bodů zadání a jeden bod může být rozvinut napříč textem.\n- Zachovej původní chyby. Nevytvářej kompletně opravenou verzi slohu.\n- Zpětnou vazbu piš česky, konkrétně a pedagogicky.\n\n1. ZADÁNÍ A ROZSAH – ANALÝZA\nPro každý požadavek R1–Rn vrať verdikt splněno / částečně / nesplněno, 1–2 přesné citace a stručné zdůvodnění. Urči skutečný útvar, hlavní komunikační záměr, relevanci k tématu a případné chybějící povinné prvky. U formálních dopisů zjisti oslovení a ukončení; u review a narration zjisti nadpis. Spočítej výskyty kontrakcí, ale žádnou penalizaci sám neaplikuj.\nKomunikační kontrakty:\n- opinion: jasný osobní názor, argumentace a závěr;\n- for and against: téma, argumenty pro i proti a vyvážený závěr;\n- review: identifikace díla/akce/služby, hodnocení pozitiv a negativ a doporučení;\n- narration: příběh s dějem, časovou posloupností, prostředím a pointou či závěrem;\n- complaint: konkrétní problém, důkazy nebo podrobnosti, požadovaná náprava a formát dopisu;\n- motivation: účel, důvody, kvalifikace či kompetence, motivace a formát dopisu.\nZáměna opinion a for-and-against není sama o sobě automatický FAIL; popiš pouze skutečný rozdíl v komunikačním záměru.\n\n2. ODSTAVCE A KOHERENCE\nPosuď smysluplné členění na odstavce, logické pořadí, návaznost vět a odstavců, úvod a závěr. Upozorni, pokud závěr přidává nový argument nebo téma, které nebylo v hlavním textu. Výzva k akci ani shrnutí postoje nejsou novou myšlenkou.\n\n3.–4. CHYBY\nKaždou chybu zařaď právě jednou jako lexikální/spellingovou nebo gramatickou a zároveň jako lokální či globální. Uveď přesnou chybnou citaci, opravu, stručné vysvětlení a repeat_count. Stejná příčina opakovaná vícekrát se eviduje jednou s počtem opakování. Členy patří vždy do gramatiky. Nedvoj chybu mezi lexikou a gramatikou.\nLokální chyba nebrání porozumění; globální chyba význam zásadně mění, znejasňuje nebo blokuje.\n\n5. OBSAH\nPosuď relevanci, konkrétnost, rozvinutí myšlenek, argumentů či děje a přiměřenost detailů. Nestrhávej obsahové body pouze za jazykové chyby, pokud je myšlenka srozumitelná.\n\n6. PTN A KOHÉZE\nNajdi a přesně cituj prostředky textové návaznosti ve skupinách PTN1, PTN2 a PTN3. Posuď jejich správnost, rozmanitost a přirozenost. Aplikace sama provede případnou penalizaci za chybějící skupinu.\n\n7. ÚROVEŇ SLOVNÍ ZÁSOBY\nPosuď, zda rozsah, přesnost, kolokace, idiomy a stylová přiměřenost odpovídají alespoň B2. Vyjmenuj konkrétní B2 nebo pokročilé výrazy. Opakování stejného slova označ jako problém až při nejméně třech výskytech v krátkém sledu; nepočítej je současně jako lexikální chybu.\n\n8. ÚROVEŇ GRAMATIKY\nPosuď rozsah a kontrolu gramatiky vzhledem k B2. Uveď konkrétní použité B2 struktury a případné pokročilé jevy, například podmínkové věty, pasivum, modální konstrukce, vztažné věty, nepřímou řeč, gerundium/infinitiv, participiální vazby nebo inverzi. Vyšší úroveň pouze pochval, skóre zůstává omezené schématem.\n\nAUTENTICITA A ČITELNOST\nU rukopisu uveď procento čitelnosti a nejistá místa. Odhad neautentického nebo šablonovitého projevu je pouze upozornění pro učitele, nikdy bodová penalizace. Vrať odhad 0–100 %, jistotu a 3–6 konkrétních signálů; u každého přidej alternativní ne-AI vysvětlení, například naučenou frázi, školní dril, šablonu, korektor nebo pečlivou revizi. Neobviňuj studenta z použití AI.\n\nZPĚTNÁ VAZBA\nUveď silné stránky, slabší stránky a konkrétní kroky ke zlepšení. Radikální nebo znepokojivý obsah pouze neutrálně označ pro pozornost učitele; nehodnoť názor sám o sobě. Neuváděj vlastní finální body, součet ani známku.";
 const STORAGE_KEY = 'maturitniHodnotitelStateV130';
@@ -1403,11 +1403,13 @@ function getTodayUsage(){const today=localIsoDate();try{const x=JSON.parse(safeL
 function formatUsd(value){return new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'USD',currencyDisplay:'narrowSymbol',minimumFractionDigits:2,maximumFractionDigits:3}).format(Number(value)||0);}
 
 /* 20-state-ui.js */
-let tasks = loadTasks();
-let state = {
+let suiteSessionLifecycle = null;
+function makeInitialState(){ return {
   step:0, workMode:'offline', set:'practice', genre:'opinion', taskIndex:0, evalMode:'deep', outputStyle:'teacher', resultView:'teacher',
   taskTitle:'', taskText:'', taskReqs:'', studentText:'', studentIdentity:'', studentCode:'STUDENT_001', extraPii:'', inputMode:'single', privacyMode:'strict', privacyApprovedHash:'', result:'', teacherReview:{sections:{}, score_total:null, grade:null, note:'', verified:false, verifiedAt:''}
-};
+}; }
+let tasks = loadTasks();
+let state = makeInitialState();
 let abortController = null;
 let geminiApiKey = '';
 let geminiKeyScope = 'session';
@@ -1431,10 +1433,11 @@ function toast(msg,type='ok'){
 }
 
 function safeLocalGet(k){ try{return localStorage.getItem(k)}catch(_){return null} }
-function safeLocalSet(k,v){ try{localStorage.setItem(k,v); return true}catch(_){return false} }
+function appPersistenceBlocked(){ return Boolean(suiteSessionLifecycle?.isPersistenceBlocked?.()); }
+function safeLocalSet(k,v){ if(appPersistenceBlocked()) return false; try{localStorage.setItem(k,v); return true}catch(_){return false} }
 function safeLocalRemove(k){ try{localStorage.removeItem(k); return true}catch(_){return false} }
 function safeSessionGet(k){ try{return sessionStorage.getItem(k)}catch(_){return null} }
-function safeSessionSet(k,v){ try{sessionStorage.setItem(k,v); return true}catch(_){return false} }
+function safeSessionSet(k,v){ if(appPersistenceBlocked()) return false; try{sessionStorage.setItem(k,v); return true}catch(_){return false} }
 function safeSessionRemove(k){ try{sessionStorage.removeItem(k); return true}catch(_){return false} }
 
 let modalReturnFocus=null;
@@ -1550,9 +1553,24 @@ function saveTasks(){
 }
 function sensitiveSaveEnabled(){ return safeLocalGet(SENSITIVE_SAVE_PREF_SK)==='1'; }
 function sensitiveSnapshotExpired(savedAt){const ts=Date.parse(String(savedAt||''));return !Number.isFinite(ts)||Date.now()-ts>SENSITIVE_RETENTION_MS;}
-function purgeLegacySensitiveStorage(){ LEGACY_STATE_KEYS.forEach(k=>safeLocalRemove(k)); safeLocalRemove(PLATFORM_MIGRATION_BACKUP_SK); }
-function clearAllSavedState(){ safeLocalRemove(STORAGE_KEY); safeLocalRemove(SENSITIVE_SAVE_PREF_SK); safeSessionRemove(TASK_SESSION_STORAGE_KEY); safeLocalRemove('maturitniHodnotitelPseudonymousHistoryV130'); safeSessionRemove(GEMINI_KEY_SESSION_SK); safeLocalRemove(GEMINI_KEY_SK); clearBatchProgress(); purgeLegacySensitiveStorage(); }
-function endSensitiveWork(){try{abortController?.abort?.();}catch(_){}clearAllSavedState();geminiApiKey='';geminiKeyScope='session';state.studentText='';state.studentIdentity='';state.extraPii='';state.result='';state.privacyApprovedHash='';state.roster=[];state.lastEvaluation=null;state.teacherReview=defaultTeacherReview();attachedFiles=[];batchStudents=[];batchResults=[];location.reload();}
+function purgeLegacySensitiveStorage(){ LEGACY_STATE_KEYS.forEach(k=>safeLocalRemove(k)); }
+function clearAllSavedState(){ safeLocalRemove(STORAGE_KEY); safeLocalRemove(TASK_STORAGE_KEY); safeLocalRemove(SENSITIVE_SAVE_PREF_SK); safeSessionRemove(TASK_SESSION_STORAGE_KEY); safeLocalRemove('maturitniHodnotitelPseudonymousHistoryV130'); safeSessionRemove(GEMINI_KEY_SESSION_SK); safeLocalRemove(GEMINI_KEY_SK); clearBatchProgress(); purgeLegacySensitiveStorage(); safeLocalRemove('maturitniHodnotitelStateV100'); }
+function prepareSuiteSessionCleanup(){ try{abortController?.abort?.();}catch(_){} abortController=null; try{clearTimeout(batchProgressSaveTimer);}catch(_){} batchProgressSaveTimer=0; }
+function scrubSuiteSessionRuntime(){
+  geminiApiKey=''; geminiKeyScope='session'; geminiAvailableModels=[]; geminiAvailableModelsApiVersion='';
+  state=makeInitialState(); tasks=makeDefaultTasks(); attachedFiles=[]; batchStudents=[]; batchResults=[];
+  try{window.__GHRAB_ESSAY_WORKFLOW_ID__='';}catch(_){}
+}
+function suiteCleanupFailure(result){ try{toast('Bezpečné ukončení relace se nepodařilo dokončit. Data se nebudou znovu ukládat; obnov stránku až po kontrole úložiště.','err');}catch(_){} console.error('[suite-session] cleanup failed', result); }
+async function endSensitiveWork(){
+  if(suiteSessionLifecycle?.clearLocalWork){
+    const result=await suiteSessionLifecycle.clearLocalWork('local-end-sensitive-work');
+    if(!result.ok) return false;
+    return true;
+  }
+  suiteCleanupFailure({ok:false,failures:['suite-lifecycle-unavailable']});
+  return false;
+}
 function purgeSensitiveSavedState(){
   try{
     const raw=safeLocalGet(STORAGE_KEY); if(raw){ const data=JSON.parse(raw); SENSITIVE_STATE_FIELDS.forEach(k=>{ data[k]=k==='roster'?[]:''; }); if(data.reportSettings)data.reportSettings={...data.reportSettings,signature:'',customComments:[]}; safeLocalSet(STORAGE_KEY, JSON.stringify(data)); }
@@ -1638,7 +1656,7 @@ async function toggleAppFullscreen(){
 function bindEvents(){
   $('btnTheme').onclick=()=>{document.body.classList.toggle('light');safeLocalSet('maturitniHodnotitelTheme',document.body.classList.contains('light')?'light':'dark');updateThemeBtn();};
   $('btnFs').onclick=toggleAppFullscreen;
-  $('changesBtn').onclick=showChangelog; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=()=>{clearAllSavedState(); location.reload();}; $('endSensitiveWorkBtn')?.addEventListener('click',endSensitiveWork);
+  $('changesBtn').onclick=showChangelog; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=endSensitiveWork; $('endSensitiveWorkBtn')?.addEventListener('click',endSensitiveWork);
   $('next0').onclick=()=>goTo(1); $('back1').onclick=()=>goTo(0); if($('againBtn')) $('againBtn').onclick=()=>goTo(2); $('next1').onclick=()=>{commitTaskFieldsToDb();goTo(2)}; $('back2').onclick=()=>goTo(1); $('next2').onclick=()=>goTo(3); $('back3').onclick=()=>goTo(2); $('next3').onclick=()=>goTo(4); $('back4').onclick=()=>goTo(3); $('newEvalBtn').onclick=()=>{state.studentText='';state.result='';state.studentIdentity='';state.extraPii='';state.teacherReview=defaultTeacherReview();attachedFiles=[];batchStudents=[];batchResults=[];clearBatchProgress();state.privacyApprovedHash='';goTo(0);syncFieldsFromState();renderFiles();renderBatchList();renderResult();updateStats();saveState();};
   ['taskTitle','taskText','taskReqs','studentText','studentIdentity','studentCode','extraPii'].forEach(id=>$(id).addEventListener('input',()=>{state.privacyApprovedHash='';updateStats();updatePromptPreview();saveState(false);renderPrivacyMode();}));
   $('anonymizeBtn').onclick=applyPseudonymizationToField; $('previewAnonBtn').onclick=showAnonPreview; $('clearTextBtn').onclick=()=>{$('studentText').value=''; attachedFiles=[]; syncStateFromFields(); renderFiles(); updateStats(); updatePromptPreview(); saveState();}; $('togglePrivacyBtn')?.addEventListener('click',togglePrivacyMode); $('runPrivacyCheckBtn')?.addEventListener('click',()=>{syncStateFromFields(); renderPrivacyReport(runPrivacyScan(), false);}); $('applyPrivacyFixBtn')?.addEventListener('click',applySelectedPrivacyFindings); $('approvePrivacyBtn')?.addEventListener('click',approvePrivacyCheck); $('toggleSensitiveSaveBtn')?.addEventListener('click',toggleSensitiveStateSaving); $('clearSensitiveSavedBtn')?.addEventListener('click',clearSensitiveSavedData);
@@ -3112,7 +3130,7 @@ async function callGemini(){ throw Object.assign(new Error('AI Core transkripčn
 
 /* 61-ai-core-integration.js */
 /* ===================== GHRAB AI CORE 1.0.0 · HODNOTITEL P1 ===================== */
-const HOD_AI_APP=Object.freeze({id:'essay-evaluator',version:'1.5.18'});
+const HOD_AI_APP=Object.freeze({id:'essay-evaluator',version:'1.5.19'});
 const HOD_AI_SCHEMAS=Object.freeze({
   'essay-evaluator.transcription.v1':{type:'object',required:['text','legibility_percent','uncertain_fragments'],properties:{text:{type:'string'},legibility_percent:{type:'number'},uncertain_fragments:{type:'array',items:{type:'string'}}},additionalProperties:true},
   'essay-evaluator.evaluation.v1':{type:'object',additionalProperties:true}
@@ -3999,10 +4017,26 @@ function renderBatchJobPanel(){const p=$('batchJobPanel');if(!p)return;const job
 function initSeriesWorkflow(){ensureWorkflowState();syncSeriesToFields();syncDistributionToFields();syncBackendToFields();renderRosterTable();renderProcessingMode();renderBatchList();renderBatchReviewDashboard();updateWorkflowDashboard();for(const id of ['seriesName','seriesClass','seriesDate','seriesTeacher','queueRpm'])$(id)?.addEventListener('input',()=>{syncSeriesFromFields();updateWorkflowDashboard();saveState();});document.querySelectorAll('[data-processing-mode]').forEach(el=>el.onclick=()=>{state.processingMode=el.dataset.processingMode;state.series.processingMode=state.processingMode;renderProcessingMode();saveState();});$('rosterInput')?.addEventListener('input',renderRosterInputPreview);renderRosterInputPreview();$('importRosterBtn')?.addEventListener('click',importRosterFromText);$('clearRosterBtn')?.addEventListener('click',clearRoster);$('pickZipBtn')?.addEventListener('click',()=>$('zipInput')?.click());$('zipInput')?.addEventListener('change',handleZipImport);$('exportPairingBtn')?.addEventListener('click',exportPairingCsv);$('checkBatchJobBtn')?.addEventListener('click',checkGeminiBatchJob);$('approveAllValidBtn')?.addEventListener('click',approveAllValidResults);$('createDraftsBtn')?.addEventListener('click',()=>sendDistributionToAppsScript('createDrafts'));$('sendApprovedBtn')?.addEventListener('click',()=>sendDistributionToAppsScript('send'));$('openAppsScriptBridgeBtn')?.addEventListener('click',submitDistributionViaForm);$('downloadDistributionJsonBtn')?.addEventListener('click',downloadDistributionJson);$('downloadDistributionCsvBtn')?.addEventListener('click',downloadDistributionCsv);for(const id of ['appsScriptUrl','appsScriptSecret','emailSubjectTemplate','emailSenderName','emailIncludeScore','emailIncludeOriginal'])$(id)?.addEventListener('input',syncDistributionFromFields);document.querySelectorAll('[name="deliveryMode"]').forEach(el=>el.addEventListener('change',syncDistributionFromFields));$('backendHealthBtn')?.addEventListener('click',checkBackendHealth);}
 
 /* 99-bootstrap.js */
-init();
-initSeriesWorkflow();
-initReportEnhancements();
-renderBuildLabel();
-registerAppServiceWorker();
-document.documentElement.dataset.appReady='1';
-window.__HODNOTITEL_READY__=true;
+async function bootstrapApplication(){
+  const suiteSessionModuleUrl=new URL('./access/suite-session-cleanup.js',import.meta.url);
+  const {createSuiteSessionLifecycle}=await import(suiteSessionModuleUrl.href);
+  suiteSessionLifecycle=createSuiteSessionLifecycle({
+    platform:window.GHRAB_PLATFORM,
+    beforeCleanup:async()=>prepareSuiteSessionCleanup(),
+    afterCleanup:async()=>scrubSuiteSessionRuntime(),
+    onFailure:suiteCleanupFailure,
+    reload:()=>location.reload(),
+  });
+  const suiteStart=await suiteSessionLifecycle.start();
+  if(suiteStart.startupCleanup) return;
+  init();
+  initSeriesWorkflow();
+  initReportEnhancements();
+  initBackendAdapter();
+  renderRelease();
+  registerAppServiceWorker();
+  renderBuildLabel();
+  document.documentElement.dataset.appReady='1';
+  window.__HODNOTITEL_READY__=true;
+}
+await bootstrapApplication();

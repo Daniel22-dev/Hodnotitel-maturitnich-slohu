@@ -2,8 +2,8 @@
   "schema": "ghrab-error-reporter-test-v1",
   "appId": "essay-evaluator",
   "appName": "Hodnotitel maturitních slohů",
-  "version": "1.5.18",
-  "createdAt": "2026-08-30T09:07:54.080Z",
+  "version": "1.5.19",
+  "createdAt": "2026-09-05T09:39:35.329Z",
   "browser": {
     "status": "not-ready",
     "reason": "Spravovaná politika URLBlocklist blokuje všechny testovací stránky (/etc/chromium/policies/managed/000_policy_merge.json)."
@@ -14,7 +14,7 @@
     {
       "name": "Patch verze v package.json",
       "ok": true,
-      "detail": "1.5.18"
+      "detail": "1.5.19"
     },
     {
       "name": "Existuje src/access/error-reporter.js",
@@ -247,22 +247,22 @@
       "detail": ""
     },
     {
-      "name": "src/manual/index.html: obsahuje verzi 1.5.18",
+      "name": "src/manual/index.html: obsahuje verzi 1.5.19",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "README.md: obsahuje verzi 1.5.18",
+      "name": "README.md: obsahuje verzi 1.5.19",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "CHANGELOG.md: obsahuje verzi 1.5.18",
+      "name": "CHANGELOG.md: obsahuje verzi 1.5.19",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "QA_REPORT.md: obsahuje verzi 1.5.18",
+      "name": "QA_REPORT.md: obsahuje verzi 1.5.19",
       "ok": true,
       "detail": ""
     },

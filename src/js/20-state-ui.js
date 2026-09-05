@@ -1,8 +1,10 @@
-let tasks = loadTasks();
-let state = {
+let suiteSessionLifecycle = null;
+function makeInitialState(){ return {
   step:0, workMode:'offline', set:'practice', genre:'opinion', taskIndex:0, evalMode:'deep', outputStyle:'teacher', resultView:'teacher',
   taskTitle:'', taskText:'', taskReqs:'', studentText:'', studentIdentity:'', studentCode:'STUDENT_001', extraPii:'', inputMode:'single', privacyMode:'strict', privacyApprovedHash:'', result:'', teacherReview:{sections:{}, score_total:null, grade:null, note:'', verified:false, verifiedAt:''}
-};
+}; }
+let tasks = loadTasks();
+let state = makeInitialState();
 let abortController = null;
 let geminiApiKey = '';
 let geminiKeyScope = 'session';
@@ -26,10 +28,11 @@ function toast(msg,type='ok'){
 }
 
 function safeLocalGet(k){ try{return localStorage.getItem(k)}catch(_){return null} }
-function safeLocalSet(k,v){ try{localStorage.setItem(k,v); return true}catch(_){return false} }
+function appPersistenceBlocked(){ return Boolean(suiteSessionLifecycle?.isPersistenceBlocked?.()); }
+function safeLocalSet(k,v){ if(appPersistenceBlocked()) return false; try{localStorage.setItem(k,v); return true}catch(_){return false} }
 function safeLocalRemove(k){ try{localStorage.removeItem(k); return true}catch(_){return false} }
 function safeSessionGet(k){ try{return sessionStorage.getItem(k)}catch(_){return null} }
-function safeSessionSet(k,v){ try{sessionStorage.setItem(k,v); return true}catch(_){return false} }
+function safeSessionSet(k,v){ if(appPersistenceBlocked()) return false; try{sessionStorage.setItem(k,v); return true}catch(_){return false} }
 function safeSessionRemove(k){ try{sessionStorage.removeItem(k); return true}catch(_){return false} }
 
 let modalReturnFocus=null;
@@ -145,9 +148,24 @@ function saveTasks(){
 }
 function sensitiveSaveEnabled(){ return safeLocalGet(SENSITIVE_SAVE_PREF_SK)==='1'; }
 function sensitiveSnapshotExpired(savedAt){const ts=Date.parse(String(savedAt||''));return !Number.isFinite(ts)||Date.now()-ts>SENSITIVE_RETENTION_MS;}
-function purgeLegacySensitiveStorage(){ LEGACY_STATE_KEYS.forEach(k=>safeLocalRemove(k)); safeLocalRemove(PLATFORM_MIGRATION_BACKUP_SK); }
-function clearAllSavedState(){ safeLocalRemove(STORAGE_KEY); safeLocalRemove(SENSITIVE_SAVE_PREF_SK); safeSessionRemove(TASK_SESSION_STORAGE_KEY); safeLocalRemove('maturitniHodnotitelPseudonymousHistoryV130'); safeSessionRemove(GEMINI_KEY_SESSION_SK); safeLocalRemove(GEMINI_KEY_SK); clearBatchProgress(); purgeLegacySensitiveStorage(); }
-function endSensitiveWork(){try{abortController?.abort?.();}catch(_){}clearAllSavedState();geminiApiKey='';geminiKeyScope='session';state.studentText='';state.studentIdentity='';state.extraPii='';state.result='';state.privacyApprovedHash='';state.roster=[];state.lastEvaluation=null;state.teacherReview=defaultTeacherReview();attachedFiles=[];batchStudents=[];batchResults=[];location.reload();}
+function purgeLegacySensitiveStorage(){ LEGACY_STATE_KEYS.forEach(k=>safeLocalRemove(k)); }
+function clearAllSavedState(){ safeLocalRemove(STORAGE_KEY); safeLocalRemove(TASK_STORAGE_KEY); safeLocalRemove(SENSITIVE_SAVE_PREF_SK); safeSessionRemove(TASK_SESSION_STORAGE_KEY); safeLocalRemove('maturitniHodnotitelPseudonymousHistoryV130'); safeSessionRemove(GEMINI_KEY_SESSION_SK); safeLocalRemove(GEMINI_KEY_SK); clearBatchProgress(); purgeLegacySensitiveStorage(); safeLocalRemove('maturitniHodnotitelStateV100'); }
+function prepareSuiteSessionCleanup(){ try{abortController?.abort?.();}catch(_){} abortController=null; try{clearTimeout(batchProgressSaveTimer);}catch(_){} batchProgressSaveTimer=0; }
+function scrubSuiteSessionRuntime(){
+  geminiApiKey=''; geminiKeyScope='session'; geminiAvailableModels=[]; geminiAvailableModelsApiVersion='';
+  state=makeInitialState(); tasks=makeDefaultTasks(); attachedFiles=[]; batchStudents=[]; batchResults=[];
+  try{window.__GHRAB_ESSAY_WORKFLOW_ID__='';}catch(_){}
+}
+function suiteCleanupFailure(result){ try{toast('Bezpečné ukončení relace se nepodařilo dokončit. Data se nebudou znovu ukládat; obnov stránku až po kontrole úložiště.','err');}catch(_){} console.error('[suite-session] cleanup failed', result); }
+async function endSensitiveWork(){
+  if(suiteSessionLifecycle?.clearLocalWork){
+    const result=await suiteSessionLifecycle.clearLocalWork('local-end-sensitive-work');
+    if(!result.ok) return false;
+    return true;
+  }
+  suiteCleanupFailure({ok:false,failures:['suite-lifecycle-unavailable']});
+  return false;
+}
 function purgeSensitiveSavedState(){
   try{
     const raw=safeLocalGet(STORAGE_KEY); if(raw){ const data=JSON.parse(raw); SENSITIVE_STATE_FIELDS.forEach(k=>{ data[k]=k==='roster'?[]:''; }); if(data.reportSettings)data.reportSettings={...data.reportSettings,signature:'',customComments:[]}; safeLocalSet(STORAGE_KEY, JSON.stringify(data)); }
@@ -233,7 +251,7 @@ async function toggleAppFullscreen(){
 function bindEvents(){
   $('btnTheme').onclick=()=>{document.body.classList.toggle('light');safeLocalSet('maturitniHodnotitelTheme',document.body.classList.contains('light')?'light':'dark');updateThemeBtn();};
   $('btnFs').onclick=toggleAppFullscreen;
-  $('changesBtn').onclick=showChangelog; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=()=>{clearAllSavedState(); location.reload();}; $('endSensitiveWorkBtn')?.addEventListener('click',endSensitiveWork);
+  $('changesBtn').onclick=showChangelog; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=endSensitiveWork; $('endSensitiveWorkBtn')?.addEventListener('click',endSensitiveWork);
   $('next0').onclick=()=>goTo(1); $('back1').onclick=()=>goTo(0); if($('againBtn')) $('againBtn').onclick=()=>goTo(2); $('next1').onclick=()=>{commitTaskFieldsToDb();goTo(2)}; $('back2').onclick=()=>goTo(1); $('next2').onclick=()=>goTo(3); $('back3').onclick=()=>goTo(2); $('next3').onclick=()=>goTo(4); $('back4').onclick=()=>goTo(3); $('newEvalBtn').onclick=()=>{state.studentText='';state.result='';state.studentIdentity='';state.extraPii='';state.teacherReview=defaultTeacherReview();attachedFiles=[];batchStudents=[];batchResults=[];clearBatchProgress();state.privacyApprovedHash='';goTo(0);syncFieldsFromState();renderFiles();renderBatchList();renderResult();updateStats();saveState();};
   ['taskTitle','taskText','taskReqs','studentText','studentIdentity','studentCode','extraPii'].forEach(id=>$(id).addEventListener('input',()=>{state.privacyApprovedHash='';updateStats();updatePromptPreview();saveState(false);renderPrivacyMode();}));
   $('anonymizeBtn').onclick=applyPseudonymizationToField; $('previewAnonBtn').onclick=showAnonPreview; $('clearTextBtn').onclick=()=>{$('studentText').value=''; attachedFiles=[]; syncStateFromFields(); renderFiles(); updateStats(); updatePromptPreview(); saveState();}; $('togglePrivacyBtn')?.addEventListener('click',togglePrivacyMode); $('runPrivacyCheckBtn')?.addEventListener('click',()=>{syncStateFromFields(); renderPrivacyReport(runPrivacyScan(), false);}); $('applyPrivacyFixBtn')?.addEventListener('click',applySelectedPrivacyFindings); $('approvePrivacyBtn')?.addEventListener('click',approvePrivacyCheck); $('toggleSensitiveSaveBtn')?.addEventListener('click',toggleSensitiveStateSaving); $('clearSensitiveSavedBtn')?.addEventListener('click',clearSensitiveSavedData);

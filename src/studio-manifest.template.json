@@ -71,7 +71,8 @@
     "ghrab-platform-v1",
     "canonical-branding",
     "storage-namespace-v1",
-    "artifact-envelope-v1"
+    "artifact-envelope-v1",
+    "suite-session-lifecycle-v1"
   ],
   "limits": {
     "typicalSeriesSize": 15,
@@ -82,7 +83,7 @@
     "materialSchema": "ghrab-material-v1",
     "studioBridge": "not-applicable",
     "platformContract": "ghrab-platform-v1",
-    "platformRange": ">=1.1.0 <2.0.0"
+    "platformRange": ">=1.1.2 <2.0.0"
   },
   "publishedAt": "__BUILD_TIME__",
   "aiCore": {
@@ -108,14 +109,14 @@
   "platform": {
     "schema": "ghrab-platform-app-integration-v1",
     "contract": "ghrab-platform-v1",
-    "requiredPlatformRange": ">=1.1.0 <2.0.0",
-    "platformVersion": "1.1.0",
+    "requiredPlatformRange": ">=1.1.2 <2.0.0",
+    "platformVersion": "1.1.2",
     "brandVersion": "1.0.0",
     "themeContract": 1,
     "swContract": 1,
     "studioBridge": "not-applicable",
     "artifactEnvelope": 1,
     "storagePrefix": "ghrab.essay-evaluator.",
-    "cacheName": "ghrab-essay-evaluator-v1.5.18"
+    "cacheName": "ghrab-essay-evaluator-v1.5.19"
   }
 }

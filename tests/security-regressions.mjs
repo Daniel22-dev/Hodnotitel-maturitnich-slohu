@@ -90,7 +90,7 @@ check(String(taskWrites.session).includes('GARP-CONFIDENTIAL-EXAM-CANARY')&&!Str
 
 const workflowPersistenceSource=workflowUi.slice(workflowUi.indexOf('function serializableBatchJob'),workflowUi.indexOf('function tryRestoreBatchProgress'));
 const examPersistenceContext=vm.createContext({
-  APP_VERSION:'1.5.18',
+  APP_VERSION:'1.5.19',
   SENSITIVE_STATE_FIELDS:[],
   state:{set:'exam',genre:'opinion',taskIndex:0,taskTitle:'GARP-EXAM-TITLE-CANARY',taskText:'GARP-EXAM-TEXT-CANARY',taskReqs:'GARP-EXAM-REQ-CANARY',result:'',batchJob:null,series:null,inputMode:'batch',evalMode:'api',outputStyle:'standard',resultView:'final',workMode:'api',roster:[],processingMode:'queue',queueRpm:1,usage:{},distribution:{sharedSecret:'SECRET'},backend:{accessToken:'TOKEN'}},
   batchStudents:[],batchResults:[],normalizeGenreId:v=>v,sensitiveSaveEnabled:()=>true,sensitiveSnapshotExpired:()=>false,ensureWorkflowState:()=>{},safeLocalGet:()=>null,safeLocalSet:()=>true
@@ -167,14 +167,25 @@ vm.runInContext(retentionFn,retentionContext);
 const nowIso=new Date().toISOString(),oldIso=new Date(Date.now()-31*24*60*60*1000).toISOString();
 retentionContext.nowIso=nowIso;retentionContext.oldIso=oldIso;
 check(vm.runInContext('sensitiveSnapshotExpired(nowIso)',retentionContext)===false&&vm.runInContext('sensitiveSnapshotExpired(oldIso)',retentionContext)===true&&vm.runInContext("sensitiveSnapshotExpired('')",retentionContext)===true,'citlivé lokální snapshoty expirují po 30 dnech a bez timestampu fail-closed');
-check(/function endSensitiveWork\(\)/.test(stateUiSource)&&/safeSessionRemove\(GEMINI_KEY_SESSION_SK\)/.test(stateUiSource)&&/safeLocalRemove\(GEMINI_KEY_SK\)/.test(stateUiSource),'ukončení citlivé práce maže uložený stav i provider klíče');
+check(/async function endSensitiveWork\(\)/.test(stateUiSource)&&/suiteSessionLifecycle\?\.clearLocalWork/.test(stateUiSource),'lokální Ukončit práci používá ověřený fail-closed cleanup z lifecycle vrstvy');
 check(read('src/body.html').includes('id="endSensitiveWorkBtn"'),'UI nabízí explicitní ukončení citlivé relace');
 const storageConsumer=JSON.parse(read('ghrab-platform.consumer.json'));
 const srcStorageConsumer=JSON.parse(read('src/ghrab-platform.consumer.json'));
 const dataManifest=JSON.parse(read('src/config/data-manifest.json'));
 check(storageConsumer.storageMigration?.backup!=='full'&&srcStorageConsumer.storageMigration?.backup!=='full'&&dataManifest.storageNamespace?.backup!=='full','storage migrace nikdy nevytváří full-value backup citlivých hodnot');
-check(/PLATFORM_MIGRATION_BACKUP_SK/.test(releaseSource)&&/purgeLegacySensitiveStorage\(\)\{[^}]*safeLocalRemove\(PLATFORM_MIGRATION_BACKUP_SK\)/.test(stateUiSource),'ukončení/start aplikace odstraňuje historický full-value migration backup');
+check(/PLATFORM_MIGRATION_BACKUP_SK/.test(releaseSource)&&dataManifest.stores.some(store=>store.patterns?.includes('ghrab.essay-evaluator.migration.p2-storage-namespace-v1.backup')&&store.clearOnEndWork===false),'metadata-only migration backup není chybně součástí suite content cleanupu');
 check(/SENSITIVE_MIGRATION_BACKUP_KEY/.test(read('src/access-bootstrap.js'))&&/localStorage\.removeItem\(SENSITIVE_MIGRATION_BACKUP_KEY\)/.test(read('src/access-bootstrap.js')),'historický migration backup se maže už před autorizačním guardem');
+const suiteCleanupSource=read('src/access/suite-session-cleanup.js');
+const suiteBootstrapSource=read('src/js/99-bootstrap.js');
+check(storageConsumer.platform?.version==='1.1.2'&&storageConsumer.platform?.requiredRange==='>=1.1.2 <2.0.0','consumer vyžaduje přesně Platform 1.1.2+ v rámci major v1');
+check(dataManifest.manifestVersion>=4&&!dataManifest.stores.some(store=>store.clearOnEndWork===true&&store.patterns?.includes('ghrab.essay-evaluator.*')),'PC-01 manifest nepoužívá nebezpečný wildcard přes lifecycle metadata');
+check(dataManifest.stores.some(store=>store.kind==='sessionStorage'&&store.clearOnEndWork===true&&store.patterns?.includes('maturitniHodnotitelTasksSessionV117')),'PC-01 manifest zahrnuje skutečný session writer důvěrných zadání');
+check(dataManifest.stores.some(store=>store.kind==='sessionStorage'&&store.clearOnEndWork===true&&store.patterns?.includes('maturitniHodnotitelBatchProgressSessionV078')),'PC-01 manifest zahrnuje skutečný session writer batch recovery');
+check(/ghrab-suite-session-v1/.test(suiteCleanupSource)&&/platform\.session\.onEnd/.test(suiteCleanupSource)&&/platform\.session\.acknowledge/.test(suiteCleanupSource),'child integruje oficiální suite-session kontrakt a explicitní post-cleanup acknowledgement');
+check(/suite-session-observed\.v1/.test(suiteCleanupSource)&&/suite-session-cleanup-complete\.v1/.test(suiteCleanupSource),'F-02 rozlišuje observed a cleanup-complete evidence před platform ACK');
+check(/cross-context-child-guard/.test(suiteCleanupSource)&&/pageshow/.test(suiteCleanupSource)&&/focus-reconcile/.test(suiteCleanupSource),'multi-tab a Back/Forward guard neodvozuje lokální scrub pouze ze sdíleného ACK');
+check(/appPersistenceBlocked/.test(stateUiSource)&&/if\(appPersistenceBlocked\(\)\) return false/.test(stateUiSource),'autosave/writery jsou po suite end fail-closed blokovány proti resurrection');
+check(/createSuiteSessionLifecycle/.test(suiteBootstrapSource)&&/await suiteSessionLifecycle\.start\(\)/.test(suiteBootstrapSource)&&/if\(suiteStart\.startupCleanup\) return/.test(suiteBootstrapSource),'pending replay proběhne před init/loadState');
 
 const backendSource=read('src/js/85-backend-adapter.js');
 check(!/evaluation-series|Authorization/.test(backendSource),'legacy backend nemá latentní raw-series egress ani vlastní bearer token');

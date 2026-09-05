@@ -5,7 +5,7 @@
     "cs": "Hodnotitel maturitních slohů",
     "en": "Matura Essay Evaluator"
   },
-  "version": "1.5.18",
+  "version": "1.5.19",
   "status": {
     "cs": "Připraveno k řízenému pilotu",
     "en": "Ready for controlled pilot"
@@ -71,7 +71,8 @@
     "ghrab-platform-v1",
     "canonical-branding",
     "storage-namespace-v1",
-    "artifact-envelope-v1"
+    "artifact-envelope-v1",
+    "suite-session-lifecycle-v1"
   ],
   "limits": {
     "typicalSeriesSize": 15,
@@ -82,9 +83,9 @@
     "materialSchema": "ghrab-material-v1",
     "studioBridge": "not-applicable",
     "platformContract": "ghrab-platform-v1",
-    "platformRange": ">=1.1.0 <2.0.0"
+    "platformRange": ">=1.1.2 <2.0.0"
   },
-  "publishedAt": "2026-08-30T09:08:36.775Z",
+  "publishedAt": "2026-09-05T09:38:47.449Z",
   "aiCore": {
     "schema": "ghrab-ai-app-integration-v1",
     "status": "integrated-p1",
@@ -107,8 +108,8 @@
   },
   "platform": {
     "contract": "ghrab-platform-v1",
-    "platformVersion": "1.1.0",
-    "requiredRange": ">=1.1.0 <2.0.0",
+    "platformVersion": "1.1.2",
+    "requiredRange": ">=1.1.2 <2.0.0",
     "brandVersion": "1.0.0",
     "themeContract": "ghrab-theme-v1",
     "storageContract": "ghrab-storage-namespace-v1",
@@ -117,7 +118,7 @@
     "accessibilityContract": "ghrab-a11y-v1",
     "performanceContract": "ghrab-performance-v1",
     "moduleContract": "ghrab-lazy-modules-v1",
-    "cacheName": "ghrab-essay-evaluator-v1.5.18"
+    "cacheName": "ghrab-essay-evaluator-v1.5.19"
   },
   "deploymentProfile": "school-server",
   "serverReadyPhase": "P3"

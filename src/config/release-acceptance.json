@@ -2,13 +2,13 @@
   "schema": "ghrab-release-acceptance-v1",
   "stage": "P5",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.18",
-  "releaseStatus": "pre-production-accepted",
+  "appVersion": "1.5.19",
+  "releaseStatus": "ecosystem-wave-candidate",
   "primaryRuntime": {
     "mode": "standalone-github-pages",
     "serverRequired": false,
     "offlineCapable": true,
-    "currentUseApproved": true
+    "currentUseApproved": false
   },
   "github": {
     "status": "not-yet-uploaded",
@@ -41,6 +41,15 @@
   "runtimeAudit": {
     "required": true,
     "scriptsExecuted": true,
-    "transport": "local-http"
+    "transport": "local-http",
+    "status": "environment-blocked-in-local-audit",
+    "passed": false
+  },
+  "ecosystemReleaseWave": {
+    "platformVersion": "1.1.2",
+    "sharedDeviceCleanupGreen": false,
+    "e01Closed": false,
+    "independentReviewPending": true,
+    "syntheticDataOnlyUntilWaveComplete": true
   }
 }

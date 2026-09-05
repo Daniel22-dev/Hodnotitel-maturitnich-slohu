@@ -20,7 +20,17 @@ const walk = (dir) => fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: 
   const target = path.join(dir, entry.name);
   return entry.isDirectory() ? walk(target) : [target];
 }) : [];
-const generatedQualityArtifacts = new Set(['quality-report.json', 'config/quality-manifest.json']);
+const generatedQualityArtifacts = new Set([
+  'quality-report.json',
+  'config/quality-manifest.json',
+  'qa-suite-session-report.json',
+  'qa-p3-browser-report.json',
+  'qa-p5-runtime-report.json',
+  'qa-p5-xss-sinks-report.json',
+  'qa-p5-axe-runtime-report.json',
+  'qa-p5-release-report.json',
+  'qa-p5-acceptance-report.json',
+]);
 const files = walk(dist).filter((file) => !generatedQualityArtifacts.has(posix(path.relative(dist, file))));
 const rel = (file) => posix(path.relative(dist, file));
 const size = (file) => fs.statSync(file).size;
@@ -114,7 +124,7 @@ const metrics = {
 };
 
 check(fs.existsSync(dist), 'dist.exists');
-check(consumer.platform?.version === '1.1.0', 'platform.version', consumer.platform?.version);
+check(consumer.platform?.version === '1.1.2', 'platform.version', consumer.platform?.version);
 check(quality.accessibilityContract === 'ghrab-a11y-v1', 'contract.a11y', quality.accessibilityContract);
 check(quality.performanceContract === 'ghrab-performance-v1', 'contract.performance', quality.performanceContract);
 check(quality.moduleContract === 'ghrab-lazy-modules-v1', 'contract.modules', quality.moduleContract);

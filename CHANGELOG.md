@@ -1,3 +1,13 @@
+## 1.5.19 – GHRAB Platform 1.1.2 suite-session kandidát (2026-09-05)
+
+- Migrace child aplikace z GHRAB Platform 1.1.0 na referenční Platform 1.1.2 a kontrakt `ghrab-suite-session-v1`.
+- PC-01 opravil storage manifest podle skutečných writerů, včetně session task databáze a batch recovery.
+- Suite end maže pouze app-owned obsah s `clearOnEndWork: true`; lifecycle, migrační metadata, neobsahové cache a nastavení zůstávají zachovány.
+- Přidán fail-closed cleanup s observed/cleanup-complete evidencí a ACK až po ověřeném úklidu.
+- Přidán multi-tab a Back/Forward guard proti obnovení starých dat přes stale in-memory stav a autosave.
+- Přidána browser suite-session QA včetně delayed replay, fail-closed canary a povinného negative control.
+- Kandidát je určen pro koordinovanou Platform 1.1.2 ecosystem release wave; samotná migrace této aplikace neuzavírá E-01 na úrovni celého ekosystému.
+
 ## 1.5.18 – GARP 2.3 finální oprava po třetím Claude kole (2026-08-30)
 
 - Opraven nález B3-01 / MEDIUM z poslední nezávislé Claude kontroly.

@@ -1,13 +1,15 @@
 {
   "schema": "ghrab-data-manifest-v1",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.18",
-  "manifestVersion": 3,
+  "appVersion": "1.5.19",
+  "manifestVersion": 4,
   "dataCategories": [
     "settings",
     "application-content",
     "diagnostics",
-    "ai-prompts-and-results"
+    "ai-prompts-and-results",
+    "credentials",
+    "suite-lifecycle"
   ],
   "privacy": {
     "studentContentMayOccur": true,
@@ -18,9 +20,15 @@
   "stores": [
     {
       "kind": "localStorage",
-      "category": "application-data",
+      "category": "application-content",
       "patterns": [
-        "ghrab.essay-evaluator.*"
+        "ghrab.essay-evaluator.state.v1",
+        "ghrab.essay-evaluator.tasks.v1",
+        "ghrab.essay-evaluator.history.v1",
+        "ghrab.essay-evaluator.legacy.SensitiveSaveV073",
+        "ghrab.essay-evaluator.legacy.BatchProgressLocalV078",
+        "ghrab.essay-evaluator.legacy.StateV100",
+        "ghrab.essay-evaluator.legacy.StateV07*"
       ],
       "sensitivity": "potentially-personal",
       "authority": "client",
@@ -28,9 +36,11 @@
     },
     {
       "kind": "sessionStorage",
-      "category": "session-data",
+      "category": "application-content",
       "patterns": [
-        "ghrab.essay-evaluator.ai.key.session.v1",
+        "maturitniHodnotitelTasksSessionV117",
+        "maturitniHodnotitelBatchProgressSessionV078",
+        "ghrab.essay-evaluator.legacy.TasksSessionV117",
         "ghrab.essay-evaluator.legacy.BatchProgressSessionV078"
       ],
       "sensitivity": "confidential",
@@ -56,6 +66,63 @@
       "sensitivity": "secret",
       "authority": "client-direct-mode-only",
       "clearOnEndWork": true
+    },
+    {
+      "kind": "localStorage",
+      "category": "settings",
+      "patterns": [
+        "ghrab.essay-evaluator.theme.v1",
+        "ghrab.essay-evaluator.ai.model.v1",
+        "ghrab.essay-evaluator.legacy.PrivacyAckV071"
+      ],
+      "sensitivity": "non-personal-setting",
+      "authority": "client",
+      "clearOnEndWork": false
+    },
+    {
+      "kind": "localStorage",
+      "category": "diagnostics",
+      "patterns": [
+        "ghrab.essay-evaluator.legacy.DailyUsageV110"
+      ],
+      "sensitivity": "non-content-metrics",
+      "authority": "client",
+      "clearOnEndWork": false
+    },
+    {
+      "kind": "localStorage",
+      "category": "suite-lifecycle",
+      "patterns": [
+        "ghrab.essay-evaluator.suite-session-observed.v1",
+        "ghrab.essay-evaluator.suite-session-cleanup-complete.v1",
+        "ghrab.essay-evaluator.suite-session-seen.v1",
+        "ghrab.essay-evaluator.migration.p2-storage-namespace-v1.done",
+        "ghrab.essay-evaluator.migration.p2-storage-namespace-v1.backup"
+      ],
+      "sensitivity": "non-content-security-state",
+      "authority": "client-and-platform",
+      "clearOnEndWork": false
+    },
+    {
+      "kind": "localStorage",
+      "category": "suite-lifecycle",
+      "patterns": [
+        "ghrab.platform.suite-session-generation.v1"
+      ],
+      "sensitivity": "non-content-security-state",
+      "authority": "platform-shared-not-owned-by-app",
+      "clearOnEndWork": false
+    },
+    {
+      "kind": "localStorage",
+      "category": "manual-settings",
+      "patterns": [
+        "ghrab-manual-progress-essay-evaluator-*",
+        "ghrab-manual-theme"
+      ],
+      "sensitivity": "non-personal-setting",
+      "authority": "client",
+      "clearOnEndWork": false
     },
     {
       "kind": "cacheStorage",
@@ -98,7 +165,11 @@
   "sharedDevice": {
     "supported": true,
     "defaultInSchoolProfile": true,
-    "control": "endSensitiveWork()"
+    "control": "ghrab-suite-session-v1 + endSensitiveWork()",
+    "suiteSessionContract": "ghrab-suite-session-v1",
+    "acknowledgementKey": "ghrab.essay-evaluator.suite-session-seen.v1",
+    "observedEvidenceKey": "ghrab.essay-evaluator.suite-session-observed.v1",
+    "cleanupEvidenceKey": "ghrab.essay-evaluator.suite-session-cleanup-complete.v1"
   },
   "storageNamespace": {
     "schema": "ghrab-storage-namespace-v1",

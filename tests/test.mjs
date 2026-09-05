@@ -52,7 +52,7 @@ const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
 const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workflows/deploy.yml'):'';
 
-check(pkg.version==='1.5.18','package verze 1.5.18');
+check(pkg.version==='1.5.19','package verze 1.5.19');
 check(contains(text('README.md'),pkg.version),'README obsahuje aktuální verzi');
 check(contains(text('CHANGELOG.md'),`## ${pkg.version}`),'CHANGELOG obsahuje aktuální verzi');
 check(contains(release,"version:'__APP_VERSION__'"),'release přebírá verzi z build tokenu');
@@ -567,7 +567,7 @@ check(!contains(access,'Nouzový offline režim')&&!contains(access,'addOfflineW
 check(/dataset\.ghrabAccess\s*=\s*['\"]denied['\"]/.test(access)&&!/catch\s*\([^)]*\)\s*\{[\s\S]{0,500}loadApplication\s*\(/.test(access),'chyba a timeout guardu zůstávají fail-closed');
 check(/if\s*\(!allowed\)\s*return/.test(access)&&/startReporterBestEffort/.test(access)&&/loadApplication\s*\(\s*\)/.test(access)&&!(/await\s+import\([^)]*error-reporter-adapter/.test(access)),'explicitní zamítnutí se neobchází a reportér je best-effort mimo kritickou cestu');
 check((js.match(/\binit\(\);/g)||[]).length===1,'právě jedno volání init()');
-check(bootstrap.trim().startsWith('init();'),'bootstrap začíná init()');
+check(bootstrap.indexOf('await suiteSessionLifecycle.start()')>=0&&bootstrap.indexOf('await suiteSessionLifecycle.start()')<bootstrap.indexOf('init();'),'suite-session replay/cleanup proběhne před init()');
 check(contains(bootstrap,"document.documentElement.dataset.appReady='1'"),'ready příznak');
 check(contains(bootstrap,'window.__HODNOTITEL_READY__=true'),'globální smoke-test příznak');
 for(const uniqueName of ['createDocxBlob','printPdfExport','reportHeaderHtml','renderReportDocument']){

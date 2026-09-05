@@ -1,3 +1,11 @@
+## 1.5.21 – CI runtime bootstrap hotfix po 1.5.20 (2026-09-05)
+
+- GitHub Actions artefakt 1.5.20 potvrdil, že předchozí `initBackendAdapter()` i axe contrast problémy jsou opravené (`critical: 0`, `serious: 0`), ale hlavní stránka stále končila 3/3 init failures kvůli neexistujícímu volání `renderRelease()` v `bootstrapApplication()`.
+- Neexistující `renderRelease()` bylo odstraněno; bootstrap nyní volá pouze skutečně definované app-owned startup hooky.
+- `npm test` dostal explicitní regresi pro `renderRelease()` a souhrnnou kontrolu všech app-owned bootstrap hooků, aby další podobná chyba byla zachycena ještě před browser CI.
+- GHRAB Platform zůstává přesně 1.1.2; suite-session, PC-01 storage ownership ani acknowledgement mechanismus se tímto hotfixem nemění.
+- Release metadata zůstávají fail-closed: `ecosystem-wave-candidate`, `currentUseApproved: false`; ostrá data jsou zakázána do dokončení release wave.
+
 ## 1.5.20 – CI runtime/a11y oprava po validaci kandidáta 1.5.19 (2026-09-05)
 
 - Opraven GitHub Actions runtime blocker z kandidáta 1.5.19: `bootstrapApplication()` už nevolá neexistující `initBackendAdapter()`. Existující backend wiring zůstává v `initSeriesWorkflow()` / `syncBackendToFields()` bez duplicitní inicializace.

@@ -13,7 +13,6 @@ async function bootstrapApplication(){
   init();
   initSeriesWorkflow();
   initReportEnhancements();
-  renderRelease();
   registerAppServiceWorker();
   renderBuildLabel();
   document.documentElement.dataset.appReady='1';

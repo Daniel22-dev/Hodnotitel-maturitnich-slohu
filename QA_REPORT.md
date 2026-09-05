@@ -1,46 +1,37 @@
-# QA report — Hodnotitel maturitních slohů 1.5.20
+# QA report — Hodnotitel maturitních slohů 1.5.21
 
-> Opravný kandidát po skutečné GitHub Actions validaci verze 1.5.19, 2026-09-05. Použita výhradně syntetická data. Kandidát zůstává **AMBER** a vyžaduje nový post-upload served-runtime/axe průchod na GitHub Actions.
+> Druhý CI hotfix po skutečné GitHub Actions validaci kandidáta 1.5.20, 2026-09-05. Použita výhradně syntetická data. Kandidát zůstává **AMBER** do nového post-upload GitHub Actions průchodu a dokončení ecosystem release wave.
 
-## Proč vznikla verze 1.5.20
+## Co ukázal GitHub Actions běh 1.5.20
 
-GitHub Actions nad kandidátem 1.5.19 (commit `58e3a3955d1adf8685e875ac665f15a02cdf04d0`) odhalily dvě konkrétní blokace, které lokální sandboxová browser omezení před zabalením 1.5.19 nezachytila:
+Přesný `qa-p5-runtime-report.json` z GitHub Actions (commit `51ad2acfdad08d25da93afd4f8c7ebb9e21a96d2`) potvrdil:
 
-1. `qa:runtime`: 3/3 init failures hlavní stránky (1280, 390 a 320 px) se stejným `ReferenceError: initBackendAdapter is not defined` v `bootstrapApplication()`.
-2. `qa:axe`: 6 serious color-contrast nálezů = stejné 3 elementy GHRAB footeru při 1280 a 390 px. Naměřeno `3.68:1` (`#617686` na `#0d1b28`) proti požadovaným `4.5:1`.
+- předchozí `initBackendAdapter()` chyba je odstraněná;
+- předchozí axe kontrastní chyba je odstraněná (`critical: 0`, `serious: 0`, `moderate: 0`, `minor: 0`);
+- `index.html` má 3/3 init failures na 1280/390/320 px kvůli `ReferenceError: renderRelease is not defined` v `bootstrapApplication()`;
+- `manual/index.html` bootuje čistě;
+- `browserExceptions: 0` a `qaErrors: 0`.
 
-## Opravy 1.5.20
+## Opravy 1.5.21
 
-- Z `src/js/99-bootstrap.js` bylo odstraněno omylem přidané volání neexistujícího `initBackendAdapter()`. Backend inicializace se neduplikuje; existující wiring zůstává v `initSeriesWorkflow()` / `syncBackendToFields()`.
-- Do aplikačního `src/styles/90-product-shell.css` přibylo pouze `.app-footer .ghrab-platform-footer__slot{color:var(--t2)}`. Platform 1.1.2 vendor nebyl upraven ani forkut.
-- Podpůrný WCAG výpočet po Platform opacity `0.72`: dark theme přibližně `7.45:1`, light theme přibližně `4.96:1`. Jde o statický podpůrný důkaz, nikoli náhradu post-fix axe běhu.
-- `tests/test.mjs` nově blokuje návrat neexistujícího backend initializeru i odstranění lokálního kontrastního footer override.
-- Verze aplikace byla konzistentně zvýšena na `1.5.20`; Platform zůstává `1.1.2`.
+- Z `src/js/99-bootstrap.js` bylo odstraněno neexistující `renderRelease()`; v aktuálním zdroji nemělo žádnou definici ani legitimní runtime roli.
+- Zachovány jsou pouze skutečně definované startup hooky `init`, `initSeriesWorkflow`, `initReportEnhancements`, `registerAppServiceWorker` a `renderBuildLabel`.
+- `tests/test.mjs` nyní explicitně blokuje neexistující `renderRelease()` a navíc kontroluje definici všech app-owned bootstrap hooků včetně suite-cleanup callbacků.
+- GHRAB Platform 1.1.2 vendor, suite-session cleanup, data manifest / PC-01 a acknowledgement mechanismus nebyly tímto hotfixem změněny.
 
-## Post-fix ověření 1.5.20
+## Post-fix ověření 1.5.21
 
-- `npm test`: **531/531 PASS** (`436` projektových + `95` security).
+- `npm test`: **540/540 PASS** (`445` projektových + `95` security).
 - GHRAB Platform conformance: **116/116 PASS**.
-- Suite-session lifecycle QA: **12/12 PASS**, včetně fail-closed a povinného negative control; poslední syntetický marker `GARP-STUDENT-CANARY-912FD02F47DE9322`.
-- P3 quality: **31/31 PASS**, performance budget nebyl navýšen.
-- `qa:security`: **PASS, 0 nálezů**.
-- `qa:pwa`: **PASS, 0 nálezů**.
-- `qa:xss`: **PASS** proti existujícímu baseline inventory.
-- `qa:lock`: **PASS**.
-- `qa:secrets`: **PASS, 0 nálezů**.
-- `qa:technical`: **PASS, 0 nálezů**.
-- `npm audit --omit=dev --audit-level=high`: **0 vulnerabilities**.
-- Error reporter: statická část **52 PASS / 0 FAIL**; browser část **NOT_READY** kvůli spravované Chromium `URLBlocklist`.
-- `qa:critical`: **NOT TESTED / environment limitation** — lokální `playwright` balík není dostupný (`ERR_MODULE_NOT_FOUND`).
-- `qa:visual`: **NOT TESTED / environment limitation** — stejná chybějící `playwright` závislost.
-- `qa:browser`: **PASS** pouze pro izolovaný `Page.setDocumentContent` kontrakt, stejně jako dříve; není to served-app důkaz.
-- Oba distribuční buildy (`dist`, `dist-school-server`) mají verzi 1.5.20, neobsahují `initBackendAdapter()` call a obsahují app-level footer override.
-- Referenční vendor Platform 1.1.2 je byte-for-byte shodný s AI Studio 0.21.40 pro `ghrab-platform.js`, `ghrab-platform.css`, artifact schema a app-registry schema.
-- `qa:runtime` post-fix lokálně: **NOT TESTED / environment limitation**. Sandbox znovu končí `Runtime page timeout: index.html` ještě před použitelným served-page auditem; tento lokální výsledek se nepřeznačuje na PASS ani aplikační FAIL.
-- `qa:axe` post-fix lokálně: **NOT TESTED / environment limitation**. Exact `axe-core` není po nedokončeném `npm ci` v sandboxu dostupné a served Chromium je navíc omezené; rozhodující je nový GitHub Actions běh.
-- Aktivní lokální `qa:p5`: **BLOCKED / environment limitation** na `qa:runtime`; kroky před ním (secrets, lock, build, Platform conformance, suite-session, quality, isolated browser) prošly.
+- Suite-session lifecycle QA: **12/12 PASS**, včetně fail-closed a povinného negative control; poslední syntetický marker `GARP-STUDENT-CANARY-356265234F2C6A19`.
+- P3 quality: **31/31 PASS**, warnings 0; performance budget nebyl navýšen.
+- Izolovaný Chromium `qa:browser`: **PASS**; jde o `Page.setDocumentContent` Platform kontrakt, nikoli served-app důkaz.
+- `qa:security`, `qa:pwa`, `qa:xss`, `qa:lock`, `qa:secrets`, `qa:technical`: **PASS** v lokálně dostupném prostředí.
+- Oba distribuční buildy (`dist`, `dist-school-server`) jsou sestaveny jako 1.5.21; `renderRelease()` ani `initBackendAdapter()` se v runtime bootstrapu nevyskytují.
+- `qa:runtime` post-fix lokálně: **NOT TESTED / environment limitation** — systémový Chromium v tomto sandboxu znovu nedokončí lokální HTTP navigaci a harness skončí `Runtime page timeout: index.html` ještě před použitelným auditem. Tento výsledek není vydáván za PASS ani aplikační FAIL.
+- `qa:axe` post-fix lokálně: **NOT TESTED / environment limitation** — exact `axe-core 4.12.1` není v kandidátním stromu nainstalováno. Skutečný GitHub Actions audit 1.5.20 měl `critical: 0`, `serious: 0`; 1.5.21 nemění CSS ani platformní footer fix, ale nový CI průchod je stále povinný.
 
-## Release gate 1.5.20
+## Release gate 1.5.21
 
 - SECURITY: **AMBER**
 - PRIVACY: **AMBER**
@@ -48,7 +39,7 @@ GitHub Actions nad kandidátem 1.5.19 (commit `58e3a3955d1adf8685e875ac665f15a02
 - RELEASE INTEGRITY: **AMBER**
 - OVERALL: **AMBER**
 
-Povinný další důkaz: nahrát přesný kandidát 1.5.20 a zopakovat GitHub Actions tak, aby `qa:runtime` ukázalo `bootError: ""`, `initFailures: 0` a `qa:axe` nemělo žádný serious/critical blocker. Teprve poté lze hodnotit další release podmínky. E-01, F-02 a F-03 zůstávají ekosystémové follow-upy a tato child oprava je sama neuzavírá.
+Povinný další důkaz: přesný kandidát 1.5.21 musí v GitHub Actions dosáhnout `bootError: ""`, `initFailures: 0`, `critical: 0`, `serious: 0` a pokračovat přes navazující P5 release/acceptance kroky. E-01, F-02 a F-03 zůstávají ekosystémové follow-upy.
 
 TESTOVACÍ PROVOZ POUZE SE SYNTETICKÝMI DATY  
 REÁLNÁ STUDENTSKÁ DATA: NEPOUŽÍVAT

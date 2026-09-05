@@ -90,7 +90,7 @@ check(String(taskWrites.session).includes('GARP-CONFIDENTIAL-EXAM-CANARY')&&!Str
 
 const workflowPersistenceSource=workflowUi.slice(workflowUi.indexOf('function serializableBatchJob'),workflowUi.indexOf('function tryRestoreBatchProgress'));
 const examPersistenceContext=vm.createContext({
-  APP_VERSION:'1.5.19',
+  APP_VERSION:'1.5.20',
   SENSITIVE_STATE_FIELDS:[],
   state:{set:'exam',genre:'opinion',taskIndex:0,taskTitle:'GARP-EXAM-TITLE-CANARY',taskText:'GARP-EXAM-TEXT-CANARY',taskReqs:'GARP-EXAM-REQ-CANARY',result:'',batchJob:null,series:null,inputMode:'batch',evalMode:'api',outputStyle:'standard',resultView:'final',workMode:'api',roster:[],processingMode:'queue',queueRpm:1,usage:{},distribution:{sharedSecret:'SECRET'},backend:{accessToken:'TOKEN'}},
   batchStudents:[],batchResults:[],normalizeGenreId:v=>v,sensitiveSaveEnabled:()=>true,sensitiveSnapshotExpired:()=>false,ensureWorkflowState:()=>{},safeLocalGet:()=>null,safeLocalSet:()=>true

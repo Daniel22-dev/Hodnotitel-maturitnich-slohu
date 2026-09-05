@@ -52,7 +52,7 @@ const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
 const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workflows/deploy.yml'):'';
 
-check(pkg.version==='1.5.19','package verze 1.5.19');
+check(pkg.version==='1.5.20','package verze 1.5.20');
 check(contains(text('README.md'),pkg.version),'README obsahuje aktuální verzi');
 check(contains(text('CHANGELOG.md'),`## ${pkg.version}`),'CHANGELOG obsahuje aktuální verzi');
 check(contains(release,"version:'__APP_VERSION__'"),'release přebírá verzi z build tokenu');
@@ -90,6 +90,8 @@ check(contains(text('src/styles/90-product-shell.css'),'.product-header h1 em{fo
 const shellCss=text('src/styles/90-product-shell.css');
 const pwaManifestText=text('src/manifest.webmanifest');
 const pwaManifest=JSON.parse(pwaManifestText);
+check(!contains(bootstrap,'initBackendAdapter()') || /(?:function\s+initBackendAdapter\s*\(|const\s+initBackendAdapter\s*=|let\s+initBackendAdapter\s*=|var\s+initBackendAdapter\s*=)/.test(js), 'bootstrap nevolá neexistující initBackendAdapter');
+check(/\.app-footer\s+\.ghrab-platform-footer__slot\s*\{[^}]*color:var\(--t2\)/.test(shellCss), 'appendovaný GHRAB footer má lokální kontrastní barvu bez forku Platformy');
 check(contains(shellCss,'.school-logo-box{display:flex')&&contains(shellCss,'background:#fff'), 'školní logo používá společnou bílou dlaždici');
 check(contains(shellCss,'.school-logo{display:block!important')&&contains(shellCss,'filter:none!important'), 'logo není barevně invertováno');
 check(contains(template,'manifest.webmanifest')&&!contains(template,'manifest-v1.')&&contains(template,'icons/hodnotitel-shield-20260711-192.png')&&contains(template,'icons/hodnotitel-shield-20260711-180.png'), 'HTML používá stabilní manifest a aktuální ikony');

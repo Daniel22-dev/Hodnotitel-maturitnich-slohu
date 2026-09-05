@@ -1,3 +1,11 @@
+## 1.5.20 – CI runtime/a11y oprava po validaci kandidáta 1.5.19 (2026-09-05)
+
+- Opraven GitHub Actions runtime blocker z kandidáta 1.5.19: `bootstrapApplication()` už nevolá neexistující `initBackendAdapter()`. Existující backend wiring zůstává v `initSeriesWorkflow()` / `syncBackendToFields()` bez duplicitní inicializace.
+- Opraveno 6 serious axe nálezů se společnou příčinou: appendovaný GHRAB Platform footer nyní v aplikačním `.app-footer` dědí `var(--t2)`; vendor Platform 1.1.2 nebyl měněn ani forkut.
+- Přidány statické regresní kontroly pro neexistující backend initializer a pro kontrastní app-level footer override, aby oba regresní typy blokoval už `npm test`.
+- Release metadata zůstávají fail-closed: `ecosystem-wave-candidate`, `currentUseApproved: false`, post-fix served-runtime/axe validace na GitHub Actions je povinná před jakýmkoli posunem gate.
+- E-01, F-02 a F-03 zůstávají ekosystémové follow-upy; tato oprava je neuzavírá.
+
 ## 1.5.19 – GHRAB Platform 1.1.2 suite-session kandidát (2026-09-05)
 
 - Migrace child aplikace z GHRAB Platform 1.1.0 na referenční Platform 1.1.2 a kontrakt `ghrab-suite-session-v1`.

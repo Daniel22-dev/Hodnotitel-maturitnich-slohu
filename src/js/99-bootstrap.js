@@ -13,7 +13,6 @@ async function bootstrapApplication(){
   init();
   initSeriesWorkflow();
   initReportEnhancements();
-  initBackendAdapter();
   renderRelease();
   registerAppServiceWorker();
   renderBuildLabel();

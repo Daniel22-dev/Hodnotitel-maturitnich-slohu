@@ -1,3 +1,11 @@
+## 1.5.22 – P5 acceptance gate consistency hotfix (2026-09-05)
+
+- Tři nezávislé GitHub Actions logy kandidáta 1.5.21 potvrdily, že served runtime je čistý (`initFailures: 0`, `qaErrors: 0`, `blockers: 0`) a axe runtime je čistý (`critical: 0`, `serious: 0`, `moderate: 0`, `minor: 0`).
+- Jediný společný FAIL byl `acceptance.github-pending`: legacy P5-R2 acceptance skript bezpodmínečně vyžadoval `github.status === "not-yet-uploaded"`, zatímco Platform 1.1.2 ecosystem-wave kandidát pravdivě deklaruje `post-fix-ci-validation-required`.
+- `qa-p5-acceptance.mjs` nyní rozlišuje legacy pre-upload stav od `ecosystem-wave-candidate`. Wave kandidát může projít pouze při zachovaném fail-closed stavu: `currentUseApproved: false`, povinná post-upload validace, `sharedDeviceCleanupGreen: false`, `e01Closed: false` a syntetická data do dokončení wave.
+- Přidány regresní kontroly release-policy konzistence; gate se nezměkčuje na produkční GREEN a nemění Platformu 1.1.2, suite-session cleanup ani aplikační runtime.
+- Kandidát zůstává AMBER do nového GitHub Actions průchodu 1.5.22 a dokončení koordinované ecosystem release wave.
+
 ## 1.5.21 – CI runtime bootstrap hotfix po 1.5.20 (2026-09-05)
 
 - GitHub Actions artefakt 1.5.20 potvrdil, že předchozí `initBackendAdapter()` i axe contrast problémy jsou opravené (`critical: 0`, `serious: 0`), ale hlavní stránka stále končila 3/3 init failures kvůli neexistujícímu volání `renderRelease()` v `bootstrapApplication()`.

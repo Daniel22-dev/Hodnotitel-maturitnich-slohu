@@ -51,8 +51,17 @@ const studioRegistration=JSON.parse(text('src/studio-integration/essay-evaluator
 const rubric=JSON.parse(text('src/rubric/rubric-v2026.04.27-r1.json'));
 const pkg=JSON.parse(text('package.json'));
 const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workflows/deploy.yml'):'';
+const releaseAcceptance=JSON.parse(text('src/config/release-acceptance.json'));
+const acceptanceGate=text('scripts/qa-p5-acceptance.mjs');
 
-check(pkg.version==='1.5.21','package verze 1.5.21');
+check(pkg.version==='1.5.22','package verze 1.5.22');
+check(releaseAcceptance.releaseStatus==='ecosystem-wave-candidate','release acceptance zachovává ecosystem-wave-candidate');
+check(releaseAcceptance.primaryRuntime?.currentUseApproved===false,'wave kandidát není schválen k běžnému použití');
+check(releaseAcceptance.github?.status==='post-fix-ci-validation-required'&&releaseAcceptance.github?.postUploadValidationRequired===true,'release metadata pravdivě vyžadují post-upload GitHub validaci');
+check(releaseAcceptance.ecosystemReleaseWave?.sharedDeviceCleanupGreen===false&&releaseAcceptance.ecosystemReleaseWave?.e01Closed===false,'release metadata nefalšují uzavření E-01 ani globální GREEN');
+check(releaseAcceptance.ecosystemReleaseWave?.syntheticDataOnlyUntilWaveComplete===true,'release metadata vynucují syntetická data do dokončení wave');
+check(/const isWaveCandidate\s*=/.test(acceptanceGate)&&/acceptance\.github-validation-pending/.test(acceptanceGate)&&/post-fix-ci-validation-required/.test(acceptanceGate),'P5 acceptance gate rozlišuje ecosystem-wave post-upload validaci od legacy pre-upload stavu');
+check(!/need\(acceptance\.github\?\.status==='not-yet-uploaded','acceptance\.github-pending'/.test(acceptanceGate),'P5 acceptance gate už nemá bezpodmínečný legacy github-pending blocker');
 check(contains(text('README.md'),pkg.version),'README obsahuje aktuální verzi');
 check(contains(text('CHANGELOG.md'),`## ${pkg.version}`),'CHANGELOG obsahuje aktuální verzi');
 check(contains(release,"version:'__APP_VERSION__'"),'release přebírá verzi z build tokenu');

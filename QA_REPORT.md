@@ -1,37 +1,56 @@
-# QA report — Hodnotitel maturitních slohů 1.5.21
+# QA report — Hodnotitel maturitních slohů 1.5.22
 
-> Druhý CI hotfix po skutečné GitHub Actions validaci kandidáta 1.5.20, 2026-09-05. Použita výhradně syntetická data. Kandidát zůstává **AMBER** do nového post-upload GitHub Actions průchodu a dokončení ecosystem release wave.
+> Release-gate consistency hotfix po skutečné GitHub Actions validaci 1.5.21, 2026-09-05. Použita výhradně syntetická data. Kandidát zůstává **AMBER** do nového 1.5.22 CI průchodu a dokončení ecosystem release wave.
 
-## Co ukázal GitHub Actions běh 1.5.20
+## Co prokázal GitHub Actions běh 1.5.21
 
-Přesný `qa-p5-runtime-report.json` z GitHub Actions (commit `51ad2acfdad08d25da93afd4f8c7ebb9e21a96d2`) potvrdil:
+Tři dodané CI logy stejného kandidáta / commitu `d44917ac51c334cdb3dd4dd1b834482945fd4fa5` se shodují:
 
-- předchozí `initBackendAdapter()` chyba je odstraněná;
-- předchozí axe kontrastní chyba je odstraněná (`critical: 0`, `serious: 0`, `moderate: 0`, `minor: 0`);
-- `index.html` má 3/3 init failures na 1280/390/320 px kvůli `ReferenceError: renderRelease is not defined` v `bootstrapApplication()`;
-- `manual/index.html` bootuje čistě;
-- `browserExceptions: 0` a `qaErrors: 0`.
+- served `qa:runtime`: **PASS**, `initFailures: 0`, `qaErrors: 0`, `blockers: 0`;
+- axe runtime: **PASS**, `critical: 0`, `serious: 0`, `moderate: 0`, `minor: 0`, `blockers: 0`;
+- P5 release report: **51/51 PASS**;
+- suite-session lifecycle: **PASS**, včetně fail-closed a povinného negative control;
+- jediný následný FAIL: `acceptance.github-pending` v `qa-p5-acceptance.mjs`;
+- nešlo tedy o další bootstrap, accessibility ani suite-session chybu.
 
-## Opravy 1.5.21
+Poslední syntetický suite-session marker z dodaného P5 logu: `GARP-STUDENT-CANARY-1609C9414684FD37`.
 
-- Z `src/js/99-bootstrap.js` bylo odstraněno neexistující `renderRelease()`; v aktuálním zdroji nemělo žádnou definici ani legitimní runtime roli.
-- Zachovány jsou pouze skutečně definované startup hooky `init`, `initSeriesWorkflow`, `initReportEnhancements`, `registerAppServiceWorker` a `renderBuildLabel`.
-- `tests/test.mjs` nyní explicitně blokuje neexistující `renderRelease()` a navíc kontroluje definici všech app-owned bootstrap hooků včetně suite-cleanup callbacků.
-- GHRAB Platform 1.1.2 vendor, suite-session cleanup, data manifest / PC-01 a acknowledgement mechanismus nebyly tímto hotfixem změněny.
+## Root cause 1.5.21
 
-## Post-fix ověření 1.5.21
+`src/config/release-acceptance.json` po migraci na Platform 1.1.2 záměrně a správně deklaroval:
 
-- `npm test`: **540/540 PASS** (`445` projektových + `95` security).
+- `releaseStatus: ecosystem-wave-candidate`;
+- `currentUseApproved: false`;
+- `github.status: post-fix-ci-validation-required`;
+- `sharedDeviceCleanupGreen: false`;
+- `e01Closed: false`;
+- pouze syntetická data do dokončení release wave.
+
+Legacy `scripts/qa-p5-acceptance.mjs` ale stále obsahoval bezpodmínečný check `github.status === "not-yet-uploaded"`. Po nahrání kandidáta do GitHubu tak acceptance gate nutně selhal, přestože všechny předchozí runtime/release kontroly prošly. Šlo o nekonzistenci release-policy kontraktu, nikoli o runtime závadu Hodnotitele.
+
+## Oprava 1.5.22
+
+- Acceptance gate nyní rozlišuje legacy P5 kandidáta a `ecosystem-wave-candidate`.
+- Wave větev vyžaduje `currentUseApproved: false`, `post-fix-ci-validation-required`, povinnou post-upload validaci, shodu Platform verze s consumer manifestem, `sharedDeviceCleanupGreen: false`, `e01Closed: false` a `syntheticDataOnlyUntilWaveComplete: true`.
+- Legacy `not-yet-uploaded` větev zůstává zachována mimo ecosystem-wave režim.
+- Přidány regresní testy release metadata a acceptance policy, aby se bezpodmínečný `acceptance.github-pending` blocker nevrátil.
+- Runtime bootstrap, Platform 1.1.2 vendor, suite-session cleanup, PC-01 a accessibility CSS se tímto hotfixem nemění.
+
+## Lokální ověření 1.5.22
+
+- `npm test`: **547/547 PASS** (`452` projektových + `95` security).
 - GHRAB Platform conformance: **116/116 PASS**.
-- Suite-session lifecycle QA: **12/12 PASS**, včetně fail-closed a povinného negative control; poslední syntetický marker `GARP-STUDENT-CANARY-356265234F2C6A19`.
+- Suite-session lifecycle QA: **12/12 PASS**, včetně fail-closed a povinného negative control; použit pouze syntetický canary.
 - P3 quality: **31/31 PASS**, warnings 0; performance budget nebyl navýšen.
-- Izolovaný Chromium `qa:browser`: **PASS**; jde o `Page.setDocumentContent` Platform kontrakt, nikoli served-app důkaz.
-- `qa:security`, `qa:pwa`, `qa:xss`, `qa:lock`, `qa:secrets`, `qa:technical`: **PASS** v lokálně dostupném prostředí.
-- Oba distribuční buildy (`dist`, `dist-school-server`) jsou sestaveny jako 1.5.21; `renderRelease()` ani `initBackendAdapter()` se v runtime bootstrapu nevyskytují.
-- `qa:runtime` post-fix lokálně: **NOT TESTED / environment limitation** — systémový Chromium v tomto sandboxu znovu nedokončí lokální HTTP navigaci a harness skončí `Runtime page timeout: index.html` ještě před použitelným auditem. Tento výsledek není vydáván za PASS ani aplikační FAIL.
-- `qa:axe` post-fix lokálně: **NOT TESTED / environment limitation** — exact `axe-core 4.12.1` není v kandidátním stromu nainstalováno. Skutečný GitHub Actions audit 1.5.20 měl `critical: 0`, `serious: 0`; 1.5.21 nemění CSS ani platformní footer fix, ale nový CI průchod je stále povinný.
+- `qa:security`, `qa:pwa`, `qa:xss`, `qa:lock`, `qa:secrets`, `qa:technical`: **PASS**.
+- Izolovaný Chromium `qa:browser`: **PASS**.
+- Acceptance-policy positive control nad syntetickými PASS reporty: **26/26 PASS**.
+- Acceptance negative control 1: `currentUseApproved: true` -> očekávaný **FAIL** `acceptance.wave-current-use-blocked`.
+- Acceptance negative control 2: `e01Closed: true` -> očekávaný **FAIL** `acceptance.wave-e01-open`.
+- Lokální served `qa:runtime`: **NOT TESTED / environment limitation** — sandbox skončí `Runtime page timeout: index.html`. Skutečný GitHub Actions běh 1.5.21 přitom nad runtime kódem, který 1.5.22 nemění, dosáhl `initFailures: 0`, `qaErrors: 0`, `blockers: 0`.
+- Platform vendor JS/CSS, `src/js/99-bootstrap.js`, `src/access/suite-session-cleanup.js` a `src/styles/90-product-shell.css` jsou proti 1.5.21 byte-for-byte shodné.
 
-## Release gate 1.5.21
+## Gate 1.5.22 před post-upload CI
 
 - SECURITY: **AMBER**
 - PRIVACY: **AMBER**
@@ -39,7 +58,7 @@ Přesný `qa-p5-runtime-report.json` z GitHub Actions (commit `51ad2acfdad08d25d
 - RELEASE INTEGRITY: **AMBER**
 - OVERALL: **AMBER**
 
-Povinný další důkaz: přesný kandidát 1.5.21 musí v GitHub Actions dosáhnout `bootError: ""`, `initFailures: 0`, `critical: 0`, `serious: 0` a pokračovat přes navazující P5 release/acceptance kroky. E-01, F-02 a F-03 zůstávají ekosystémové follow-upy.
+Důvod AMBER: 1.5.21 již má skutečný čistý served-browser důkaz, ale 1.5.22 mění distribuovaný release-gate kód a musí projít novým přesným GitHub Actions během. E-01, F-02 a F-03 zůstávají ekosystémové follow-upy a nelze je uzavřít jedinou child aplikací.
 
 TESTOVACÍ PROVOZ POUZE SE SYNTETICKÝMI DATY  
 REÁLNÁ STUDENTSKÁ DATA: NEPOUŽÍVAT

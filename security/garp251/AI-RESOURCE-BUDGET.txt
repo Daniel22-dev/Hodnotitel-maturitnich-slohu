@@ -1,0 +1,22 @@
+GARP 2.5.1 – AI RESOURCE BUDGET – essay-evaluator 1.5.25
+
+Zdroj: src/ai-operations.json
+- attachment-transcription: maxOutputTokensHint 16,384; 1 expected output.
+- essay-evaluation: maxOutputTokensHint 32,768; maxProviderRequestsPerWorkflow 16.
+- essay-series-evaluation: maxOutputTokensHint 32,768; maxProviderRequestsPerWorkflow 40.
+- essay-batch-job: maxOutputTokensHint 32,768; maxProviderRequestsPerWorkflow 20; serverJob=true.
+- aplikační série: max 20 prací; typická série 15.
+- streaming: false.
+- povolené profily: balanced / quality podle operace.
+
+VYNUCENÍ V KLIENTOVI:
+- max. 20 prací v sérii je skutečně vynuceno aplikačním kódem;
+- maxOutputTokensHint je předán GHRAB AI Core a AI Core jej omezuje stropem operace/runtime;
+- aplikace není autonomní agent ani MCP/tool runner a nemá self-directed tool loop.
+
+DEKLARACE PRO SERVER/GATEWAY, NIKOLI KLIENTSKÝ ENFORCEMENT:
+- maxProviderRequestsPerWorkflow je integrační rozpočet publikovaný v ai-operations.json pro školní gateway / serverovou policy;
+- klient 1.5.25 tento limit NEUMÍ pravdivě měřit ani tvrdě vynutit, protože fallback/retry provider requesty vznikají uvnitř AI Core/provider vrstvy;
+- tento údaj proto není důkaz klientské ochrany proti resource abuse.
+
+LIVE serverové throttling/budget evidence: NOT TESTED. Před school-server LIVE musí gateway tento deklarovaný rozpočet buď vynutit, nebo explicitně nahradit vlastní přísnější policy.

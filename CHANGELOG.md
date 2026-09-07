@@ -1,3 +1,31 @@
+# Changelog
+
+## 1.5.25 – GARP 2.5.1 R2 evidence/assurance cleanup po Claude kole 2 (2026-09-07)
+
+- R2-N-01: přidán spustitelný `qa-assurance-links.mjs` s 10 skutečně přepočítávanými vazbami, pozitivní i negativní selftest kontrolou; `qa:garp25` ověřuje, že verifier není dekorativní.
+- R2-N-02: dokumentace rozlišuje `sourcePackageSha256` jako hash korektivního vstupu od externě publikovaného hashe aktuálního source ZIPu, který nelze bez rekurze vložit do sebe sama.
+- R2-N-03: čtyři neškodné P3 platform assety jsou po precache opět skutečně vydatelné přes cache-first.
+- R2-N-04: odstraněn křehký `slice(2)` předpoklad a selhání `Cache API put` už nerozbije doručení statického assetu; odpověď 206 se necachuje.
+- EX-01: online SCA pro přesný 1.5.24 lock set nezávisle PASS 0 zranitelností; dependency graph 1.5.25 zůstává beze změny a `qa:sca` je trvalý fail-closed CI krok.
+- N-06 (deterministické build timestampy) zůstává otevřený LOW; LIVE/DAST/AI-RED/key-custody/prod-CI zůstávají externí NOT TESTED.
+
+## 1.5.24 – GARP 2.5.1 R2 corrective hardening po nezávislém review (2026-09-07)
+
+- N-01: přidán behaviorální `qa-sw-boundary.mjs` s povinnou negativní kontrolou vyřazeného guardu; zapojen do `qa:garp25`, `qa:p5` a `qa:p5:ci`.
+- N-03/N-02: Service Worker převeden z default-allow cache chování na explicitní static allowlist; neklasifikované same-origin assety jsou network-only/no-store.
+- N-04: dokumentace opravena tak, aby `maxProviderRequestsPerWorkflow` nebyl vydáván za klientsky vynucenou kontrolu; jde o deklaraci pro server/gateway.
+- EX-01: online SCA uzavřeno na základě nezávislého `npm audit` PASS; `qa:sca` přidáno jako trvalý CI krok.
+- Verdikt zůstává SHIELD-PREP / AMBER; LIVE server, DAST, behaviorální AI-RED, produkční key custody a CI provenance zůstávají otevřené.
+
+
+## 1.5.23 – GARP 2.5.1 SHIELD-PREP delta migrace (2026-09-07)
+
+- Opravena GARP 2.5.1 GH-02 security-freeze hranice Service Workeru: autorizační, deployment, reporter a spustitelný GHRAB Platform runtime se již neprecacheují ani neobsluhují cache-first.
+- Security-critical requesty jsou explicitně vedeny přes `isSecurityCriticalRequest -> networkOnlyNoStore` před jakoukoli cache cestou.
+- Přidán autoritativní seznam security-critical assetů a vendored GARP 2.5.1 R2 tooling s hashovým podkladem.
+- Platform conformance byl změněn tak, aby nově vyžadoval network-only bezpečnostní hranici a naopak zakazoval precache `ghrab-platform.js` a consumer kontraktu.
+- Release metadata zůstávají fail-closed: SHIELD-PREP kandidát, pouze syntetická data, LIVE school-server gate NOT TESTED a nezávislá delta kontrola je povinná.
+
 ## 1.5.22 – P5 acceptance gate consistency hotfix (2026-09-05)
 
 - Tři nezávislé GitHub Actions logy kandidáta 1.5.21 potvrdily, že served runtime je čistý (`initFailures: 0`, `qaErrors: 0`, `blockers: 0`) a axe runtime je čistý (`critical: 0`, `serious: 0`, `moderate: 0`, `minor: 0`).

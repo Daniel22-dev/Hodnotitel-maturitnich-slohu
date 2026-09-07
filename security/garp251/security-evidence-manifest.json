@@ -1,0 +1,155 @@
+{
+  "schema": "ghrab-security-evidence-manifest-v1",
+  "appId": "essay-evaluator",
+  "version": "1.5.25",
+  "sourceRevision": null,
+  "sourcePackageSha256": "51839332f918de1dfee5b97408547103afaba631288d8bbb4a0b17851b572493",
+  "createdAt": "2026-09-07T17:02:50.273Z",
+  "files": [
+    {
+      "path": "00-PROVENANCE-FREEZE.txt",
+      "size": 743,
+      "sha256": "093700de202df90672ef36c50b10fed3681f2db1e320ad4f4b0a83ede90556c8"
+    },
+    {
+      "path": "01-CLAUDE-ROLE-B-ROUND1-1.5.23.txt",
+      "size": 31270,
+      "sha256": "06e4a850913661f4fdf361ce8aa780b06ddbe6705fddc06dc4cf261ca5455e5a"
+    },
+    {
+      "path": "02-CLAUDE-ROLE-B-ROUND2-1.5.24.txt",
+      "size": 25415,
+      "sha256": "f6bc39040d5391d5cc56723c0eda22cda20ff336a0d604ac841caadb24a9ae21"
+    },
+    {
+      "path": "03-CLAUDE-ORIGINAL-QA-SW-BOUNDARY.mjs",
+      "size": 8106,
+      "sha256": "4a13ee3ffb10cf778eaa015de6b282176743b44b06471a0cc742bd48a257e570"
+    },
+    {
+      "path": "04-BUILD-SCHOOL-PASS.txt",
+      "size": 12941,
+      "sha256": "a5d9c15b1fa052692ddcc707687a365c30329215e49113f2b7cb7943315f129d"
+    },
+    {
+      "path": "05-NPM-TEST-454-PLUS-96-PASS.txt",
+      "size": 29030,
+      "sha256": "d678bbec111b1130e10ef2b24bf0f9197b6ad11cba063b677931731084e19be9"
+    },
+    {
+      "path": "06-SW-BOUNDARY-6-PASS.txt",
+      "size": 1407,
+      "sha256": "020a5047ad53b4772215ce4deb1d390fbb4b621058abd6cafd3d380f05da3b13"
+    },
+    {
+      "path": "07-QA-GARP25-19-PASS.txt",
+      "size": 191,
+      "sha256": "2f6d717b5c6c3ab7da5c43b5e8ad5f9a7ba24fe0b106ed9569b35bc1b71716b6"
+    },
+    {
+      "path": "08-SECRET-SCAN-PASS.txt",
+      "size": 114,
+      "sha256": "ba4c33483a3021c280b2d1f6d62688bf0dc122f850adfa1863fb43e42dd47b1c"
+    },
+    {
+      "path": "09-CUSTOM-SAST-PASS.txt",
+      "size": 109,
+      "sha256": "33500ec5a47017cd1c29451943669d7738ea8e740d0ee4ed6ccf82556b9fb179"
+    },
+    {
+      "path": "10-PWA-PASS.txt",
+      "size": 94,
+      "sha256": "ff92483a4c4d27d3b3da20ca46099dce2778dbbec85d1b16b5c04394ae5cca3c"
+    },
+    {
+      "path": "11-TECHNICAL-PASS.txt",
+      "size": 112,
+      "sha256": "3e2f92cf3e76ee8cd34b0097b537e2cbe061a30f151a9e8596c6b7e729b68e92"
+    },
+    {
+      "path": "12-LOCK-PASS.txt",
+      "size": 303,
+      "sha256": "a2bcf8ba0accd5dfac29440ca47710d74d388299673bbc13d3d60db56ed25da6"
+    },
+    {
+      "path": "13-PLATFORM-118-PASS.txt",
+      "size": 12482,
+      "sha256": "e7dfabaa109bd65c79ef937149b948f7ca7fddf2bdfa4ecb0a93b19514b65617"
+    },
+    {
+      "path": "14-SUITE-SESSION-12-PASS.txt",
+      "size": 18040,
+      "sha256": "173543a850961caef2d18ef5300691f59e5d79acdf4f0ec8dee0d2131cbf1497"
+    },
+    {
+      "path": "15-QUALITY-31-PASS.txt",
+      "size": 5013,
+      "sha256": "a5dd1bc2988d6335e18091485d52700ad30b5a58682f9886a1d266d07a2f4f75"
+    },
+    {
+      "path": "16-XSS-PASS.txt",
+      "size": 2038,
+      "sha256": "5d2e1deb1d92b0ab63759a9ed8e0e788d574388f7ff661d63115362d351669f7"
+    },
+    {
+      "path": "17-BROWSER-PASS.txt",
+      "size": 1109,
+      "sha256": "9987864c65e02a344454782d4479f14dcf4392535cf3a0f36d927f5ce6af1bd7"
+    },
+    {
+      "path": "18-SERVED-RUNTIME-NOT-TESTED.txt",
+      "size": 404,
+      "sha256": "4aabf99be8b1a972dbf7d338a8218eb6e202b33a8183ccb80e0b44e44aa43670"
+    },
+    {
+      "path": "19-AXE-NOT-READY.txt",
+      "size": 399,
+      "sha256": "3b9b7ddf74a126ec73afd0ee3f4805bf6a5f879be48b79f00786f74624da2265"
+    },
+    {
+      "path": "20-SCA-LOCAL-NOT-REPRODUCED.txt",
+      "size": 396,
+      "sha256": "fbb11d7eb4abf3056ee0a711853c16e24dbe1019bb4d016d4849405dcd50ad25"
+    },
+    {
+      "path": "21-GARP-SELFTEST-43-PASS.txt",
+      "size": 71,
+      "sha256": "1bdcf73777e2299e7c5a1a8e0c8c65fd1833305d2f0d0e4894570a168994f277"
+    },
+    {
+      "path": "22-SW-FREEZE-PUBLIC-PASS.txt",
+      "size": 2201,
+      "sha256": "2ae5c5c72d200c189933cb365b4f98997624a75c606b3dedf1f7a425b252d4fb"
+    },
+    {
+      "path": "23-SW-FREEZE-SCHOOL-PASS.txt",
+      "size": 2215,
+      "sha256": "411fab9c32d66f27ad8023d8b169221f3f45a12fc910d3f99d97884a3a51855d"
+    },
+    {
+      "path": "24-LEAK-PUBLIC-PASS.txt",
+      "size": 506,
+      "sha256": "223d1a610fa3babdcf886e59a53fac0a637c34b67136d24313fb5f5bc3705461"
+    },
+    {
+      "path": "25-LEAK-SCHOOL-PASS.txt",
+      "size": 520,
+      "sha256": "5e0775f165a6ac81c4a16b92799190b9c71c1cf1f631c17ed0df754616f65cc4"
+    },
+    {
+      "path": "26-ASSURANCE-VERIFIER-SELFTEST-PASS.txt",
+      "size": 221,
+      "sha256": "db65692a494bda60cb47f8b0f0f19a09968c12ffb62b3ea9ed8ef7815f5d33f9"
+    },
+    {
+      "path": "27-SCA-INDEPENDENT-ROUND2-PASS.txt",
+      "size": 554,
+      "sha256": "7e5e50a49595e6756bf850adbfe1fbeeb1102d09be5024ca5fa7fd193a6e2927"
+    },
+    {
+      "path": "28-SBOM-GENERATION-PASS.txt",
+      "size": 210,
+      "sha256": "bf6c3bb7100f4c374c8ae4a36308d93751e252c7dca76ebea65d18091a10612e"
+    }
+  ]
+}

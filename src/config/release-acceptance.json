@@ -2,7 +2,7 @@
   "schema": "ghrab-release-acceptance-v1",
   "stage": "P5",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.22",
+  "appVersion": "1.5.25",
   "releaseStatus": "ecosystem-wave-candidate",
   "primaryRuntime": {
     "mode": "standalone-github-pages",
@@ -51,5 +51,14 @@
     "e01Closed": false,
     "independentReviewPending": true,
     "syntheticDataOnlyUntilWaveComplete": true
+  },
+  "garp251": {
+    "profile": "SHIELD-PREP",
+    "status": "migration-candidate",
+    "currentUseApproved": false,
+    "syntheticDataOnly": true,
+    "schoolServerLiveGate": "NOT_TESTED",
+    "independentDeltaReview": "REQUIRED",
+    "toolingRevision": "GARP-2.5.1-R2"
   }
 }

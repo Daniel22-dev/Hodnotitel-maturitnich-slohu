@@ -197,14 +197,14 @@ const swPath = path.join(dist, 'sw.js');
 if (fs.existsSync(swPath)) {
   let sw = fs.readFileSync(swPath, 'utf8');
   sw = sw.replace(/\n\/\* GHRAB_PLATFORM_P3_START \*\/[\s\S]*?\/\* GHRAB_PLATFORM_P3_END \*\/\n?/g, '\n');
+  // GARP 2.5.1 / GH-02: the executable platform runtime and its consumer
+  // contract are security-critical and must never enter a Service Worker cache.
   const platformAssets = [
-    './ghrab/ghrab-platform.js',
     './ghrab/ghrab-platform.css',
     './ghrab/ghrab-artifact-envelope-v1.schema.json',
     './ghrab/ghrab-app-registry-v2.schema.json',
     `./ghrab/ghrab-platform-manifest-${consumer.platform.version}.json`,
     './assets/brand/school-logo.png',
-    './ghrab-platform.consumer.json',
   ];
   const hasUpdateProtocol = sw.includes('GHRAB_SKIP_WAITING');
   sw += `\n/* GHRAB_PLATFORM_P3_START */\nconst GHRAB_PLATFORM_P3_ASSETS=${JSON.stringify(platformAssets)};\nself.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(${JSON.stringify(consumer.cache.name)});const results=await Promise.allSettled(GHRAB_PLATFORM_P3_ASSETS.map(asset=>cache.add(asset)));const failed=results.filter(item=>item.status==='rejected');if(failed.length)throw new Error('GHRAB Platform P3 precache selhal: '+failed.length);})()));\n${hasUpdateProtocol ? '' : "self.addEventListener('message',event=>{if(event.data?.type==='GHRAB_SKIP_WAITING')self.skipWaiting();});\n"}/* GHRAB_PLATFORM_P3_END */\n`;

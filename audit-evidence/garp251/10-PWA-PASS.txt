@@ -1,0 +1,5 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 qa:pwa
+> node scripts/qa-pwa.mjs
+
+PWA PASS: 0 nálezů

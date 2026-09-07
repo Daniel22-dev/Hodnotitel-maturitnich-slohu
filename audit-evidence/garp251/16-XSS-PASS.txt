@@ -1,0 +1,96 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 qa:xss
+> node scripts/qa-p5-xss-sinks.mjs
+
+{
+  "schema": "ghrab-p5-xss-sink-audit-v1",
+  "appId": "essay-evaluator",
+  "counts": {
+    "innerHTML": 45,
+    "insertAdjacentHTML": 0,
+    "outerHTML": 0,
+    "documentWrite": 0,
+    "eval": 0,
+    "newFunction": 1
+  },
+  "baseline": {
+    "innerHTML": 45,
+    "insertAdjacentHTML": 0,
+    "outerHTML": 0,
+    "documentWrite": 0,
+    "eval": 0,
+    "newFunction": 1
+  },
+  "csp": {
+    "unsafeInlineScript": false,
+    "unsafeInlineStyle": true
+  },
+  "evidence": [
+    {
+      "file": "src/access/error-reporter.js",
+      "kind": "innerHTML",
+      "count": 2
+    },
+    {
+      "file": "src/access-bootstrap.js",
+      "kind": "innerHTML",
+      "count": 1
+    },
+    {
+      "file": "src/js/20-state-ui.js",
+      "kind": "innerHTML",
+      "count": 12
+    },
+    {
+      "file": "src/js/25-roster-import.js",
+      "kind": "innerHTML",
+      "count": 4
+    },
+    {
+      "file": "src/js/30-privacy-input.js",
+      "kind": "innerHTML",
+      "count": 4
+    },
+    {
+      "file": "src/js/40-prompt-model.js",
+      "kind": "innerHTML",
+      "count": 3
+    },
+    {
+      "file": "src/js/65-evaluation-workflow.js",
+      "kind": "innerHTML",
+      "count": 2
+    },
+    {
+      "file": "src/js/70-results-exports-init.js",
+      "kind": "innerHTML",
+      "count": 6
+    },
+    {
+      "file": "src/js/72-report-enhancements.js",
+      "kind": "innerHTML",
+      "count": 2
+    },
+    {
+      "file": "src/js/75-distribution.js",
+      "kind": "innerHTML",
+      "count": 2
+    },
+    {
+      "file": "src/js/95-workflow-ui.js",
+      "kind": "innerHTML",
+      "count": 7
+    },
+    {
+      "file": "src/vendor/jszip.min.js",
+      "kind": "newFunction",
+      "count": 1
+    }
+  ],
+  "limitations": [
+    "This is a regression inventory, not proof that every HTML sink is safe.",
+    "Remaining HTML sinks require continued review; executable inline JavaScript is forbidden by the deployment CSP."
+  ],
+  "failures": [],
+  "status": "passed"
+}

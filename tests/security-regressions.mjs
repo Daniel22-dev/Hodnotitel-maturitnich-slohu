@@ -90,7 +90,7 @@ check(String(taskWrites.session).includes('GARP-CONFIDENTIAL-EXAM-CANARY')&&!Str
 
 const workflowPersistenceSource=workflowUi.slice(workflowUi.indexOf('function serializableBatchJob'),workflowUi.indexOf('function tryRestoreBatchProgress'));
 const examPersistenceContext=vm.createContext({
-  APP_VERSION:'1.5.22',
+  APP_VERSION:'1.5.25',
   SENSITIVE_STATE_FIELDS:[],
   state:{set:'exam',genre:'opinion',taskIndex:0,taskTitle:'GARP-EXAM-TITLE-CANARY',taskText:'GARP-EXAM-TEXT-CANARY',taskReqs:'GARP-EXAM-REQ-CANARY',result:'',batchJob:null,series:null,inputMode:'batch',evalMode:'api',outputStyle:'standard',resultView:'final',workMode:'api',roster:[],processingMode:'queue',queueRpm:1,usage:{},distribution:{sharedSecret:'SECRET'},backend:{accessToken:'TOKEN'}},
   batchStudents:[],batchResults:[],normalizeGenreId:v=>v,sensitiveSaveEnabled:()=>true,sensitiveSnapshotExpired:()=>false,ensureWorkflowState:()=>{},safeLocalGet:()=>null,safeLocalSet:()=>true
@@ -227,6 +227,8 @@ check(containsConfidentialExamJson(exportedExamJson),'CI scanner funkčně detek
 check(containsConfidentialExamJson(JSON.stringify({set:'exam',taskText:'SYNTETIKA'}))&&/\*\.exam-private\.json/.test(read('.gitignore')),'CI zachovává detekci legacy set=exam tvaru a gitignore první vrstvu');
 check(/containsConfidentialExamJson/.test(read('scripts/qa-secret-scan.mjs')),'repository secret scan používá funkční JSON detekci důvěrné ostré sady');
 check(/const ROOT=fileURLToPath\(new URL\('\.\.',import\.meta\.url\)\)/.test(read('scripts/qa-secret-scan.mjs')),'repository secret scan je striktně omezen na kořen aplikace a neskenuje sourozenecké cesty');
+const secretScannerSource=read('scripts/qa-secret-scan.mjs');
+check(/TRUSTED_SYNTHETIC_SECRET_FIXTURES/.test(secretScannerSource)&&/1e52035cd256ea2e5e6a10d91b7d8a3b5bdf00a55922b8dcb857baaaf789fa15/.test(secretScannerSource)&&!/IGNORE_DIRS[^\n]+security/.test(secretScannerSource),'GARP selftest syntetické secret fixture má pouze hashově připnutou výjimku, ne plošné ignorování security adresáře');
 const governanceIndex=deployWorkflow.indexOf('npm run qa:github-governance');
 check(governanceIndex>=0&&governanceIndex<deployWorkflow.indexOf('npm run prepare:pages')&&/branch\?\.protected!==true/.test(read('scripts/verify-github-deployment-governance.mjs')),'Pages deploy fail-closed ověřuje ochranu main před vytvořením veřejného artefaktu');
 const p5Index=deployWorkflow.indexOf('npm run qa:p5:ci'), cleanIndex=deployWorkflow.indexOf('npm run prepare:pages'), uploadIndex=deployWorkflow.indexOf('actions/upload-pages-artifact@');

@@ -1,0 +1,565 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 test
+> node tests/test.mjs && node tests/security-regressions.mjs
+
+PASS package verze 1.5.25
+PASS release acceptance zachovává ecosystem-wave-candidate
+PASS wave kandidát není schválen k běžnému použití
+PASS release metadata pravdivě vyžadují post-upload GitHub validaci
+PASS release metadata nefalšují uzavření E-01 ani globální GREEN
+PASS release metadata vynucují syntetická data do dokončení wave
+PASS P5 acceptance gate rozlišuje ecosystem-wave post-upload validaci od legacy pre-upload stavu
+PASS P5 acceptance gate už nemá bezpodmínečný legacy github-pending blocker
+PASS README obsahuje aktuální verzi
+PASS CHANGELOG obsahuje aktuální verzi
+PASS release přebírá verzi z build tokenu
+PASS service worker přebírá verzi z build tokenu
+PASS service worker má atomický precache bez tichého ignorování chyb
+PASS service worker cacheuje skutečnou navigační URL
+PASS UI přebírá verzi z build tokenu
+PASS package.json je jediný zdroj verze buildu
+PASS nejméně 18 JS modulů (20)
+PASS nejméně 4 CSS moduly (6)
+PASS syntaxe 00-release-rubric.js
+PASS syntaxe 05-rubric-spec.js
+PASS syntaxe 10-task-database.js
+PASS syntaxe 15-series-domain.js
+PASS syntaxe 20-state-ui.js
+PASS syntaxe 25-roster-import.js
+PASS syntaxe 30-privacy-input.js
+PASS syntaxe 35-transcription.js
+PASS syntaxe 40-prompt-model.js
+PASS syntaxe 45-evaluation-contract.js
+PASS syntaxe 50-wordcount-offline.js
+PASS syntaxe 60-evaluation-gemini.js
+PASS syntaxe 61-ai-core-integration.js
+PASS syntaxe 65-evaluation-workflow.js
+PASS syntaxe 70-results-exports-init.js
+PASS syntaxe 72-report-enhancements.js
+PASS syntaxe 75-distribution.js
+PASS syntaxe 85-backend-adapter.js
+PASS syntaxe 95-workflow-ui.js
+PASS syntaxe 99-bootstrap.js
+PASS povinné UI ID btnTheme
+PASS povinné UI ID btnFs
+PASS povinné UI ID privacyIntroBtn
+PASS povinné UI ID changesBtn
+PASS povinné UI ID progressArea
+PASS povinné UI ID step0
+PASS povinné UI ID step1
+PASS povinné UI ID step2
+PASS povinné UI ID step3
+PASS povinné UI ID step4
+PASS povinné UI ID runBtn
+PASS povinné UI ID resultBox
+PASS povinné UI ID teacherReviewPanel
+PASS povinné UI ID reportStudioPanel
+PASS povinné UI ID reportSignature
+PASS povinné UI ID reportShowChart
+PASS povinné UI ID reportShowPriorities
+PASS povinné UI ID reportIncludeRevision
+PASS povinné UI ID classAnalyticsBtn
+PASS povinné UI ID saveHistoryBtn
+PASS povinné UI ID openHistoryBtn
+PASS povinné UI ID commentBankSelect
+PASS povinné UI ID insertCommentBtn
+PASS povinné UI ID addCommentBtn
+PASS povinné UI ID deleteCommentBtn
+PASS povinné UI ID seriesName
+PASS povinné UI ID seriesClass
+PASS povinné UI ID seriesDate
+PASS povinné UI ID seriesTeacher
+PASS povinné UI ID rubricVersionLabel
+PASS povinné UI ID rosterInput
+PASS povinné UI ID rosterParseStatus
+PASS povinné UI ID importRosterBtn
+PASS povinné UI ID clearRosterBtn
+PASS povinné UI ID rosterTable
+PASS povinné UI ID zipInput
+PASS povinné UI ID pickZipBtn
+PASS povinné UI ID exportPairingBtn
+PASS povinné UI ID workflowDashboard
+PASS povinné UI ID queueRpm
+PASS povinné UI ID seriesBudget
+PASS povinné UI ID todayUsage
+PASS povinné UI ID batchJobPanel
+PASS povinné UI ID batchJobState
+PASS povinné UI ID checkBatchJobBtn
+PASS povinné UI ID batchReviewDashboard
+PASS povinné UI ID approveAllValidBtn
+PASS povinné UI ID appsScriptUrl
+PASS povinné UI ID appsScriptSecret
+PASS povinné UI ID emailSubjectTemplate
+PASS povinné UI ID emailSenderName
+PASS povinné UI ID emailIncludeScore
+PASS povinné UI ID emailIncludeOriginal
+PASS povinné UI ID openAppsScriptBridgeBtn
+PASS povinné UI ID createDraftsBtn
+PASS povinné UI ID sendApprovedBtn
+PASS povinné UI ID downloadDistributionJsonBtn
+PASS povinné UI ID downloadDistributionCsvBtn
+PASS povinné UI ID backendMode
+PASS povinné UI ID backendBaseUrl
+PASS povinné UI ID backendAccessToken
+PASS povinné UI ID backendHealthBtn
+PASS povinné UI ID backendStatus
+PASS povinné UI ID transcribeSingleBtn
+PASS UI komunikuje reálnou velikost série
+PASS UI obsahuje učitelské schválení
+PASS UI obsahuje Gmail workflow
+PASS záhlaví používá kanonické logo školy
+PASS existuje jediný kanonický asset školního loga
+PASS hero název používá jednotnou barvu
+PASS bootstrap nevolá neexistující initBackendAdapter
+PASS bootstrap nevolá neexistující renderRelease
+PASS bootstrap hook init má skutečnou definici
+PASS bootstrap hook initSeriesWorkflow má skutečnou definici
+PASS bootstrap hook initReportEnhancements má skutečnou definici
+PASS bootstrap hook registerAppServiceWorker má skutečnou definici
+PASS bootstrap hook renderBuildLabel má skutečnou definici
+PASS bootstrap hook prepareSuiteSessionCleanup má skutečnou definici
+PASS bootstrap hook scrubSuiteSessionRuntime má skutečnou definici
+PASS bootstrap hook suiteCleanupFailure má skutečnou definici
+PASS appendovaný GHRAB footer má lokální kontrastní barvu bez forku Platformy
+PASS školní logo používá společnou bílou dlaždici
+PASS logo není barevně invertováno
+PASS HTML používá stabilní manifest a aktuální ikony
+PASS manifest používá nové běžné i maskable ikony
+PASS zdroj nové vycentrované PWA ikony
+PASS PWA manifest odděluje běžnou a maskable ikonu
+PASS PWA manifest má stabilní identitu a start URL
+PASS staré verzované manifesty jsou odstraněny
+PASS duplicitní legacy ikony jsou odstraněny
+PASS sjednocené autorství v zápatí řídí ghrab-footer-v1
+PASS modální dialog má přístupnou sémantiku
+PASS kroky workflow jsou ovladatelná tlačítka
+PASS výsledný report má školní hlavičku a kanonické logo
+PASS profesionální report má strukturovaná metadata
+PASS A4 režim náhledu
+PASS dva vizuální režimy reportu
+PASS bodová mapa osmi kategorií
+PASS karty tří priorit
+PASS revizní miniúkol
+PASS komentářová banka učitele
+PASS prioritizace kritických, opakujících se a jednorázových chyb
+PASS kontrola souladu komentáře s body
+PASS anonymní třídní analytika
+PASS pseudonymní historie pokroku
+PASS DOCX obsahuje vložené školní logo
+PASS DOCX obsahuje Word styly
+PASS lokální JSZip je součástí balíku
+PASS licence lokálního JSZip
+PASS JSZip nemá CDN fallback
+PASS DOCX import nepoužívá externí Mammoth
+PASS citlivé reportové údaje se bez opt-in neukládají
+PASS analytika používá jen schválené validní výsledky
+PASS historie jednotlivce vyžaduje finální kontrolu učitele
+PASS service worker cacheuje lokální JSZip
+PASS HTML fallback service workeru je omezen na navigaci
+PASS service worker používá explicitní allowlist pro cacheFirst
+PASS neklasifikované same-origin assety jsou network-only
+PASS navigační fallback existuje pouze v navigační větvi
+PASS analytická rubrika je výrazně kratší než původní chatový prompt
+PASS prompt neobsahuje chatovou archeologii ani instrukce k ruční anotaci
+PASS prompt jasně odděluje analytickou a deterministickou vrstvu
+PASS odstraněna mrtvá instrukce starého ručního výstupu
+PASS zdroj neobsahuje regex lookbehind
+PASS ruční prompt umí vložit úplné JSON schéma
+PASS prompt odděluje všechny nedůvěryhodné AI vstupy jako escapovaná JSON data
+PASS validační brána ověřuje také citace v osmi bodovaných sekcích
+PASS přepis příloh výslovně odmítá instrukce uvnitř dokumentu
+PASS kompatibilní distribuce izoluje nově otevřenou kartu
+PASS service worker cacheuje skutečnou navigační URL
+PASS snapshot dávky neukládá binární payload příloh
+PASS ukládání dávky je debounced a hlásí selhání
+PASS registrace service workeru používá aktuální verzi aplikace
+PASS build publikuje jediný stabilní manifest
+PASS bootstrap inicializuje Report Studio
+PASS učitelská korekce je izolovaná od dávkových reportů
+PASS kritická funkce runPrivacyScan
+PASS kritická funkce buildPrompt
+PASS kritická funkce localWordCountReport
+PASS kritická funkce runEvaluation
+PASS kritická funkce callGemini
+PASS kritická funkce extractResultMetadata
+PASS kritická funkce renderTeacherReviewPanel
+PASS kritická funkce downloadBatchZip
+PASS kritická funkce parseRosterText
+PASS kritická funkce importWorksZip
+PASS kritická funkce pairAllStudentsToRoster
+PASS kritická funkce requiresTranscriptReview
+PASS kritická funkce transcribeBatchStudent
+PASS kritická funkce finalizeEvaluation
+PASS kritická funkce validateFinalEvaluation
+PASS kritická funkce runImmediateBatchQueue
+PASS kritická funkce submitGeminiBatchJob
+PASS kritická funkce checkGeminiBatchJob
+PASS kritická funkce renderBatchReviewDashboard
+PASS kritická funkce sendDistributionToAppsScript
+PASS kritická funkce submitDistributionViaForm
+PASS kritická funkce checkBackendHealth
+PASS pevný limit 20 prací
+PASS typická velikost 15 prací
+PASS roster respektuje limit
+PASS ZIP import respektuje limit
+PASS automatické párování po importu
+PASS textové formáty ZIP importu
+PASS DOCX import
+PASS PDF import
+PASS PDF je omezeno i v single, dávce a ZIP importu
+PASS prázdné pole nemůže bez potvrzení přepnout trvalé ukládání klíče
+PASS obrázkový import
+PASS seskupení vícestránkových prací
+PASS parser skupiny přeskočí hlavičku a odstraní duplicitu
+PASS parser skupiny načte jméno a e-mail
+PASS parser skupiny odvodí jméno z e-mailu
+PASS parser rozdělí čárkový export z IS na 16 studentů
+PASS parser zachová první a poslední e-mail z čárkového exportu IS
+PASS parser odvodí čitelné jméno z e-mailu v exportu IS
+PASS parser skupiny funkčně dodrží maximum 20 studentů
+PASS dva jmenovci se stejným skóre se automaticky nespárují
+PASS vícestránkové obrázky stejného studenta se seskupí
+PASS práce různých studentů se nesmíchají
+PASS obecné názvy fotografií se automaticky nesmíchají
+PASS číslované DOCX práce se automaticky nesmíchají
+PASS lokální DOCX parser zachová odstavce, entity, tabulátory a zalomení
+PASS lokální DOCX parser odmítne neplatnou strukturu
+PASS převod 24 bodů na známku 1
+PASS převod 21 bodů na známku 1
+PASS převod 20 bodů na známku 2
+PASS převod 18 bodů na známku 2
+PASS převod 17 bodů na známku 3
+PASS převod 14 bodů na známku 3
+PASS převod 13 bodů na známku 4
+PASS převod 11 bodů na známku 4
+PASS převod 10 bodů na známku 5
+PASS převod 0 bodů na známku 5
+PASS pseudonymizace nahrazuje celé jméno i samostatné části
+PASS pseudonymizace nenahrazuje jméno uvnitř delšího slova
+PASS telefon se separátory i prostá devítimístná sekvence se anonymizují
+PASS anonymizace jména funguje i bez diakritiky
+PASS word-count zlatý vzorek: prostý text
+PASS word-count zlatý vzorek: číslovka číslicemi
+PASS word-count zlatý vzorek: originální nadpis
+PASS word-count zlatý vzorek: převzatý nadpis
+PASS word-count zlatý vzorek: víceslovné vlastní jméno
+PASS word-count zlatý vzorek: opakované vlastní jméno
+PASS word-count zachová audit po odstavcích
+PASS technický marker staré relace se nepočítá ani nevstupuje do zámku
+PASS review bez nadpisu neořeže první větu
+PASS review s nadpisem a prázdným řádkem nadpis rozpozná
+PASS narration rozpozná Title Case nadpis i bez prázdného řádku
+PASS snapshot funkčně neobsahuje base64 data
+PASS snapshot označí nutnost znovu přiložit přílohy
+PASS snapshot nikdy neukládá surovou Batch odpověď
+PASS snapshot nikdy neukládá integrační tajemství ani backend token
+PASS hlavní uložený stav nikdy neobsahuje surovou Batch odpověď
+PASS integrační tajemství a backend token se neukládají ani při opt-in obnově citlivé relace
+PASS single příloha bez textu je blokována před hodnocením
+PASS single příloha se zkontrolovaným přepisem může pokračovat
+PASS po odebrání práce se vrací další maximální kód bez kolize
+PASS přepis zachovává chyby
+PASS povinné potvrzení přepisu
+PASS předběžná kontrola dávky
+PASS dávka blokuje nepotvrzený přepis
+PASS schema rubriky
+PASS verze rubriky
+PASS rubrika má 8 kategorií
+PASS minimum 195 slov
+PASS penalizace od 300 slov
+PASS čtyři FAIL podmínky
+PASS opinion ↔ for-and-against má přesně −1 bod bez automatického FAIL
+PASS chybějící skupina PTN odečte přesně jeden bod
+PASS rubrika neobsahuje staré rozporné zastropování PTN
+PASS pět známkových pásem
+PASS zákaz dvojího počítání
+PASS pravidlo nuly
+PASS povinná důkazní mapa
+PASS čitelnost rukopisu
+PASS tři výstupní pohledy
+PASS programová verze rubriky
+PASS strukturované response schema
+PASS povinná pole JSON výstupu
+PASS schema vyžaduje rozpoznaný útvar
+PASS programová rubrika obsahuje výjimku opinion ↔ for-and-against
+PASS odstranění dvojího počítání
+PASS deterministické FAIL-1
+PASS deterministické FAIL-2
+PASS deterministické FAIL-3
+PASS deterministické FAIL-4
+PASS deterministické skóre chyb
+PASS deterministická známka
+PASS validační brána
+PASS validace důkazní mapy
+PASS validace součtu
+PASS validace přepisu
+PASS validace ověřuje, že citace skutečně pocházejí ze slohu
+PASS FAIL kódy AI nejsou autoritativní
+PASS aplikace skládá autoritativní učitelský detail
+PASS učitelský výstup obsahuje povinný word-count audit
+PASS učitelský výstup obsahuje úplnou opatrnou analýzu autenticity
+PASS hodnoticí engine nepoužívá staré zastropování PTN
+PASS deterministický engine vypočte 24 bodů a známku 1
+PASS interní kód studenta určuje lokálně aplikace, nikoli model
+PASS strojový souhrn přenáší odečtený počet slov
+PASS studentská zpětná vazba obsahuje akční plán
+PASS úplný strukturovaný výstup projde validační bránou
+PASS sekční důkaz musí být doslovně ve studentském textu
+PASS ruční prompt skutečně obsahuje response schema
+PASS AI prompt neodesílá interní kód studenta poskytovateli
+PASS prompt injection korpus nemůže vytvořit druhý oddělovač a JSON se dekóduje beze změny
+PASS prompt boundary kryje sedm nedůvěryhodných promptových kanálů 28variantním korpusem (196/196)
+PASS ruční JSON round-trip spustí deterministický engine a vytvoří autoritativní výsledek
+PASS AI návrh FAIL kódu nemůže sám vyvolat neúspěch
+PASS pravidlo nuly nesnižuje sekci Zadání
+PASS pravidlo nuly sníží ostatní trojky právě jednou
+PASS FAIL-1 je určen deterministicky a vede ke známce 5
+PASS záměna opinion a for-and-against znamená −1 bod, nikoli FAIL
+PASS chybějící skupina PTN odečte přesně jeden bod
+PASS méně než 195 slov vede ke známce 5
+PASS vzorec lokálních a globálních chyb odpovídá rubrice
+PASS Gemini JSON MIME type
+PASS Gemini response schema
+PASS nízká teplota hodnocení
+PASS opravný validační požadavek používá nedůvěryhodný JSON blok
+PASS hotové práce se neodesílají znovu
+PASS dokončený výsledek ke kontrole se neodesílá znovu
+PASS reset dávky vrací i stav kontrola
+PASS ověřené Gemini modely se propíší do výběru
+PASS změna kontaktu zneplatní schválení a distribuci
+PASS distribuce používá syntaktickou validaci e-mailu
+PASS lokální datum není odvozeno z UTC dne
+PASS řízené RPM fronty
+PASS správná REST metoda Batch API
+PASS modelový Batch endpoint
+PASS kontrola velikosti inline Batch požadavku
+PASS bezpečný limit pod 20 MB
+PASS REST načtení Batch výsledků
+PASS Batch odpověď bez metadata.key se nepřiřazuje podle indexu
+PASS surová Batch odpověď se nedrží v persistovaném stavu
+PASS MAX_TOKENS má řízenou srozumitelnou chybu
+PASS transkripce v legacy modulu je fail-closed a bez přímého provider POST
+PASS Batch spotřeba tokenů
+PASS cenová tabulka
+PASS odhad ceny série
+PASS evidence skutečné spotřeby
+PASS denní přehled spotřeby
+PASS výběr schválených výsledků
+PASS distribuce jen validních schválených výsledků
+PASS kontrola duplicitních e-mailů
+PASS koncepty i přímé odeslání
+PASS e-mail používá studentský výstup
+PASS potvrzení nevratné akce
+PASS kompatibilní formulářová distribuce
+PASS kompatibilní režim neoznačuje zprávy falešně jako doručené
+PASS Apps Script limit 20
+PASS Apps Script POST endpoint
+PASS Apps Script přijímá kompatibilní formulářový POST
+PASS Apps Script vytváří koncepty
+PASS Apps Script umí odeslat
+PASS Apps Script tajemství v Script Properties
+PASS Apps Script kontroluje duplicity
+PASS Apps Script kontroluje schválení
+PASS backend kontrakt 1.0
+PASS backend health check
+PASS backendový klient používá APP_VERSION
+PASS fallback registrace AI Studia přebírá verzi z package.json
+PASS legacy backend už nemá cestu pro odeslání celé série ani vlastní bearer token
+PASS backend je deployment-controlled a fail-closed na same-origin
+PASS OpenAPI limit 20
+PASS OpenAPI stavový endpoint
+PASS vygenerovaný DOCX má platné základní části balíku
+PASS vygenerovaný DOCX obsahuje a používá školní logo
+PASS vygenerovaný DOCX obsahuje styly a strukturované nadpisy
+PASS vygenerovaný DOCX obsahuje volitelný podpis
+PASS schema AI Studio manifestu
+PASS ID aplikace essay-evaluator
+PASS manifest vyžaduje AI Studio 0.6.3
+PASS fallback registrace používá novou lokální ikonu portálu
+PASS registrace používá školení HOD-01
+PASS registrace používá správný server claim
+WARN volitelné oznámení AI Studiu není v lokálním workflow; nasazení aplikace tím není blokováno
+PASS pilotní status
+PASS manifest typická série 15
+PASS manifest maximum 20
+PASS manifest capability versioned-rubric
+PASS manifest capability deterministic-scoring
+PASS manifest capability structured-output
+PASS manifest capability validation-gate
+PASS manifest capability class-roster
+PASS manifest capability zip-import
+PASS manifest capability multipage-work
+PASS manifest capability handwriting-transcription-review
+PASS manifest capability student-pairing
+PASS manifest capability evaluation-queue
+PASS manifest capability batch-api
+PASS manifest capability gmail-distribution
+PASS manifest capability usage-cost-tracking
+PASS manifest capability backend-ready
+PASS manifest capability professional-reports
+PASS manifest capability a4-preview
+PASS manifest capability styled-docx
+PASS manifest capability teacher-comment-bank
+PASS manifest capability anonymous-class-analytics
+PASS manifest capability pseudonymous-progress
+PASS manifest capability offline-docx-import
+PASS stránka začíná v checking režimu
+PASS access guard používá správné ID
+PASS centrální access guard zůstává autoritou
+PASS aplikace se načítá dynamicky po rozhodnutí brány
+PASS vzhled brány je lokální a cacheovatelný
+PASS brána má timeout a uklízí časovač
+PASS brána nemá fail-open offline režim
+PASS chyba a timeout guardu zůstávají fail-closed
+PASS explicitní zamítnutí se neobchází a reportér je best-effort mimo kritickou cestu
+PASS právě jedno volání init()
+PASS suite-session replay/cleanup proběhne před init()
+PASS ready příznak
+PASS globální smoke-test příznak
+PASS jediná implementace createDocxBlob
+PASS jediná implementace printPdfExport
+PASS jediná implementace reportHeaderHtml
+PASS jediná implementace renderReportDocument
+PASS odstraněn mrtvý kód buildStateForStorageLegacy
+PASS odstraněn mrtvý kód saveStateLegacy
+PASS odstraněn mrtvý kód loadStateLegacy
+PASS odstraněn mrtvý kód renderProgressLegacy
+PASS odstraněn mrtvý kód renderBatchListLegacy
+PASS odstraněn mrtvý kód runEvaluationLegacy
+PASS odstraněn mrtvý kód runBatchEvaluationLegacy
+PASS odstraněn mrtvý kód buildPromptLegacy
+PASS bez vloženého Gemini API klíče
+PASS bez vložené Apps Script URL
+PASS bez vloženého sdíleného tajemství
+PASS UI changelog má přesně 10 verzí
+PASS changelog začíná aktuální APP_VERSION
+PASS limit changelogu 10
+PASS dokument/soubor README.md
+PASS dokument/soubor CHANGELOG.md
+PASS dokument/soubor QA_REPORT.md
+PASS dokument/soubor docs/ARCHITEKTURA.md
+PASS dokument/soubor docs/BEZPECNOST.md
+PASS dokument/soubor docs/ZMENY-A-OPRAVY.md
+PASS dokument/soubor docs/PRACOVNI-POSTUP.md
+PASS dokument/soubor docs/NAHRANI-NA-GITHUB.md
+PASS dokument/soubor integrations/gmail-apps-script/README.md
+PASS dokument/soubor integrations/backend-contract/README.md
+PASS dokument/soubor integrations/backend-contract/openapi.yaml
+PASS dokument/soubor src/rubric/rubric-v2026.04.27-r1.json
+PASS build kopíruje rubriku
+PASS build kontroluje dist/app.js
+PASS build kontroluje limit manifestu
+PASS build kontroluje verzi rubriky
+PASS Zdrojový interaktivní manuál existuje.
+PASS Manuál dědí konfigurovatelné oprávnění Hodnotitele z AI Studia.
+PASS Záhlaví obsahuje samostatné tlačítko interaktivního manuálu.
+PASS repozitář obsahuje lockfile pro npm ci a npm audit
+PASS QA manifest používá GHRAB QA 1.0.2
+PASS GitHub Actions spouští úplnou QA bránu s Chromium
+PASS runtime neobsahuje regex lookbehind
+
+454 PASS / 0 FAIL
+PASS funkční AI prompt boundary izoluje 28 variant ve všech 7 nedůvěryhodných promptových kanálech (196/196)
+PASS obnova běžného i Batch stavu whitelistuje genre před Object.assign
+PASS prompt používá pouze whitelistovaný label žánru bez raw fallbacku
+PASS validační retry kóduje předchozí AI výstup jako nedůvěryhodný JSON blok
+PASS error reporter rediguje canary, název souboru a telefon i bez labelu
+PASS error reporter nepřenáší nelabelovaný lidský obsah technické chyby
+PASS DOCX parser nevkládá původní název souboru do chybové zprávy
+PASS výpadek deploymentu používá uzamčený profil
+PASS uzamčený fallback nepovolí lokální provider klíč
+PASS starý otevřenější fallback byl odstraněn
+GHRAB deployment konfigurace není dostupná; aplikace zůstává bezpečně uzamčena. Error: simulovaný výpadek
+    at globalThis.fetch (file:///mnt/data/garp25_125/tests/security-regressions.mjs:40:34)
+    at fetchWithTimeout (file:///mnt/data/garp25_125/src/access/deployment-config.js?security-regression=1788800461904:41:7)
+    at file:///mnt/data/garp25_125/src/access/deployment-config.js?security-regression=1788800461904:192:34
+    at Module.loadDeploymentConfig (file:///mnt/data/garp25_125/src/access/deployment-config.js?security-regression=1788800461904:213:9)
+    at file:///mnt/data/garp25_125/tests/security-regressions.mjs:42:39
+PASS výpadek konfigurace se funkčně uzamkne
+PASS výpadek konfigurace funkčně nezpřístupní API klíče
+PASS oba aktivní profily používají aktuální access bundle
+PASS aplikace i manuál načítají zapečený deployment profil
+PASS oba build profily vytvářejí vlastní zapečenou konfiguraci
+PASS CSV neutralizuje vzorec začínající rovnítkem
+PASS CSV neutralizuje vzorec i po úvodních mezerách
+PASS CSV nemění běžný text
+PASS CSV export používá společnou ochranu: src/js/25-roster-import.js
+PASS CSV export používá společnou ochranu: src/js/70-results-exports-init.js
+PASS CSV export používá společnou ochranu: src/js/72-report-enhancements.js
+PASS CSV export používá společnou ochranu: src/js/75-distribution.js
+PASS D-08: veřejný zdroj neobsahuje text ani identifikátory důvěrných ostrých maturitních zadání
+PASS důvěrná databáze zadání se ukládá do sessionStorage aktuální relace
+PASS persistentní localStorage rediguje ostrou sadu na prázdné placeholdery
+PASS ukončení citlivé práce maže session kopii důvěrných zadání
+PASS import zadání zahodí prototyp i neznámá pole
+PASS D-08 funkčně: persistentní task snapshot odstraní důvěrný obsah ostré sady
+PASS D-08 funkčně: úplná ostrá sada jde pouze do sessionStorage, persistentní zápis je redigovaný
+PASS D-08 funkčně: obecný persistentní state vždy rediguje obsah ostrého zadání i při opt-in citlivém ukládání
+PASS D-08 funkčně: Batch session může držet ostré zadání, persistentní Batch snapshot jej vždy rediguje
+PASS D-08 migrace odstraňuje starší persistentní ostrý task context ještě před obnovou state
+PASS D-08 local Batch zápis používá explicitně persistentně redigovaný snapshot
+PASS ZIP import funkčně odmítne cestu mimo archiv
+PASS ZIP limit používá rozbalenou velikost
+PASS ZIP i DOCX mají rozbalovací limity
+PASS přepis přílohy se neoznačí falešně jako anonymizovaný
+PASS zkontrolovaný pseudonymizovaný text nese pravdivá privacy metadata
+PASS běžná AI cesta odděluje trusted instructions od nedůvěryhodných inputParts
+PASS přímý Gemini Batch používá stejnou systemInstruction trust boundary
+PASS školní Batch gateway používá stejnou trusted instrukční politiku
+PASS AI Core/school-gateway inputParts neposílají původní název přílohy
+PASS runtime neobsahuje přepínatelný legacy AI bypass
+PASS legacy transkripční modul nemá přímý provider POST a před AI Core fail-closed
+PASS school profile se určuje z deployment konfigurace, ne z chybějící platform helper metody
+PASS school profil povolí pouze same-origin gateway transport
+PASS school gateway odmítne cross-origin API base
+PASS GitHub profil nemůže automaticky fallbacknout do school gateway
+PASS fallback key policy skutečně odstraní lokální i session provider klíč
+PASS citlivé lokální snapshoty expirují po 30 dnech a bez timestampu fail-closed
+PASS lokální Ukončit práci používá ověřený fail-closed cleanup z lifecycle vrstvy
+PASS UI nabízí explicitní ukončení citlivé relace
+PASS storage migrace nikdy nevytváří full-value backup citlivých hodnot
+PASS metadata-only migration backup není chybně součástí suite content cleanupu
+PASS historický migration backup se maže už před autorizačním guardem
+PASS consumer vyžaduje přesně Platform 1.1.2+ v rámci major v1
+PASS PC-01 manifest nepoužívá nebezpečný wildcard přes lifecycle metadata
+PASS PC-01 manifest zahrnuje skutečný session writer důvěrných zadání
+PASS PC-01 manifest zahrnuje skutečný session writer batch recovery
+PASS child integruje oficiální suite-session kontrakt a explicitní post-cleanup acknowledgement
+PASS F-02 rozlišuje observed a cleanup-complete evidence před platform ACK
+PASS multi-tab a Back/Forward guard neodvozuje lokální scrub pouze ze sdíleného ACK
+PASS autosave/writery jsou po suite end fail-closed blokovány proti resurrection
+PASS pending replay proběhne před init/loadState
+PASS legacy backend nemá latentní raw-series egress ani vlastní bearer token
+PASS legacy health adapter je deployment-controlled, same-origin a používá serverovou relaci
+PASS outbound pseudonymizace nepoužívá interní studentský kód jako náhradu identity
+PASS interní studentský kód se neposílá modelu a autoritu drží lokální aplikace
+PASS přímý Batch používá kryptograficky generovaný opaque request ref a lokální mapu výsledků
+PASS provider Batch payload neobsahuje interní studentský kód v transportním metadata klíči
+PASS stažený distribuční JSON neexportuje sdílené tajemství
+PASS Apps Script egress má explicitní allowlist URL
+PASS CSP nepovoluje inline JavaScript
+PASS školní server deklaruje HSTS
+PASS school-server build aplikuje deklarovanou same-origin meta CSP a nezdědí veřejné egress domény
+PASS school-server build explicitně převádí schoolServerProfile CSP do HTML artefaktu
+PASS stránka vynucuje meta CSP i na statickém hostingu: src/index.template.html
+PASS stránka neobsahuje spustitelný inline skript: src/index.template.html
+PASS stránka vynucuje meta CSP i na statickém hostingu: src/manual/index.html
+PASS stránka neobsahuje spustitelný inline skript: src/manual/index.html
+PASS HTML neobsahuje inline onclick handlery
+PASS veřejný Pages deploy není automaticky spuštěn pushnutím do aktuálně nechráněné main větve
+PASS public artifact a deploy kroky jsou omezené na explicitní workflow_dispatch
+PASS CI a deploy spouštějí repository secret scan
+PASS CI scanner funkčně detekuje skutečný top-level exam JSON formát produkovaný exportTasksBtn
+PASS CI zachovává detekci legacy set=exam tvaru a gitignore první vrstvu
+PASS repository secret scan používá funkční JSON detekci důvěrné ostré sady
+PASS repository secret scan je striktně omezen na kořen aplikace a neskenuje sourozenecké cesty
+PASS GARP selftest syntetické secret fixture má pouze hashově připnutou výjimku, ne plošné ignorování security adresáře
+PASS Pages deploy fail-closed ověřuje ochranu main před vytvořením veřejného artefaktu
+PASS Pages workflow čistí QA-only artefakty až po QA a před veřejným uploadem
+PASS Pages cleanup blokuje QA reporty a quality metadata ve veřejném dist
+PASS všechny vzdálené GitHub Actions jsou připnuté na neměnný SHA-1
+PASS checkout neponechává GitHub token dostupný dalším krokům
+PASS synchronizace jádra nespouští instalační skripty závislostí
+PASS manifest AI jádra nepovoluje přesměrování mimo ověřenou URL
+
+96 PASS / 0 FAIL

@@ -1,0 +1,274 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "serialNumber": "urn:uuid:e254936a-0c69-4315-8afb-bc5ac1201bc3",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-09-07T17:02:50.194Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "GHRAB GARP 2.5 SBOM generator",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "name": "hodnotitel-maturitnich-slohu",
+      "version": "1.5.25",
+      "bom-ref": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.25",
+      "purl": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.25"
+    },
+    "properties": [
+      {
+        "name": "ghrab:lockfileSha256",
+        "value": "d6d43fc5ae24b86076eed6d15a03f96259bea68b99e8902ef02164946fb8dcbb"
+      },
+      {
+        "name": "ghrab:profile",
+        "value": "SHIELD-PREP"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "axe-core",
+      "version": "4.12.1",
+      "bom-ref": "pkg:npm/axe-core@4.12.1",
+      "purl": "pkg:npm/axe-core@4.12.1",
+      "scope": "required",
+      "properties": [
+        {
+          "name": "ghrab:dependencyRole",
+          "value": "dev-build"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "b3b8867f919a54cc441b410d37dc7ec53afb1856426f564fff5b804d4a4210ad97efc9c30774706ed142a3da4601ff6bbbe570a10e3ae0391a2c4791334f3024"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MPL-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "fsevents",
+      "version": "2.3.2",
+      "bom-ref": "pkg:npm/fsevents@2.3.2",
+      "purl": "pkg:npm/fsevents@2.3.2",
+      "scope": "required",
+      "properties": [
+        {
+          "name": "ghrab:dependencyRole",
+          "value": "transitive-build"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "c62a8c411e3101e1d3b81f6e5a6f9f1517083a02813223813fe7978b24fb8ec8150aad5b915ca0b74d28012a3007b11db6938769a3e02adf35d8ff5a6fe0c328"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "playwright",
+      "version": "1.61.1",
+      "bom-ref": "pkg:npm/playwright@1.61.1",
+      "purl": "pkg:npm/playwright@1.61.1",
+      "scope": "required",
+      "properties": [
+        {
+          "name": "ghrab:dependencyRole",
+          "value": "dev-build"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "0d69d8e68dd86cb58ae06a2fb80570a6a2fed55c0635d506ad1afefbc8fc3ed410cef01565420c8ca43dd1f63af3db042592416d9570d6b5da38a4938ad9333d"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "playwright-core",
+      "version": "1.61.1",
+      "bom-ref": "pkg:npm/playwright-core@1.61.1",
+      "purl": "pkg:npm/playwright-core@1.61.1",
+      "scope": "required",
+      "properties": [
+        {
+          "name": "ghrab:dependencyRole",
+          "value": "transitive-build"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "87b425b7a9b8444a76e6abc876f6c3b55983e0ba955dfa51c61391bfd2f48f3113334e69e1fb8f27774acae4974310d26d79e64bbf470208bde7cf65192a4b92"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "pngjs",
+      "version": "7.0.0",
+      "bom-ref": "pkg:npm/pngjs@7.0.0",
+      "purl": "pkg:npm/pngjs@7.0.0",
+      "scope": "required",
+      "properties": [
+        {
+          "name": "ghrab:dependencyRole",
+          "value": "dev-build"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "2ca5aa589461b2dc98a3da46be0a2bfe2be4db0f787928c4dd1195bb32c696bdcd983f1b7fb45c606cded6635d10744fe9344feab32e0c7939b78e219d3472a3"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "GHRAB AI Core",
+      "version": "1.0.0",
+      "bom-ref": "urn:ghrab:vendored:ghrab-ai-core:1.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "81acb93e1f17646ab2b58b3744fce38a6ed5c779e8d5e9cba2ae797816ecec44"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ghrab:vendoredPath",
+          "value": "vendor/ghrab-ai-core-1.0.0/ghrab-ai-core-1.0.0.js"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "GHRAB Platform",
+      "version": "1.1.2",
+      "bom-ref": "urn:ghrab:vendored:ghrab-platform:1.1.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "199d03d9dc9263a9e74ed1f1102df0324f3b63e78704f1c70aeacec5feec530c"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ghrab:vendoredPath",
+          "value": "vendor/ghrab-platform-1.1.2/ghrab-platform.js"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "JSZip",
+      "version": "3.10.1",
+      "bom-ref": "urn:ghrab:vendored:jszip:3.10.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ghrab:vendoredPath",
+          "value": "src/vendor/jszip.min.js"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.25",
+      "dependsOn": [
+        "pkg:npm/axe-core@4.12.1",
+        "pkg:npm/playwright@1.61.1",
+        "pkg:npm/pngjs@7.0.0",
+        "urn:ghrab:vendored:ghrab-ai-core:1.0.0",
+        "urn:ghrab:vendored:ghrab-platform:1.1.2",
+        "urn:ghrab:vendored:jszip:3.10.1"
+      ]
+    },
+    {
+      "ref": "pkg:npm/axe-core@4.12.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:npm/fsevents@2.3.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:npm/playwright@1.61.1",
+      "dependsOn": [
+        "pkg:npm/fsevents@2.3.2",
+        "pkg:npm/playwright-core@1.61.1"
+      ]
+    },
+    {
+      "ref": "pkg:npm/playwright-core@1.61.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:npm/pngjs@7.0.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "urn:ghrab:vendored:ghrab-ai-core:1.0.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "urn:ghrab:vendored:ghrab-platform:1.1.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "urn:ghrab:vendored:jszip:3.10.1",
+      "dependsOn": []
+    }
+  ]
+}

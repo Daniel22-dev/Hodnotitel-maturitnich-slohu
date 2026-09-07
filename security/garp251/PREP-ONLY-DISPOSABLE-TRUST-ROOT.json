@@ -1,0 +1,15 @@
+{
+  "schema": "ghrab-trust-root-v1",
+  "note": "TEST/PREP ONLY. Jednorazovy public trust root pro lokalni GARP 2.5.1 PREP drill 1.5.25; nesmi byt pouzit jako produkcni skolni trust root.",
+  "updatedAt": "2026-09-07T17:10:00.000Z",
+  "keys": [
+    {
+      "keyId": "ghrab-prep-20260907-1.5.25-disposable",
+      "algorithm": "Ed25519",
+      "status": "active",
+      "notBefore": "2026-09-01T00:00:00.000Z",
+      "notAfter": "2026-10-01T00:00:00.000Z",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAB240XHKUOFrJu0KZjrr0PJ90COJJGySfoFCgh56cIco=\n-----END PUBLIC KEY-----\n"
+    }
+  ]
+}

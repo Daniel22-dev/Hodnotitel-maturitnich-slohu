@@ -1,0 +1,41 @@
+{
+  "schema": "ghrab-legal-artifact-inventory-v1",
+  "appId": "essay-evaluator",
+  "version": "1.5.25",
+  "status": "AMBER",
+  "items": [
+    {
+      "component": "JSZip",
+      "version": "3.10.1",
+      "path": "src/vendor/jszip.min.js",
+      "licenseEvidence": "src/vendor/JSZIP-LICENSE.md",
+      "declaredLicenseChoice": "MIT",
+      "kind": "third-party"
+    },
+    {
+      "component": "GHRAB Platform",
+      "version": "1.1.2",
+      "path": "vendor/ghrab-platform-1.1.2/",
+      "licenseEvidence": null,
+      "kind": "first-party ecosystem",
+      "note": "interní/first-party artefakt; organizační license/ownership potvrdit před externí redistribucí"
+    },
+    {
+      "component": "GHRAB AI Core",
+      "version": "1.0.0",
+      "path": "vendor/ghrab-ai-core-1.0.0/",
+      "licenseEvidence": null,
+      "kind": "first-party ecosystem",
+      "note": "interní/first-party artefakt; organizační license/ownership potvrdit před externí redistribucí"
+    },
+    {
+      "component": "school-logo.png",
+      "path": "vendor/ghrab-platform-1.1.2/school-logo.png",
+      "licenseEvidence": null,
+      "kind": "school brand asset",
+      "note": "oprávnění k veřejné/external redistribuci je organizační boundary"
+    }
+  ],
+  "releaseBlockerForInternalPrep": false,
+  "externalRedistributionReviewRequired": true
+}

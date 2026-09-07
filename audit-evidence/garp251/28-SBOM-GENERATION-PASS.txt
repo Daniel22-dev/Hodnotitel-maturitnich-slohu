@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "output": "/mnt/data/garp25_125/security/garp251/sbom.cdx.json",
+  "components": 8,
+  "lockPackages": 5,
+  "sha256": "e8a8291f2d5a21054ba30e4a27addb4e9814114ab9cb61f131a4e9edccd8b659"
+}

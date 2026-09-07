@@ -1,0 +1,90 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 qa:suite-session
+> node scripts/qa-suite-session.mjs
+
+{
+  "schema": "ghrab-suite-session-qa-v1",
+  "appId": "essay-evaluator",
+  "appVersion": "1.5.25",
+  "platformVersion": "1.1.2",
+  "syntheticDataOnly": true,
+  "syntheticCanary": {
+    "marker": "GARP-STUDENT-CANARY-F7829939FC9D3761",
+    "email": "garp.student.canary.f7829939fc9d3761@example.invalid"
+  },
+  "chromium": "system",
+  "harness": {
+    "transport": "Page.setDocumentContent",
+    "storage": "MemoryStorage with shared-local/distinct-session multi-context model",
+    "platformSource": "vendor 1.1.2 with fallback script URL bootstrap shim only",
+    "navigationLimitation": "true local-http/file navigation is blocked by sandbox browser policy; Back/Forward is exercised by history/pageshow stale-context model"
+  },
+  "checks": [
+    {
+      "id": "open-child.cleanup",
+      "ok": true,
+      "detail": "{\"end\":{\"ok\":true,\"generation\":\"1788800474496-y463ia0e\",\"detail\":{\"schema\":\"ghrab-suite-session-v1\",\"generation\":\"1788800474496-y463ia0e\",\"reason\":\"qa-open-child\",\"clearApplicationData\":true,\"appId\":\"essay-evaluator\"}},\"state\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":1,\"failure\":null,\"blocked\":true,\"handled\":\"1788800474496-y463ia0e\",\"generation\":\"1788800474496-y463ia0e\",\"seen\":\"1788800474496-y463ia0e\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474496-y463ia0e\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"qa-open-child\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.497Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474496-y463ia0e\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"qa-open-child\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.499Z\\\"}\",\"status\":\"complete\"}}"
+    },
+    {
+      "id": "open-child.ack-after-cleanup",
+      "ok": true,
+      "detail": "same generation has observed, cleanup-complete and ACK evidence"
+    },
+    {
+      "id": "delayed-open.replay",
+      "ok": true,
+      "detail": "{\"end\":{\"ok\":true,\"generation\":\"1788800474588-9uqctprk\",\"detail\":{\"schema\":\"ghrab-suite-session-v1\",\"generation\":\"1788800474588-9uqctprk\",\"reason\":\"qa-delayed-open\",\"clearApplicationData\":true,\"appId\":\"essay-evaluator\"}},\"before\":{\"seen\":\"\",\"local\":[\"state\",\"tasks\",\"history\",\"provider-key-local\",\"sensitive-save-preference\",\"batch-recovery-local\",\"legacy-state-v100\",\"legacy-state-v070\",\"legacy-state-v071\",\"legacy-state-v072\",\"legacy-state-v073\",\"legacy-state-v074\",\"legacy-state-v075\",\"legacy-state-v076\",\"legacy-state-v077\",\"legacy-state-v078\"]},\"start\":{\"ok\":true,\"startupCleanup\":true,\"generation\":\"1788800474588-9uqctprk\"},\"state\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":0,\"failure\":null,\"blocked\":true,\"handled\":\"1788800474588-9uqctprk\",\"generation\":\"1788800474588-9uqctprk\",\"seen\":\"1788800474588-9uqctprk\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474588-9uqctprk\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.590Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474588-9uqctprk\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.603Z\\\"}\",\"status\":\"complete\"},\"evidence\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474588-9uqctprk\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.603Z\\\"}\",\"start2\":{\"ok\":true,\"startupCleanup\":false,\"alreadyAcknowledged\":true},\"state2\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":0,\"reloads\":0,\"failure\":null,\"blocked\":false,\"handled\":\"1788800474588-9uqctprk\",\"generation\":\"1788800474588-9uqctprk\",\"seen\":\"1788800474588-9uqctprk\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474588-9uqctprk\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.590Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474588-9uqctprk\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.603Z\\\"}\",\"status\":\"complete\"}}"
+    },
+    {
+      "id": "delayed-open.idempotent-reload",
+      "ok": true,
+      "detail": "{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":0,\"reloads\":0,\"failure\":null,\"blocked\":false,\"handled\":\"1788800474588-9uqctprk\",\"generation\":\"1788800474588-9uqctprk\",\"seen\":\"1788800474588-9uqctprk\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474588-9uqctprk\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.590Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474588-9uqctprk\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.603Z\\\"}\",\"status\":\"complete\"}"
+    },
+    {
+      "id": "multi-tab.scrub-all-contexts",
+      "ok": true,
+      "detail": "{\"end\":{\"ok\":true,\"generation\":\"1788800474693-564lo7ib\",\"detail\":{\"schema\":\"ghrab-suite-session-v1\",\"generation\":\"1788800474693-564lo7ib\",\"reason\":\"qa-multi-tab\",\"clearApplicationData\":true,\"appId\":\"essay-evaluator\"}},\"sa\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":1,\"failure\":null,\"blocked\":true,\"handled\":\"1788800474693-564lo7ib\",\"generation\":\"1788800474693-564lo7ib\",\"seen\":\"1788800474693-564lo7ib\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474693-564lo7ib\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"qa-multi-tab\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.696Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474693-564lo7ib\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"qa-multi-tab\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.696Z\\\"}\",\"status\":\"complete\"},\"sb\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":1,\"failure\":null,\"blocked\":true,\"handled\":\"1788800474693-564lo7ib\",\"generation\":\"1788800474693-564lo7ib\",\"seen\":\"1788800474693-564lo7ib\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474693-564lo7ib\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"qa-multi-tab\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.696Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474693-564lo7ib\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"qa-multi-tab\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.696Z\\\"}\",\"status\":\"complete\"},\"pa\":false,\"pb\":false,\"residual\":null}"
+    },
+    {
+      "id": "multi-tab.autosave-no-resurrection",
+      "ok": true,
+      "detail": "{\"pa\":false,\"pb\":false,\"residual\":null}"
+    },
+    {
+      "id": "multi-tab.shared-ack-race-guard",
+      "ok": true,
+      "detail": "{\"generation\":\"qa-race-1788800474790\",\"a\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":1,\"failure\":null,\"blocked\":true,\"handled\":\"qa-race-1788800474790\",\"generation\":\"qa-race-1788800474790\",\"seen\":\"qa-race-1788800474790\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-race-1788800474790\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"cross-context-child-guard\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.792Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-race-1788800474790\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"cross-context-child-guard\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.793Z\\\"}\",\"status\":\"complete\"},\"b\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":1,\"failure\":null,\"blocked\":true,\"handled\":\"qa-race-1788800474790\",\"generation\":\"qa-race-1788800474790\",\"seen\":\"qa-race-1788800474790\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-race-1788800474790\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"cross-context-child-guard\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.792Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-race-1788800474790\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"cross-context-child-guard\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.793Z\\\"}\",\"status\":\"complete\"}}"
+    },
+    {
+      "id": "history.bfcache-reconcile",
+      "ok": true,
+      "detail": "{\"generation\":\"qa-history-1788800474910\",\"helperStart\":{\"ok\":true,\"startupCleanup\":true,\"generation\":\"qa-history-1788800474910\"},\"before\":{\"local\":[],\"session\":[\"tasks-session\",\"provider-key-session\",\"batch-recovery-session\"],\"memory\":\"{\\\"marker\\\":\\\"GARP-STUDENT-CANARY-F7829939FC9D3761\\\",\\\"email\\\":\\\"garp.student.canary.f7829939fc9d3761@example.invalid\\\"}\",\"scrubs\":0,\"reloads\":0,\"failure\":null,\"blocked\":false,\"handled\":\"\",\"generation\":\"qa-history-1788800474910\",\"seen\":\"qa-history-1788800474910\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-history-1788800474910\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.911Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-history-1788800474910\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"pending-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.911Z\\\"}\",\"status\":\"complete\"},\"after\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":1,\"failure\":null,\"blocked\":true,\"handled\":\"qa-history-1788800474910\",\"generation\":\"qa-history-1788800474910\",\"seen\":\"qa-history-1788800474910\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-history-1788800474910\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"history-reconcile\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.914Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-history-1788800474910\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"history-reconcile\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.914Z\\\"}\",\"status\":\"complete\"},\"persisted\":false,\"reloadStart\":{\"ok\":true,\"startupCleanup\":true,\"generation\":\"qa-history-1788800474910\"},\"reload\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":0,\"failure\":null,\"blocked\":true,\"handled\":\"qa-history-1788800474910\",\"generation\":\"qa-history-1788800474910\",\"seen\":\"qa-history-1788800474910\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-history-1788800474910\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"stale-context-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.924Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-history-1788800474910\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"stale-context-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.925Z\\\"}\",\"status\":\"complete\"}}"
+    },
+    {
+      "id": "history.reload-stale-session",
+      "ok": true,
+      "detail": "{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":0,\"failure\":null,\"blocked\":true,\"handled\":\"qa-history-1788800474910\",\"generation\":\"qa-history-1788800474910\",\"seen\":\"qa-history-1788800474910\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-history-1788800474910\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"stale-context-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.924Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"qa-history-1788800474910\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"stale-context-suite-end\\\",\\\"replay\\\":true,\\\"at\\\":\\\"2026-09-07T17:01:14.925Z\\\"}\",\"status\":\"complete\"}"
+    },
+    {
+      "id": "fail-closed.no-false-ack",
+      "ok": true,
+      "detail": "{\"end\":{\"ok\":true,\"generation\":\"1788800474998-j33r45nu\",\"detail\":{\"schema\":\"ghrab-suite-session-v1\",\"generation\":\"1788800474998-j33r45nu\",\"reason\":\"qa-fail-closed\",\"clearApplicationData\":true,\"appId\":\"essay-evaluator\"}},\"state\":{\"local\":[\"state\"],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":0,\"failure\":{\"ok\":false,\"generation\":\"1788800474998-j33r45nu\",\"failures\":[\"localStorage:state:remove:maturitniHodnotitelStateV130:synthetic-delete-failure\",\"localStorage:state:remove:ghrab.essay-evaluator.state.v1:synthetic-delete-failure\",\"localStorage:state:readback:maturitniHodnotitelStateV130\",\"localStorage:state:readback:ghrab.essay-evaluator.state.v1\",\"localStorage:state:physical-residual:ghrab.essay-evaluator.state.v1\"]},\"blocked\":true,\"handled\":\"\",\"generation\":\"1788800474998-j33r45nu\",\"seen\":\"\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800474998-j33r45nu\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"qa-fail-closed\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:14.999Z\\\"}\",\"complete\":null,\"status\":\"failed\"}}"
+    },
+    {
+      "id": "negative-control.expected-fail",
+      "ok": true,
+      "detail": "{\"end\":{\"ok\":true,\"generation\":\"1788800475075-hu9fmdzf\",\"detail\":{\"schema\":\"ghrab-suite-session-v1\",\"generation\":\"1788800475075-hu9fmdzf\",\"reason\":\"qa-negative-control\",\"clearApplicationData\":true,\"appId\":\"essay-evaluator\"}},\"state\":{\"local\":[\"state\",\"tasks\",\"history\",\"provider-key-local\",\"sensitive-save-preference\",\"batch-recovery-local\",\"legacy-state-v100\",\"legacy-state-v070\",\"legacy-state-v071\",\"legacy-state-v072\",\"legacy-state-v073\",\"legacy-state-v074\",\"legacy-state-v075\",\"legacy-state-v076\",\"legacy-state-v077\",\"legacy-state-v078\"],\"session\":[\"tasks-session\",\"provider-key-session\",\"batch-recovery-session\"],\"memory\":\"{\\\"marker\\\":\\\"GARP-STUDENT-CANARY-F7829939FC9D3761\\\",\\\"email\\\":\\\"garp.student.canary.f7829939fc9d3761@example.invalid\\\"}\",\"scrubs\":0,\"reloads\":0,\"failure\":null,\"blocked\":false,\"handled\":\"\",\"generation\":\"1788800475075-hu9fmdzf\",\"seen\":\"\",\"observed\":null,\"complete\":null,\"status\":\"\"}}"
+    },
+    {
+      "id": "negative-control.clean-restored-pass",
+      "ok": true,
+      "detail": "{\"end\":{\"ok\":true,\"generation\":\"1788800475254-ouz86ntb\",\"detail\":{\"schema\":\"ghrab-suite-session-v1\",\"generation\":\"1788800475254-ouz86ntb\",\"reason\":\"qa-post-negative-clean\",\"clearApplicationData\":true,\"appId\":\"essay-evaluator\"}},\"state\":{\"local\":[],\"session\":[],\"memory\":\"\",\"scrubs\":1,\"reloads\":1,\"failure\":null,\"blocked\":true,\"handled\":\"1788800475254-ouz86ntb\",\"generation\":\"1788800475254-ouz86ntb\",\"seen\":\"1788800475254-ouz86ntb\",\"observed\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800475254-ouz86ntb\\\",\\\"phase\\\":\\\"observed\\\",\\\"reason\\\":\\\"qa-post-negative-clean\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:15.255Z\\\"}\",\"complete\":\"{\\\"schema\\\":\\\"ghrab-suite-session-evidence-v1\\\",\\\"appId\\\":\\\"essay-evaluator\\\",\\\"generation\\\":\\\"1788800475254-ouz86ntb\\\",\\\"phase\\\":\\\"cleanup-complete\\\",\\\"reason\\\":\\\"qa-post-negative-clean\\\",\\\"replay\\\":false,\\\"at\\\":\\\"2026-09-07T17:01:15.255Z\\\"}\",\"status\":\"complete\"}}"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0
+  },
+  "status": "passed"
+}

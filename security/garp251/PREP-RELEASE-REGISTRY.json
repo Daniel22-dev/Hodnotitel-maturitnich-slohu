@@ -1,0 +1,20 @@
+{
+  "schema": "ghrab-release-registry-v1",
+  "updatedAt": "2026-09-07T17:10:00.000Z",
+  "note": "PREP ONLY registry for GARP 2.5.1 cleanup drill; not production release authority.",
+  "apps": [
+    {
+      "appId": "essay-evaluator",
+      "status": "approved",
+      "approvedVersion": "1.5.25",
+      "artifactDigest": "bbe1e48184343dc92dc1049cc4b24bd680a4c60162dcdbab9a7db777406cf292",
+      "keyId": "ghrab-prep-20260907-1.5.25-disposable",
+      "history": [
+        {
+          "version": "1.5.24",
+          "approvedAt": "2026-09-07T12:00:00.000Z"
+        }
+      ]
+    }
+  ]
+}

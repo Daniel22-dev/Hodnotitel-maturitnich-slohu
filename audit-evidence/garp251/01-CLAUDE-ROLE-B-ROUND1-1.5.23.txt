@@ -1,0 +1,631 @@
+======================================================================
+GARP 2.5.1 R2 – NEZÁVISLÝ SHIELD DELTA REVIEW (PROMPT E)
+ROLE B / CLAUDE – VÝSTUPNÍ PROTOKOL
+======================================================================
+Aplikace:      Hodnotitel maturitních slohů
+appId:         essay-evaluator
+Kandidát:      1.5.23
+Profil:        GARP 2.5.1 SHIELD-PREP
+Datum review:  2026-09-07
+Reviewer:      Claude (role B – nezávislá kontrola, kód neopravuje)
+Vstup:         předávací protokol ChatGPT
+               PREDANI-HODNOTITEL-MATURITNICH-SLOHU-1.5.23-GARP2.5-SHIELD.txt
+
+TESTOVACÍ PROVOZ, POUZE SYNTETICKÁ DATA.
+REÁLNÁ STUDENTSKÁ DATA NEBYLA A NESMÍ BÝT POUŽITA.
+TENTO PROTOKOL NENÍ SCHOOL-SERVER LIVE GREEN.
+
+======================================================================
+0. SHRNUTÍ PRO ROZHODNUTÍ
+======================================================================
+
+Oprava GH-02 je VĚCNĚ SPRÁVNÁ a poprvé doložena behaviorálně, nejen
+strukturálně. Kandidát je z hlediska kódu v pořádku.
+
+Zároveň jsem prokázal, že DŮKAZNÍ ŘETĚZEC GH-02 je nedostatečný: service
+worker s úplně vyřazeným guardem projde všemi existujícími kontrolami.
+To je hlavní nález tohoto kola (N-01).
+
+Uzavřel jsem jeden bod z původního seznamu NOT TESTED – online SCA
+(npm audit, 0 zranitelností, s red-before-green kontrolou).
+
+OVERALL zůstává AMBER / SHIELD-PREP. Na GREEN nezvedám.
+
+Nálezy: 3× MEDIUM, 3× LOW, 2× INFO. Žádný CRITICAL, žádný HIGH.
+Žádný nález není v kandidátu 1.5.23 přímo exploitovatelný.
+
+======================================================================
+1. OVĚŘENÍ PROVENANCE
+======================================================================
+
+Přepočteno nezávisle, shoda se všemi hodnotami v předávacím protokolu:
+
+  KANDIDÁT SOURCE
+  01d15fed8747fcff36676166cc6a13f4483e75f34c2bf9bb9e3b29224582984f
+  1 447 187 B                                              PASS
+
+  DEPLOYMENT PREP
+  267dda43fd6b083d7d6301a1889e1c0a8d105260cded2777cfb2816bd7b444cd
+  524 770 B                                                PASS
+
+  GARP 2.5.1 R2 TOOLING
+  3c95f0b487806df63a5b90663d20c4961eebb20681b8c2db77e142426af31aea
+                                                           PASS
+
+VENDOROVANÝ TOOLING – DVOUSTUPŇOVÉ OVĚŘENÍ                 PASS
+  a) 14 souborů .mjs v security/garp251/tools/ odpovídá seznamu
+     GARP-2.5.1-TOOLING-SHA256SUMS.txt v kandidátu;
+  b) tentýž seznam jsem nezávisle přepočítal proti obsahu upstream
+     ZIPu: 83 souborů bajt po bajtu shodných, jediný rozdíl je
+     SHA256SUMS.txt sám (nemůže hashovat sebe).
+  Řetězec upstream -> kandidát je tím uzavřen bez převzetí tvrzení.
+
+CHYBĚJÍCÍ .git: potvrzuji, source commit nelze lokálně určit.
+Identita zdroje je vázána výhradně vstupním ZIP SHA-256. Beru jako
+korektně přiznané omezení, ne jako nález.
+
+======================================================================
+2. REPRODUKOVANÉ KONTROLY (vlastní běh, vlastní build)
+======================================================================
+
+Oba profily jsem sestavil sám (npm run build, build:school-server) a
+všechny checkery pouštěl proti VLASTNÍMU buildu, nikoli proti dodaným
+artefaktům.
+
+  GARP R2 tooling selftest             43/43       PASS
+  Projektové testy                     452/452     PASS
+  Security regressions                 96/96       PASS
+  qa:garp25                            16/16       PASS
+  GHRAB Platform conformance           118/118     PASS
+  Quality gate                         31/31, 0 varování  PASS
+  R2 SW freeze – public                            PASS
+  R2 SW freeze – school-server                     PASS
+  Repository secret scan               0 nálezů    PASS
+  Custom SAST / XSS sink inventory     0 nálezů    PASS
+  qa:lock, qa:technical, qa:pwa, qa:security       PASS
+  Deployment leak scan (dodaný ZIP)                PASS
+  Evidence manifest                    30 souborů  PASS
+
+  qa:browser, qa:suite-session, qa:runtime, qa:axe
+      NEREPRODUKOVÁNO – prostředí bez Chromia.
+      Poznámka: oba skripty selhaly FAIL-CLOSED (vyhodí chybu),
+      nepředstírají PASS. To je správné chování.
+
+======================================================================
+3. REPRODUKOVATELNOST DEPLOYMENTU – KLÍČOVÝ VÝSLEDEK
+======================================================================
+
+Porovnal jsem soubor po souboru dodaný deployment se svým vlastním
+buildem ze source kandidáta:
+
+  47 souborů v mém buildu, 49 v deploymentu
+  navíc v deploymentu: release-integrity.json, release-integrity.sig
+  obsahově odlišné: 3 soubory
+
+Tři odlišné soubory se liší VÝHRADNĚ v zapečeném časovém razítku:
+  platform-build-info.json     /builtAt
+  server-ready-build-info.json /builtAt
+  studio-manifest.json         /publishedAt
+
+44 ze 47 souborů je bajtově identických. Závěr:
+  - deployment byl skutečně sestaven z tohoto zdroje;
+  - nebyl do něj vložen žádný cizí kód, telemetrie ani backdoor;
+  - Prompt E bod 15 (skrytá telemetrie / backdoor / neočekávaný
+    egress): PASS, doloženo bajtovým porovnáním, nikoli čtením.
+
+======================================================================
+4. GH-02 – POTVRZENÍ OPRAVY A NÁLEZ PROTI DŮKAZU
+======================================================================
+
+4.1 OPRAVA JE SPRÁVNÁ – POTVRZENO BEHAVIORÁLNĚ
+
+Napsal jsem vlastní sondu, která načte reálný sw.js do izolovaného
+node:vm kontextu se stubnutým Cache API a fetch, a pro každou položku
+security-critical-assets.json vystřelí syntetický fetch event.
+
+Výsledek pro kandidát 1.5.23, oba profily:
+  - všech 13 kritických cest zachyceno security-critical větví;
+  - všech 13 obslouženo právě jedním fetch s cache:'no-store';
+  - během obsluhy NULA zápisů do Cache API;
+  - kontrolní nekritické assety (app.js, manual/manual.js,
+    vendor/jszip.min.js) prochází běžnou cestou.
+
+Red-before-green: tatáž sonda proti SW s vyřazeným guardem správně
+hlásí 26 porušení hranice.
+
+  GH-02 OPRAVA: POTVRZENA (strukturálně i behaviorálně)   PASS
+
+Toto je silnější důkaz, než jaký byl v předávacím protokolu doložen.
+
+4.2 N-01 | MEDIUM | assurance gap | důkazní řetězec GH-02
+
+Vyrobil jsem service worker, ve kterém isSecurityCriticalRequest vždy
+vrací false a všech 13 řetězců cest zůstává v těle funkce jako mrtvý
+kód. V takovém SW by KAŽDÝ security-critical asset šel cache-first a
+dal se zmrazit – přesně původní hrozba GH-02.
+
+Tento service worker projde:
+  check-sw-security-freeze R2, profil dist            PASS
+  check-sw-security-freeze R2, dist-school-server     PASS
+  qa:garp25                                           16/16
+  ghrab-platform-conformance                          118/118
+  tests/test.mjs                                      452/452
+  tests/security-regressions.mjs                      96/96
+
+Příčina: všechny tři vrstvy důkazu jsou textové.
+  - check-sw-security-freeze: structurallyExempt() uzná výjimku, pokud
+    se v těle funkce vyskytne řetězec cesty; neověřuje, že se podle něj
+    rozhoduje. structuralNetworkOnlyGuard je jen porovnání pozic
+    indexOf v textu fetch handleru, ne kontrola toku řízení.
+  - ghrab-platform-conformance: sw.includes('isSecurityCriticalRequest')
+    && sw.includes('networkOnlyNoStore').
+  - qa-garp25 / gh02.critical-list-boundary-sync: kontroluje, že se
+    v src/sw.js vyskytují literály seznamu.
+
+Exploitabilita v 1.5.23: ŽÁDNÁ, kód je správný.
+Dopad: tvrzení „GH-02 opraveno a doloženo" stojí na kontrole, která by
+neodhalila regresi. To je v rozporu s vlastním pravidlem GARP, že samo
+čtení kódu nezakládá PASS, a oslabuje RED TEAM i SHIELD assurance.
+
+Náprava: přiložený scripts/qa-sw-boundary.mjs, viz oddíl 12.
+
+4.3 N-02 | LOW | obchvat exact-match klasifikace
+
+isSecurityCriticalRequest porovnává relativní cestu přesnou rovností.
+Otestoval jsem varianty URL mířící na tentýž soubor:
+
+  kanonická                /app/access-bootstrap.js        kritická
+  query string             /app/access-bootstrap.js?v=2    kritická
+  tečka-lomítko            /app/./access-bootstrap.js      kritická
+  traversal ..             /app/access/../…                kritická
+  dvojité lomítko          /app//access-bootstrap.js       NEkritická
+  percent-encoding         /app/access%2Dbootstrap.js      NEkritická
+  percent-encoding /       /app/access%2Fdeployment-…      NEkritická
+  velká písmena            /app/Access-Bootstrap.js        NEkritická
+
+Poslední čtyři spadnou do cacheFirst a uloží se do cache.
+
+Reachability, poctivě: klíčem Cache API je plná URL a cacheFirst
+používá cache.match(request) bez ignoreSearch. Zápis pod nekanonickým
+klíčem se tedy NEVRÁTÍ na požadavek kanonické cesty – kanonický asset
+zmrazit nelze. K využití by útočník musel nejdřív donutit aplikaci
+načíst kritický skript nekanonickou cestou, což předpokládá už
+existující injekci skriptu. Proto LOW, nikoli výš.
+
+Náprava: normalizovat relative před porovnáním – kolaps opakovaných
+lomítek, decodeURIComponent v try/catch, případně porovnání bez ohledu
+na velikost písmen.
+
+4.4 N-03 | MEDIUM | design hranice cache
+
+Service worker je dnes DEFAULT-ALLOW: fetch handler pošle do cacheFirst
+vše, co neodpovídá 13položkovému denylistu, a cacheFirst zapisuje každou
+same-origin GET odpověď se statusem ok. Cache se nerevaliduje až do
+změny verze.
+
+Důsledek: jakýkoli budoucí bezpečnostně relevantní soubor, který někdo
+zapomene přidat do security-critical-assets.json, se automaticky stane
+zmrazitelným. To je přesně mechanismus, který způsobil GH-02.
+
+Ověřený stav v 1.5.23: seznam je aktuálně ÚPLNÝ. Prošel jsem všech 30
+spustitelných a konfiguračních souborů v dist a žádný bezpečnostně
+rozhodující artefakt v seznamu nechybí. config/platform-manifest.json
+a ai-operations.json v seznamu nejsou, ale za běhu je aplikace nečte
+(platform-manifest konzumují jen build skripty, ai-operations.json je
+publikován pro AI Studio, jehož fetch tento SW neobsluhuje).
+
+Náprava: obrátit hranici na allowlist – do cacheFirst pustit jen
+explicitně vyjmenované statické assety, ostatní na síť. Tím zmizí celá
+třída rizik včetně N-02.
+
+======================================================================
+5. SECRET SCAN – HASHOVĚ PŘIPNUTÁ VÝJIMKA
+======================================================================
+
+Mechanismus: Map cesta -> SHA-256, výjimka se uplatní jen na nálezy
+hodnotových vzorů, nikoli na typ souboru ani na detekci důvěrného
+ostrého zadání.
+
+Vlastní negativní kontroly:
+  změna jediného bajtu ve fixture                     FAIL   správně
+  identická kopie fixture na jinou cestu pod security/ FAIL  správně
+  syntetický klíč v jiném .mjs (scripts/)             FAIL   správně
+  čistý strom                                          PASS
+
+Plošné ignorování adresáře security/ ani přípony *.mjs neexistuje.
+Výjimku nelze obejít změnou souboru ani přesunem na jinou cestu.
+
+  SECRET-SCAN PINNING: POTVRZENO                             PASS
+
+N-08 | INFO: pinning hashuje SHA-256 obsahu dekódovaného jako utf8, ne
+surové bajty. U tohoto ASCII souboru jsou obě hodnoty totožné a upstream
+SHA256SUMS sedí, takže dnes bez dopadu. Hashovat Buffer místo řetězce je
+jednořádkové zpřísnění.
+
+======================================================================
+6. RELEASE INTEGRITY, PODPIS, PROVENANCE, SBOM
+======================================================================
+
+SCHÉMA                                                      PASS
+  ghrab-release-integrity-v2, digestAlgorithmId
+  ghrab-artifact-digest-v2, pathEncoding NFC,
+  pathOrder utf8-bytewise. Manifest v1 se nevyskytuje.
+
+ARTIFACTDIGEST – NEZÁVISLÝ PŘEPOČET                         PASS
+  Implementoval jsem specifikaci ghrab-artifact-digest-v2 znovu
+  v Pythonu, záměrně mimo jejich Node tooling.
+  můj výpočet:  6a1ee9e9b2f5c629e6c0018c6e52da8a7dbc01eea7756860ccd31213d90c02ab
+  manifest:     shoda
+  protokol:     shoda
+  fileCount 47: shoda
+  Determinismus je tím doložen dvěma nezávislými implementacemi.
+
+INVENTÁŘ PROTI SKUTEČNÝM SOUBORŮM                           PASS
+  verify-release-integrity: VERIFIED, 47 souborů.
+
+PODPIS PROTI TRUST ROOTU                                    PASS
+  VERIFIED, keyId ghrab-prep-20260907-disposable, status active.
+  Ověřeno vazbou manifest.signature.keyId -> klíč v trust rootu,
+  nikoli veřejným klíčem z příkazové řádky. Kontroluje se algoritmus,
+  stav klíče i časové okno platnosti. Fail-closed.
+
+PRIVATE KEY                                                 PASS
+  V kandidátu, evidence ani deploymentu žádný není. Tři zásahy grepu
+  na "BEGIN … PRIVATE KEY" jsou detekční regexy uvnitř skenerů.
+
+BUILD PROVENANCE                                            PASS s výhradou
+  subject.sha256 odpovídá skutečnému deployment ZIPu;
+  invocation.lockfileSha256 odpovídá skutečnému package-lock.json;
+  releaseIntegrity.artifactDigest odpovídá manifestu.
+  Bez --allow-local-builder korektně FAIL (builder-untrusted).
+  S přepínačem PASS a explicitním varováním local-untrusted-builder.
+  Chování je poctivé; produkční CI provenance zůstává NOT TESTED.
+
+VAZBY V MANIFESTU – PŘEPOČTENO                              PASS
+  sbomSha256            odpovídá skutečnému sbom.cdx.json
+  evidenceManifestSha256 odpovídá skutečnému manifestu
+  sourcePackageSha256   odpovídá vstupnímu ZIPu 1.5.22 z protokolu
+
+SBOM PROTI LOCKFILE                                         PASS
+  CycloneDX 1.7. 5 npm komponent přesně odpovídá 5 položkám
+  package-lock.json (axe-core 4.12.1, fsevents 2.3.2,
+  playwright 1.61.1, playwright-core 1.61.1, pngjs 7.0.0).
+  Navíc 3 vendorované komponenty; jejich deklarované hashe jsem ověřil
+  proti skutečným souborům – GHRAB Platform, GHRAB AI Core i JSZip
+  souhlasí. SBOM není dekorativní.
+
+VLASTNÍ NEGATIVNÍ KONTROLY RI                               vše správně
+  podvržený bajt v nasazeném app.js  -> release-integrity FAIL, gate RED
+  úprava version v manifestu         -> SIGNATURE_INVALID
+  přidaný soubor do deploymentu      -> TAMPERED unexpected:extra.js
+  odebraný soubor evidence           -> missing
+  změněný soubor evidence            -> size + sha256
+  podstrčený soubor evidence         -> unexpected
+
+N-05 | LOW | vynechaný krok bez stopy (proti SH-SC-11)
+  a) release-gate.mjs volá verify-assurance-links.mjs, který v R2
+     toolingu NEEXISTUJE – ani v upstream ZIPu, ani vendorovaně.
+     Krok se přeskočí podmínkou existsSync bez záznamu SKIPPED.
+  b) V profilu prep jsou registry, artifact/provenance a
+     evidence-manifest volitelné vstupy. PREP gate proto proběhl ve
+     4 krocích (deployment-leaks, release-integrity, release-signature,
+     sw-security-freeze). Reprodukoval jsem to a dostal totéž.
+  c) Release registry v kandidátu vůbec není.
+     KONTROLA RELEASE REGISTRY A ANTI-ROLLBACK: NOT TESTED.
+  Gate GREEN je pravdivý pro ty 4 kroky, ale nepokrývá RI-LIVE rozsah.
+
+N-06 | LOW | bitová reprodukovatelnost
+  Deployment není bitově reprodukovatelný jen kvůli třem zapečeným
+  časovým razítkům (oddíl 3). Odvození času z pevného vstupu ve stylu
+  SOURCE_DATE_EPOCH by umožnilo komukoli ověřit artifactDigest přímo ze
+  zdroje. Levné zpřísnění s reálnou hodnotou pro SLSA/SSDF.
+
+======================================================================
+7. SUPPLY CHAIN – UZAVŘEN BOD Z PŮVODNÍHO NOT TESTED
+======================================================================
+
+ONLINE SCA: PROVEDENO, PASS
+  V tomto prostředí je registry.npmjs.org dostupná.
+  npm ci proběhl (4 balíčky doinstalovány, audit 5 balíčků).
+  npm audit --json: 0 info / 0 low / 0 moderate / 0 high / 0 critical.
+
+RED-BEFORE-GREEN PRO SCA
+  Aby čistý výsledek nebyl bezobsažný, ověřil jsem, že advisory
+  endpoint skutečně odpovídá: testovací projekt s lodash@4.17.11 a
+  minimist@1.2.0 vrátil 2 kritické nálezy. Endpoint je živý, čistý
+  výsledek kandidáta má tedy váhu.
+
+  DŮSLEDEK: výjimku EX-01 lze uzavřít.
+  SECURITY-SCAN-SUMMARY.json a SECURITY-EXCEPTIONS.txt je třeba
+  aktualizovat, dnes tvrdí NOT_TESTED / EAI_AGAIN.
+
+GITHUB ACTIONS                                              PASS
+  Všechny vzdálené akce připnuté na neměnný SHA-1
+  (checkout, setup-node, upload-artifact, configure-pages,
+  upload-pages-artifact, deploy-pages).
+
+LOCKFILE                                                    PASS
+  lockfileVersion 3, všech 5 položek má integrity i resolved.
+
+TŘETÍ STRANA SAST (CodeQL/Semgrep)                          NOT TESTED
+  V prostředí nedostupné. Vlastní statický scan aplikace prošel, ale
+  nepřeznačuji ho za externí scanner – souhlasím s formulací v
+  SECURITY-SCAN-SUMMARY.json.
+
+======================================================================
+8. SOURCE / DEPLOYMENT SEPARATION
+======================================================================
+
+  audit-evidence/           není v deploymentu                PASS
+  security/garp251/         není v deploymentu                PASS
+  qa-results, test-results  není v deploymentu                PASS
+  scripts/, tests/          není v deploymentu                PASS
+  package.json, lockfile    není v deploymentu                PASS
+  .env, klíče, PEM          není v deploymentu                PASS
+
+Deployment obsahuje výhradně runtime artefakty plus release-integrity
+dvojici. Leak scan dodaného deploymentu: PASS.
+
+======================================================================
+9. DATA, PRIVACY, EGRESS (D2/D3)
+======================================================================
+
+ZMAPOVANÝ EGRESS – všechny fetch v src, ne jen deklarace:
+
+  1. Gemini direct (generativelanguage.googleapis.com)
+     jen public profil, klíč učitele.
+  2. School gateway – same-origin /api/v1/, credentials include,
+     cache no-store.
+  3. Apps Script distribuce – jediná cesta nesoucí D2/D3 obsah.
+  4. Error reporter – čte config/support.json a
+     config/apps.generated.json ze Studia, pouze GET, no-store.
+  5. Telemetrie – POST jen ve školním režimu při telemetryMode server.
+
+TELEMETRIE – MINIMALIZACE                                   PASS
+  Payload nese výhradně čítače a metadata: operation, workflowId,
+  requestId, modelProfile, mode, počty requestů a tokenů, latence,
+  success, errorCode. ŽÁDNÝ text práce, jméno ani e-mail.
+
+APPS SCRIPT DISTRIBUCE                                      PASS s výhradou
+  Nese jméno, e-mail, hodnocení, známku a volitelně původní text práce.
+  Kontroly: učitelem iniciováno, jen schválené a validované položky,
+  regex allowlist na https://script.google.com/macros/s/<id>/exec,
+  potvrzovací dialog, u přímého odeslání druhé potvrzení, sdílené
+  tajemství, export JSON tajemství vyprazdňuje.
+  Ve školním profilu je cesta zcela zablokována CSP
+  (connect-src 'self', form-action 'self').
+  Výhrada: retence na straně Apps Scriptu je mimo kandidát – NOT TESTED.
+
+CSP – ROZDÍL PROFILŮ                                        PASS
+  public: script-src 'self'; connect-src 'self' + Gemini + Apps Script;
+          form-action 'self' https://script.google.com
+  school: default-src 'self', connect-src 'self', form-action 'self',
+          plus HSTS, nosniff, Referrer-Policy, Permissions-Policy,
+          COOP, CORP, X-Frame-Options jako skutečné hlavičky.
+  Školní profil nedědí veřejné egress domény – ověřeno v buildu.
+
+PERZISTENCE CITLIVÝCH DAT                                   PASS
+  Ukládání do localStorage je opt-in (sensitiveSaveEnabled, výchozí
+  vypnuto) a je hlídáno na každém zápisovém místě včetně
+  pseudonymizované historie.
+
+HRANICE PROMPTU                                             PASS strukturálně
+  hodTrustedInstructionsForOperation vrací jednu ze dvou statických
+  konstant. Studentský obsah jde výhradně do input parts. Do kanálu
+  systémové instrukce se uživatelský vstup nedostane.
+  Behaviorální live-model odolnost: NOT TESTED (viz oddíl 11).
+
+======================================================================
+10. AI ROZPOČET A AGENTICITA
+======================================================================
+
+AGENTIC: NO – ověřeno proti call graphu                     PASS
+  Žádné functionDeclarations, žádný toolConfig, žádné MCP, žádný
+  self-directed loop. Jediný while(true) ve vendorovaném AI Core je
+  čtečka SSE ukončená chunk.done, a streaming je u všech čtyř operací
+  vypnutý. Opakování volání modelu je strukturálně omezené dvěma
+  vnořenými cykly: modelIndex < models.length a thinkingAttempt < 2.
+
+SKUTEČNĚ VYNUCENÉ LIMITY                                    PASS
+  SERIES_MAX_WORKS = 20 – vynuceno na více místech (import rosteru,
+  slučování skupin, validateBatchPreflight).
+  maxOutputTokensHint – AI Core tvrdě ořezává požadavek na strop
+  operace, navíc Math.min proti runtime.maxOutputTokens.
+
+N-04 | MEDIUM | deklarovaný rozpočet není vynucen
+  maxProviderRequestsPerWorkflow (16 / 40 / 20) se vyskytuje POUZE
+  v ai-operations.json, v jeho sestavených kopiích a v prozaických
+  dokumentech. V žádném spustitelném kódu není – ani v aplikaci, ani ve
+  vendorovaném AI Core, ani v conformance kontrole.
+
+  Kvantifikace: fallbackModels je ["gemini-3.5-flash-lite"], takže
+  models = [primární, flash-lite] a na jeden AI požadavek připadají až
+  4 provider requesty. Série 20 prací tedy strukturálně unese až ~80
+  provider requestů proti deklarovaným 40 pro essay-series-evaluation.
+  Pro essay-evaluation je deklarovaných 16 naopak konzervativní.
+
+  Kód aplikace nazvaný "budget" (estimateSeriesBudget, registerUsage,
+  getTodayUsage) je odhad nákladů a účtování spotřeby, nikoli vynucení.
+  BUDGET_EXCEEDED / QUOTA_EXCEEDED v AI Core jsou chybové kódy vracené
+  serverem, které klient jen zobrazuje.
+
+  Dopad: THREAT-MODEL.txt uvádí jako kontrolu proti resource abuse
+  "bounded series and per-workflow request budgets in ai-operations.json".
+  První polovina platí, druhá ne. AI-RESOURCE-BUDGET.txt uvádí limity
+  jako aplikační rozpočty, ačkoli jde o deklaraci v manifestu, kterou
+  nikdo nečte.
+
+  Není to neomezená smyčka a v public profilu platí případné přestřelení
+  učitel ze svého klíče. Přesto jde o kontrolu, která v dokumentaci
+  existuje a v kódu ne.
+
+======================================================================
+11. THREAT MODEL A CROSSWALK PROTI SKUTEČNÉMU KÓDU
+======================================================================
+
+Ověřeno položku po položce. Sedí:
+  fail-closed access bootstrap, SW freeze boundary, oddělené trusted
+  instrukce, suite-session cleanup a owned storage, session-only ostrá
+  sada, secret scan a leak scan, exact lockfile a pinned actions,
+  vendored hash kontroly, SBOM, CSP a XSS inventář, redakce v error
+  reporteru, školní zákaz lokálních provider klíčů.
+
+Neplatí beze zbytku:
+  "per-workflow request budgets" – viz N-04.
+
+Zastaralé po tomto kole:
+  "online SCA NOT TESTED" – uzavřeno, viz oddíl 7.
+
+CROSSWALK: crosswalk sám o sobě neberu jako důkaz a nikde jsem podle něj
+nepovyšoval verdikt. Zůstává jako mapování, ne jako evidence.
+
+REGISTR VÝJIMEK EX-01..EX-05: poctivý, úplný, s vlastníky i podmínkami
+uzavření. EX-01 je nyní uzavíratelná.
+
+======================================================================
+12. NÁVRH OPRAVNÉHO KOLA PRO CHATGPT (PROMPT C)
+======================================================================
+
+C-1 | N-01 | povinné
+  Přidat behaviorální test hranice service workeru a zařadit ho do
+  qa:garp25 i do qa:p5 / qa:p5:ci.
+  PŘILOŽENO: qa-sw-boundary.mjs, hotové, otestované.
+    - umístit jako scripts/qa-sw-boundary.mjs;
+    - do package.json:
+        "qa:sw-boundary": "node scripts/qa-sw-boundary.mjs"
+      a zařadit za npm run qa:garp25 v qa:p5 i qa:p5:ci;
+    - v qa-garp25.mjs přidat krok gh02.sw-boundary-behavioral.
+  Ověřeno mnou:
+    proti čistému kandidátu 1.5.23     status passed, 4/4
+    proti SW s vyřazeným guardem       status failed, oba profily
+  Test má vestavěnou vlastní negativní kontrolu (mutace guardu musí
+  selhat), takže nejde o další self-certifying důkaz. Běží bez
+  prohlížeče, offline, pod sekundu.
+
+C-2 | N-03 | doporučené, vyšší hodnota než C-3
+  Obrátit hranici cache na allowlist. Do cacheFirst pouštět jen
+  explicitně vyjmenované statické assety, vše ostatní na síť. Tím se
+  odstraní i N-02 a zmizí riziko opakování GH-02 při přidání nového
+  souboru.
+
+C-3 | N-02 | doporučené
+  Pokud C-2 nebude přijato, alespoň normalizovat relative před
+  porovnáním v isSecurityCriticalRequest: kolaps opakovaných lomítek,
+  decodeURIComponent v try/catch, porovnání bez ohledu na velikost
+  písmen.
+
+C-4 | N-04 | povinné, varianta A nebo B
+  A) Doplnit skutečné vynucení: počítadlo provider requestů na
+     workflowId a tvrdé zastavení při dosažení limitu z ai-operations.json.
+  B) Nebo přepsat AI-RESOURCE-BUDGET.txt a THREAT-MODEL.txt tak, aby
+     uváděly maxProviderRequestsPerWorkflow jako deklaraci pro
+     konzumenta manifestu a vynucení přiřadily serveru/gateway.
+  Nechat dnešní znění není přijatelné – dokumentace tvrdí kontrolu,
+  která v kandidátu neexistuje.
+
+C-5 | N-05 | doporučené
+  a) Doplnit chybějící verify-assurance-links.mjs, nebo do steps
+     zapisovat SKIPPED s důvodem místo tichého přeskočení.
+  b) Do profilu prep přidat kontrolu release registry a anti-rollback,
+     nebo v protokolu explicitně uvést, že RI-LIVE rozsah neproběhl.
+
+C-6 | EX-01 | povinné
+  Uzavřít výjimku pro online SCA. Aktualizovat SECURITY-SCAN-SUMMARY.json
+  (kategorie SCA: PASS, 0 zranitelností, 5 zamčených balíčků) a
+  SECURITY-EXCEPTIONS.txt. Do CI přidat npm audit jako trvalý krok.
+
+C-7 | N-06 | volitelné
+  Odvodit builtAt / publishedAt z pevného vstupu, aby byl deployment
+  bitově reprodukovatelný.
+
+C-8 | N-07, N-08 | kosmetické
+  qa-garp25.mjs má při chybějícím dist/ vrátit řízený FAIL záznam místo
+  surového ENOENT stack trace. qa-secret-scan.mjs má hashovat Buffer
+  místo dekódovaného řetězce.
+
+======================================================================
+13. EXPLICITNÍ SEZNAM NOT TESTED PO TOMTO KOLE
+======================================================================
+
+ 1. Exact served-app runtime 1.5.23           NOT TESTED / prostředí
+    Chromium nelze v tomto prostředí stáhnout (blokovaný CDN).
+ 2. Axe runtime                                NOT TESTED / prostředí
+ 3. Online SCA                                 UZAVŘENO – PASS (oddíl 7)
+ 4. Třetí strana SAST (CodeQL/Semgrep)         NOT TESTED
+ 5. DAST                                       NOT TESTED
+ 6. School-server LIVE backend                 NOT TESTED
+    Ze source/buildu ověřeno: authMode server-session,
+    aiTransport school-gateway, apiBaseUrl same-origin,
+    allowLocalProviderKeys=false, maxOfflineAgeHours=0.
+    Živý backend, reverse proxy ani gateway ověřeny nebyly.
+ 7. LIVE hlavičky, session, revokace, cross-user izolace  NOT TESTED
+ 8. Provider retention / data-use, D2/D3 egress evidence  NOT TESTED
+ 9. Behaviorální AI-RED AIR-01..12 a ASR       NOT TESTED
+10. Produkční signing key, trust root, key custody        NOT TESTED
+    PREP použil jednorázový Ed25519 klíč, private key není nikde.
+11. Produkční CI builder provenance            NOT TESTED
+12. Release registry a anti-rollback           NOT TESTED (nově, N-05)
+13. qa:browser, qa:suite-session               NEREPRODUKOVÁNO / prostředí
+14. OCI/container scan                         N/A
+
+======================================================================
+14. GATE VERDIKTY
+======================================================================
+
+SECURITY GATE            AMBER
+  Kód je v pořádku, GH-02 potvrzeno behaviorálně. Drží dole N-01
+  (důkazní řetězec), N-03 (default-allow hranice), chybějící served
+  runtime, DAST a třetí strana SAST.
+
+PRIVACY GATE             AMBER
+  Minimalizace, redakce, opt-in perzistence a školní CSP jsou v pořádku.
+  Drží dole provider retention a D2/D3 egress evidence – externí.
+
+RED TEAM GATE            AMBER
+  Strukturální hranice promptu potvrzena. Behaviorální live-model
+  AIR-01..12 a ASR nedoloženy. N-01 navíc oslabuje váhu strukturálních
+  důkazů obecně.
+
+RELEASE INTEGRITY GATE   AMBER
+  Schéma v2, nezávisle přepočtený digest, podpis proti trust rootu
+  s keyId, čisté negativní kontroly, deployment bajtově reprodukovaný
+  ze zdroje. Drží dole jednorázový PREP trust root, local-untrusted
+  builder a neproběhlá kontrola registry / anti-rollback.
+
+SUPPLY CHAIN GATE        AMBER
+  Posílen oproti vstupu: online SCA uzavřena s 0 zranitelnostmi,
+  vendoring ověřen dvoustupňově, SBOM odpovídá lockfile i vendorovaným
+  souborům, akce připnuté. Drží dole absence třetí strany SAST,
+  produkční CI provenance a N-05.
+
+OVERALL                  AMBER / SHIELD-PREP
+
+PROČ NE GREEN
+  - PREP brána není školní LIVE brána;
+  - N-01: klíčový důkaz tohoto kola neumí odlišit opravu od regrese;
+  - anti-rollback a release registry neproběhly;
+  - served runtime, DAST, behaviorální AI-RED, produkční key custody
+    a CI provenance zůstávají otevřené;
+  - N-04: deklarovaná kontrola AI rozpočtu není vynucena.
+
+======================================================================
+15. METODICKÁ POZNÁMKA
+======================================================================
+
+Žádné tvrzení z předávacího protokolu nebylo převzato bez reprodukce.
+Všechny uvedené PASS pocházejí z vlastního běhu nad vlastním buildem.
+Kód jsem neměnil; sabotované a mutované stromy vznikly výhradně
+v oddělených kopiích pro negativní kontroly a nejsou součástí kandidáta.
+
+Vlastní negativní kontroly provedené nad rámec GHNC-02:
+  NC-A  vyřazený guard s ponechanými literály        odhalilo mezeru
+  NC-B  kritický asset v GHRAB_PLATFORM_P3_ASSETS    checker FAIL
+  NC-C  literální cache.add kritické cesty           checker FAIL
+  NC-D  tři kontroly secret-scan pinningu            všechny FAIL
+  NC-E  tři kontroly release integrity a podpisu     všechny FAIL
+  NC-F  tři kontroly evidence manifestu              všechny FAIL
+  NC-G  red-before-green pro online SCA              2 kritické nálezy
+
+======================================================================
+KONEC PROTOKOLU
+======================================================================

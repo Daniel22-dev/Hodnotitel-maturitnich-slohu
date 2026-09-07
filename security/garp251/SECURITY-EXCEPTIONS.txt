@@ -1,0 +1,37 @@
+GARP 2.5.1 – SECURITY EXCEPTIONS / DEBT – essay-evaluator 1.5.25
+
+EX-01 | CLOSED for dependency set 5d93e0e002ef849b73e787ca973fbc3056793c521032a5a3fa430ea2c823fd4f
+Control: Online SCA / advisory scan
+Result: PASS – independent Claude Role B round 2 ran npm audit online and reported 0 vulnerabilities across the five locked dependency packages; red-before-green advisory endpoint control returned two critical findings for a deliberately vulnerable control project.
+Applicability to 1.5.25: dependency package entries, versions, resolved URLs and integrity hashes are unchanged; only the root application version changed. The exact dependency-set fingerprint above is therefore unchanged in substance.
+Local rerun: NOT REPRODUCED because the current ChatGPT sandbox returns EAI_AGAIN. This is not relabeled as a local PASS.
+Permanent control: package script qa:sca and qa:p5:ci run npm audit --audit-level=high.
+Reopen trigger: any dependency/resolved/integrity change or audit failure.
+
+EX-02 | MEDIUM / assurance gap
+Control: Served runtime + DAST + LIVE security headers
+Reason: exact local served-runtime did not complete within sandbox; school server not available.
+Compensating controls: isolated browser PASS, static CSP/HSTS profile checks, project runtime regression history.
+Owner role: release maintainer + school IT.
+Closure: exact candidate served PASS + LIVE header/session/gateway checks.
+
+EX-03 | MEDIUM / privacy assurance gap
+Control: D2/D3 provider retention/data-use/egress evidence
+Reason: production provider/server configuration is external to source candidate.
+Compensating controls: pseudonymization, prompt boundary, local-key ban in school profile, same-origin gateway target.
+Owner role: school project owner + IT/data governance.
+Closure: documented provider policy/config + egress canary + retention/deletion evidence.
+
+EX-04 | MEDIUM / red-team assurance gap
+Control: AIR-01..12 behaviorální live-model AI-RED
+Reason: no authorized production-model live test in this PREP run.
+Compensating controls: structural prompt encoding/boundary regressions and bounded operations.
+Owner role: release maintainer.
+Closure: synthetic live-model corpus, ASR calculation, triage.
+
+EX-05 | MEDIUM / release trust assurance gap
+Control: production signing key/trust root/key custody + independent delta review
+Reason: production trust infrastructure is not part of app ZIP.
+Compensating controls: exact hashes, PREP signed-release drill using disposable key, no private key in candidate.
+Owner role: school IT/release authority.
+Closure: trusted key custody attestation + production trust root + independent Claude delta review + school release gate.

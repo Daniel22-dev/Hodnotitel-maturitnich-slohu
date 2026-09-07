@@ -1,0 +1,51 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 qa:sw-boundary
+> node scripts/qa-sw-boundary.mjs
+
+{
+  "schema": "ghrab-gh02-sw-boundary-behavioral-v2",
+  "criticalAssets": 13,
+  "profiles": [
+    "dist",
+    "dist-school-server"
+  ],
+  "status": "passed",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0
+  },
+  "steps": [
+    {
+      "id": "boundary.dist",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "defense-in-depth.dist",
+      "ok": true,
+      "detail": "guard vypnut, ale default-deny allowlist stale drzi critical assety network-only"
+    },
+    {
+      "id": "negative-control.dist",
+      "ok": true,
+      "detail": "plna sabotaz spravne odmitnuta (26 poruseni hranice)"
+    },
+    {
+      "id": "boundary.dist-school-server",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "defense-in-depth.dist-school-server",
+      "ok": true,
+      "detail": "guard vypnut, ale default-deny allowlist stale drzi critical assety network-only"
+    },
+    {
+      "id": "negative-control.dist-school-server",
+      "ok": true,
+      "detail": "plna sabotaz spravne odmitnuta (26 poruseni hranice)"
+    }
+  ],
+  "note": "Behavioralni jednotkovy test hranice SW. Nenahrazuje SIM-07 ani test v realnem prohlizeci, a po default-deny hardeningu doklada defense-in-depth, P3 cache vydatelnost, odolnost proti selhani Cache API zapisu i detekci plne sabotaze cache boundary."
+}

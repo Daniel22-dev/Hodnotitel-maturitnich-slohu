@@ -1,0 +1,8 @@
+{
+  "status": "DENIED",
+  "errors": [
+    "version-mismatch:observed=1.5.25,approved=1.5.26",
+    "rollback-denied:1.5.25<1.5.26"
+  ]
+}
+EXPECTED_FAIL_EXIT_CODE=1

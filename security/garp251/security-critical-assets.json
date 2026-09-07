@@ -1,0 +1,15 @@
+[
+  "access-bootstrap.js",
+  "access/deployment-config.js",
+  "access/deployment-baked.js",
+  "access/suite-session-cleanup.js",
+  "access/reporter-bootstrap.js",
+  "access/error-reporter.js",
+  "access/error-reporter-adapter.js",
+  "manual/manual-access-bootstrap.js",
+  "ghrab/ghrab-platform.js",
+  "ghrab-platform.consumer.json",
+  "config/deployment.json",
+  "release-integrity.json",
+  "release-integrity.sig"
+]

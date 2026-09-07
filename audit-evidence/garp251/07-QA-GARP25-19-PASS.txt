@@ -1,0 +1,13 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 qa:garp25
+> node scripts/qa-garp25.mjs
+
+{
+  "status": "passed",
+  "summary": {
+    "total": 19,
+    "passed": 19,
+    "failed": 0
+  },
+  "failed": []
+}

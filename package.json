@@ -1,6 +1,6 @@
 {
   "name": "hodnotitel-maturitnich-slohu",
-  "version": "1.5.22",
+  "version": "1.5.25",
   "private": true,
   "type": "module",
   "scripts": {
@@ -32,8 +32,8 @@
     "qa:a11y": "node scripts/qa-p5-runtime.mjs",
     "qa:p4": "npm run qa:p5",
     "qa:p4:ci": "npm run qa:p5:ci",
-    "qa:p5": "npm run qa:secrets && npm run qa:lock && npm run build && npm run verify:platform && npm run qa:suite-session && npm run qa:quality && npm run qa:browser && npm run qa:runtime && npm run qa:xss && node scripts/qa-p5-release.mjs && node scripts/qa-p5-acceptance.mjs",
-    "qa:p5:ci": "npm run qa:secrets && npm run qa:lock && npm run build && npm run verify:platform && npm run qa:suite-session && npm run qa:quality && npm run qa:browser && npm run qa:runtime && npm run qa:xss && npm run qa:axe && AXE_REQUIRED=1 node scripts/qa-p5-release.mjs && node scripts/qa-p5-acceptance.mjs",
+    "qa:p5": "npm run qa:secrets && npm run qa:lock && npm run build && npm run verify:platform && npm run qa:suite-session && npm run qa:quality && npm run qa:browser && npm run qa:runtime && npm run qa:xss && node scripts/qa-p5-release.mjs && node scripts/qa-p5-acceptance.mjs && npm run qa:garp25 && npm run qa:sw-boundary",
+    "qa:p5:ci": "npm run qa:secrets && npm run qa:lock && npm run qa:sca && npm run build && npm run verify:platform && npm run qa:suite-session && npm run qa:quality && npm run qa:browser && npm run qa:runtime && npm run qa:xss && npm run qa:axe && AXE_REQUIRED=1 node scripts/qa-p5-release.mjs && node scripts/qa-p5-acceptance.mjs && npm run qa:garp25 && npm run qa:sw-boundary",
     "test:p5": "npm run qa:p5",
     "qa:runtime": "node scripts/qa-p5-runtime.mjs",
     "qa:xss": "node scripts/qa-p5-xss-sinks.mjs",
@@ -43,7 +43,11 @@
     "qa:secrets": "node scripts/qa-secret-scan.mjs",
     "qa:github-governance": "node scripts/verify-github-deployment-governance.mjs",
     "qa:suite-session": "node scripts/qa-suite-session.mjs",
-    "test:suite-session": "npm run build && npm run qa:suite-session"
+    "test:suite-session": "npm run build && npm run qa:suite-session",
+    "qa:garp25": "node scripts/qa-garp25.mjs",
+    "qa:sw-boundary": "node scripts/qa-sw-boundary.mjs",
+    "qa:sca": "npm audit --audit-level=high",
+    "qa:assurance-links": "node scripts/qa-assurance-links.mjs"
   },
   "engines": {
     "node": ">=20"

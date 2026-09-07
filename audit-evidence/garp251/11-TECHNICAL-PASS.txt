@@ -1,0 +1,5 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 qa:technical
+> node scripts/qa-technical.mjs
+
+TECHNICAL PASS: 0 nálezů

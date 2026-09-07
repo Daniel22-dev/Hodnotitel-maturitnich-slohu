@@ -1,0 +1,10 @@
+GARP 2.5.1 R2 cleanup round - essay-evaluator 1.5.25
+Date: 2026-09-07
+Corrective input source 1.5.24:
+51839332f918de1dfee5b97408547103afaba631288d8bbb4a0b17851b572493  /mnt/data/garp25_124_release/final/Hodnotitel-maturitnich-slohu-1.5.24-GARP2.5-SHIELD-KANDIDAT.zip
+Previous deployment 1.5.24:
+72c9274b68c0a1a1a14511a571b4ed3edb624985b4f1fa06021fcf3f5bbf661d  /mnt/data/garp25_124_release/final/Hodnotitel-maturitnich-slohu-1.5.24-GARP2.5-SHIELD-DEPLOYMENT-PREP.zip
+Claude round 2 review:
+f6bc39040d5391d5cc56723c0eda22cda20ff336a0d604ac841caadb24a9ae21  /mnt/data/OVERENI-KANDIDATA-HODNOTITEL-1.5.24-GARP2.5.1-R2-KOLO-2.txt
+Scope: R2-N-01, R2-N-02, R2-N-03, R2-N-04; N-06 remains LOW/open.
+Synthetic data only; not school-server LIVE GREEN.

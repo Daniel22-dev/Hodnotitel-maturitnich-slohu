@@ -1,0 +1,260 @@
+{
+  "schema": "ghrab-release-integrity-v2",
+  "digestAlgorithmId": "ghrab-artifact-digest-v2",
+  "pathEncoding": "NFC",
+  "pathOrder": "utf8-bytewise",
+  "appId": "essay-evaluator",
+  "version": "1.5.25",
+  "buildId": "prep-20260907-hodnotitel-1.5.25",
+  "createdAt": "2026-09-07T17:03:12.055Z",
+  "sourceCommit": null,
+  "sourcePackageSha256": "51839332f918de1dfee5b97408547103afaba631288d8bbb4a0b17851b572493",
+  "deploymentPackageSha256": null,
+  "artifactDigest": "bbe1e48184343dc92dc1049cc4b24bd680a4c60162dcdbab9a7db777406cf292",
+  "fileCount": 47,
+  "buildProvenanceSha256": null,
+  "sbomSha256": "e8a8291f2d5a21054ba30e4a27addb4e9814114ab9cb61f131a4e9edccd8b659",
+  "evidenceManifestSha256": "61bcb3d34090a705deab9524eca4de23ab45dbbe0a7446008f08ad0b13db62e0",
+  "hashAlgorithm": "SHA-256",
+  "signature": {
+    "algorithm": "Ed25519",
+    "keyId": "ghrab-prep-20260907-1.5.25-disposable"
+  },
+  "files": [
+    {
+      "path": ".nojekyll",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "access-bootstrap.js",
+      "size": 3124,
+      "sha256": "dd8d2d68cd5cc1190bee4ecb21bff6ff0c57181df295867b2a7aed51d4d11547"
+    },
+    {
+      "path": "access-gate.css",
+      "size": 2548,
+      "sha256": "c77854183dfbc0a39cbcbf5be99c7ed63dab792572e3bee778919f69badbab0d"
+    },
+    {
+      "path": "access/access-gate.css",
+      "size": 2548,
+      "sha256": "c77854183dfbc0a39cbcbf5be99c7ed63dab792572e3bee778919f69badbab0d"
+    },
+    {
+      "path": "access/deployment-baked.js",
+      "size": 1565,
+      "sha256": "9877db2744837d8b8face9766da3c5124b8a79df15faba143dbbbaff47fe8e6a"
+    },
+    {
+      "path": "access/deployment-config.js",
+      "size": 9787,
+      "sha256": "4b3829f8bccd984f05d63b57981b56e12959080e7163a8890688ee37c89cbff5"
+    },
+    {
+      "path": "access/error-reporter-adapter.js",
+      "size": 790,
+      "sha256": "85da3edcfc7f68af62e93a7c7ff3d8300e5ca79479cc1ea7b024e0defe5a5b65"
+    },
+    {
+      "path": "access/error-reporter.css",
+      "size": 16554,
+      "sha256": "7f78a6d81ac0d13e355229381bb435fe6fcb27cf7f8957a452e26b036ce958f9"
+    },
+    {
+      "path": "access/error-reporter.js",
+      "size": 75979,
+      "sha256": "c1385da7db183045f380e23a4f9835d540671e5106b053cb2d3f6e88ad58bf86"
+    },
+    {
+      "path": "access/reporter-bootstrap.js",
+      "size": 874,
+      "sha256": "1635fff64cd17762eabffe27590b3e87cc732a0f28dc47d8e22ae775741a78b2"
+    },
+    {
+      "path": "access/suite-session-cleanup.js",
+      "size": 12251,
+      "sha256": "a89db3c6d2be7dac07b5712fb1283e8ab2b29ca0a4b1c2b4d1493b290635854b"
+    },
+    {
+      "path": "ai-operations.json",
+      "size": 1981,
+      "sha256": "2ad22e31e92c8763599497bfa333a2b57884558eaafbe9f3c38e0d262fff420c"
+    },
+    {
+      "path": "app.js",
+      "size": 383969,
+      "sha256": "df9ac346acda186d5719c2e44b08ad88915fd885621814a73f35e16ae535da9b"
+    },
+    {
+      "path": "assets/brand/school-logo.png",
+      "size": 57922,
+      "sha256": "300396a48cc36d8c2abda0aea673273d4d985476ba88fb0430630ef89ac86770"
+    },
+    {
+      "path": "config/brand-manifest.json",
+      "size": 761,
+      "sha256": "6bafe098e0e6d3041089ad641ec3ca53250f09426371a1a7f275a4263656c0aa"
+    },
+    {
+      "path": "config/data-manifest.json",
+      "size": 5408,
+      "sha256": "3979f1c627cdaa23e8b49c217ae8eb0f23948666c88d06a74fd0b347924646d4"
+    },
+    {
+      "path": "config/deployment.json",
+      "size": 1812,
+      "sha256": "3fd8ffbe4d10393b8103ab13fa0ae0be0db9f7f9198f07a58374573c3392f7e1"
+    },
+    {
+      "path": "config/deployment.school-server.example.json",
+      "size": 1801,
+      "sha256": "70433d978f59546c2cd62096d124bc1dae468d975e42899494eca192913f50ae"
+    },
+    {
+      "path": "config/deployment.school-server.json",
+      "size": 1812,
+      "sha256": "3fd8ffbe4d10393b8103ab13fa0ae0be0db9f7f9198f07a58374573c3392f7e1"
+    },
+    {
+      "path": "config/platform-manifest.json",
+      "size": 3158,
+      "sha256": "1539235785585d79eded1882943660787a6443d9dceff01d87814cc3446e01a6"
+    },
+    {
+      "path": "config/release-acceptance.json",
+      "size": 1803,
+      "sha256": "cd7cc632d21ab83e0d26baba1c8f48c071f7ac03a8376da67a2b7bf85306ecc5"
+    },
+    {
+      "path": "config/security-headers.json",
+      "size": 1532,
+      "sha256": "9850053f20f96597777f847ac0db05ecd926801966f613c6565b908ae6f7af11"
+    },
+    {
+      "path": "ghrab-platform.consumer.json",
+      "size": 3820,
+      "sha256": "dd14f44405108e6cfa71dd7ebea488bf08d45d9d85281747eba4704c447be1f7"
+    },
+    {
+      "path": "ghrab/ghrab-app-registry-v2.schema.json",
+      "size": 2666,
+      "sha256": "47c797999eb93fbd918b968b90a8f8545f938db486fe635b19efcc7936b5672f"
+    },
+    {
+      "path": "ghrab/ghrab-artifact-envelope-v1.schema.json",
+      "size": 1250,
+      "sha256": "8edeaaadd72c7bf60285440dd59eb31d0e7139755e1e4642d5ab457816e46d58"
+    },
+    {
+      "path": "ghrab/ghrab-platform-manifest-1.1.2.json",
+      "size": 1077,
+      "sha256": "760f1661b5a4349fc09d314d9da3d786356620680e038586cee28d98891f71a8"
+    },
+    {
+      "path": "ghrab/ghrab-platform.css",
+      "size": 5182,
+      "sha256": "eb465488df46f3d1672d721094800b0be3eb1278924b7699873a483f130b07ad"
+    },
+    {
+      "path": "ghrab/ghrab-platform.js",
+      "size": 58204,
+      "sha256": "199d03d9dc9263a9e74ed1f1102df0324f3b63e78704f1c70aeacec5feec530c"
+    },
+    {
+      "path": "icons/hodnotitel-shield-20260711-180.png",
+      "size": 28830,
+      "sha256": "44616f4b63300925a4149ba0c5fd0cdf9cdfecc28b67487f6e3c3c808b049f8a"
+    },
+    {
+      "path": "icons/hodnotitel-shield-20260711-192.png",
+      "size": 31772,
+      "sha256": "e7384a2b56827b35f6d097a69a264e125b4675ece470b35d6b1004d96f5a34ab"
+    },
+    {
+      "path": "icons/hodnotitel-shield-20260711-32.png",
+      "size": 2515,
+      "sha256": "37f331e42d71ef436fc81ee3df6d94a76f7192f9dd39a40ef3c6f2abe566e9e7"
+    },
+    {
+      "path": "icons/hodnotitel-shield-20260711-512.png",
+      "size": 58426,
+      "sha256": "f88da0e4f6ae791abc9733e862cec701e82947c6cdc29fcef8995668e52eba10"
+    },
+    {
+      "path": "icons/hodnotitel-shield-20260711-maskable-512.png",
+      "size": 76474,
+      "sha256": "94f9286bdf391a257632ab6a1e6e94bf3035aa9bfe08226568ecf65833f44b8b"
+    },
+    {
+      "path": "icons/icon-source.svg",
+      "size": 2453,
+      "sha256": "7af0f16319e2468b4daeba102c236a9bd8286a91fa47c1f408b6fd299dfea918"
+    },
+    {
+      "path": "index.html",
+      "size": 110006,
+      "sha256": "96649a1e51738be1c1a4932f183cd733fca292823146258b35e656ef3e83f7b7"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "size": 1487,
+      "sha256": "5b3eee060899ff95f8dfea1e4fd4854cf67900f6bd9d42cd1840dd1f80f16bcc"
+    },
+    {
+      "path": "manual/index.html",
+      "size": 36206,
+      "sha256": "e3647094ba0a58580826d24c25e9bcadfbeb7f40fb6d5148899994e31a543c8b"
+    },
+    {
+      "path": "manual/manual-access-bootstrap.js",
+      "size": 2297,
+      "sha256": "53fb0bb32bf7b91f1aacdd8750edbab8a405fd9067f741a5e1dae56484d3bf72"
+    },
+    {
+      "path": "manual/manual.js",
+      "size": 10780,
+      "sha256": "911ee902df785be53acaf050a6dc8d0cd3651f0c772de80d33300db976ce3a6a"
+    },
+    {
+      "path": "platform-build-info.json",
+      "size": 463,
+      "sha256": "0c7166686964f9d29f7cd5e1a9b2ee27c8b84cc0c0e9fb787e6f42ba0712f7e8"
+    },
+    {
+      "path": "rubric/rubric-v2026.04.27-r1.json",
+      "size": 4872,
+      "sha256": "6ffefd98ca163e431f1c63384eaceba10bb35f055cc58580c8b2bf274e06846d"
+    },
+    {
+      "path": "server-ready-build-info.json",
+      "size": 586,
+      "sha256": "84cd7a74ee89dd33e295fc0242865fd1834b03821cc884ab53cabe8b65e6bde4"
+    },
+    {
+      "path": "studio-manifest.json",
+      "size": 3924,
+      "sha256": "1d2100c01bd754f5ca920b34ef73009669c8f2ee28a954e7846a2cbd25ae89e5"
+    },
+    {
+      "path": "sw.js",
+      "size": 5616,
+      "sha256": "ff1857aa574c21b0a50aecc8fea7c831e4fe412fbe6a161bcc6c6e4804dbf43c"
+    },
+    {
+      "path": "vendor/JSZIP-LICENSE.md",
+      "size": 33753,
+      "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+    },
+    {
+      "path": "vendor/README.md",
+      "size": 399,
+      "sha256": "51bdb0382bc9730609df3aabdf43b909d44972d27aa14cae214bcad938087440"
+    },
+    {
+      "path": "vendor/jszip.min.js",
+      "size": 97630,
+      "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+    }
+  ]
+}

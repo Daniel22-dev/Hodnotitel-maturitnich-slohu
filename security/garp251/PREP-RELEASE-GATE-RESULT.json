@@ -1,0 +1,59 @@
+{
+  "gate": "GARP-2.5.1-RELEASE-GATE-R2",
+  "profile": "prep",
+  "status": "GREEN",
+  "serviceWorker": "/mnt/data/garp25_125_release/stage/sw.js",
+  "criticalAssetList": "/mnt/data/garp25_125/security/garp251/security-critical-assets.json",
+  "steps": [
+    {
+      "step": "deployment-leaks",
+      "script": "scan-deployment-leaks.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "detail": "{\n  \"status\": \"PASS\",\n  \"root\": \"/mnt/data/garp25_125_release/stage\",\n  \"info\": [\n    \"INFO-binary-not-scanned:assets/brand/school-logo.png\",\n    \"INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-180.png\",\n    \"INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-192.png\",\n    \"INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-32.png\",\n    \"INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-512.png\",\n    \"INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-maskable-512.png\"\n  ]\n}"
+    },
+    {
+      "step": "release-integrity",
+      "script": "verify-release-integrity.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "detail": "{\n  \"status\": \"VERIFIED\",\n  \"files\": 47,\n  \"artifactDigest\": \"bbe1e48184343dc92dc1049cc4b24bd680a4c60162dcdbab9a7db777406cf292\"\n}"
+    },
+    {
+      "step": "release-signature",
+      "script": "verify-release-signature.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "detail": "{\n  \"status\": \"VERIFIED\",\n  \"algorithm\": \"Ed25519\",\n  \"keyId\": \"ghrab-prep-20260907-1.5.25-disposable\",\n  \"keyStatus\": \"active\"\n}"
+    },
+    {
+      "step": "release-registry",
+      "script": "verify-release-registry.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "detail": "{\n  \"status\": \"APPROVED\",\n  \"appId\": \"essay-evaluator\",\n  \"version\": \"1.5.25\",\n  \"artifactDigest\": \"bbe1e48184343dc92dc1049cc4b24bd680a4c60162dcdbab9a7db777406cf292\",\n  \"keyId\": \"ghrab-prep-20260907-1.5.25-disposable\"\n}"
+    },
+    {
+      "step": "build-provenance",
+      "script": "verify-build-provenance.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "detail": "{\n  \"status\": \"PASS\",\n  \"subjectSha256\": \"d40c1f71c28f3fa447c9ca7304b9a827d2832a24b5484776622b66738cdc8bcf\",\n  \"builderId\": \"local-untrusted-builder\",\n  \"sourceRevision\": null,\n  \"warnings\": [\n    \"builder=local-untrusted-builder (PREP only, nikdy skolni release)\"\n  ]\n}"
+    },
+    {
+      "step": "evidence-manifest",
+      "script": "verify-evidence-manifest.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "detail": "{\n  \"status\": \"PASS\",\n  \"files\": 29\n}"
+    },
+    {
+      "step": "sw-security-freeze",
+      "script": "check-sw-security-freeze.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "detail": "{\n  \"status\": \"PASS\",\n  \"serviceWorker\": \"/mnt/data/garp25_125_release/stage/sw.js\",\n  \"criticalListSource\": \"/mnt/data/garp25_125/security/garp251/security-critical-assets.json\",\n  \"precachedEntries\": 22,\n  \"precacheSources\": [\n    {\n      \"source\": \"addAll:expression\",\n      \"entries\": [\n        \"./\",\n        \"./index.html\",\n        \"./app.js\",\n        \"./access-gate.css\",\n        \"./manifest.webmanifest\",\n        \"./access/access-gate.css\",\n        \"./access/error-reporter.css\",\n        \"./manual/index.html\",\n        \"./manual/manual.js\",\n        \"./assets/brand/school-logo.png\",\n        \"./icons/hodnotitel-shield-20260711-32.png\",\n        \"./icons/hodnotitel-shield-20260711-180.png\",\n        \"./icons/hodnotitel-shield-20260711-192.png\",\n        \"./icons/hodnotitel-shield-20260711-512.png\",\n        \"./icons/hodnotitel-shield-20260711-maskable-512.png\",\n        \"./vendor/jszip.min.js\",\n        \"./config/brand-manifest.json\",\n        \"./config/platform-manifest.json\"\n      ]\n    },\n    {\n      \"source\": \"map-add:GHRAB_PLATFORM_P3_ASSETS\",\n      \"entries\": [\n        \"./ghrab/ghrab-platform.css\",\n        \"./ghrab/ghrab-artifact-envelope-v1.schema.json\",\n        \"./ghrab/ghrab-app-re"
+    }
+  ],
+  "note": "PREP profil muze pouzit lokalni builder, ale pokud deployment obsahuje service worker, SW kontrola a autoritativni critical-asset list jsou povinne. Neni to school-server LIVE GREEN."
+}

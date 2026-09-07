@@ -1,0 +1,13 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 qa:lock
+> node scripts/qa-p5-lock.mjs
+
+{
+  "schema": "ghrab-p5-lock-audit-v1",
+  "status": "passed",
+  "package": "hodnotitel-maturitnich-slohu",
+  "version": "1.5.25",
+  "directDependencies": 3,
+  "lockedPackages": 5,
+  "registry": "https://registry.npmjs.org"
+}

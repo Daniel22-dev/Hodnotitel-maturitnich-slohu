@@ -2,7 +2,7 @@
   "standard": "GHRAB-QA-1.0.2",
   "appId": "essay-evaluator",
   "appName": "Hodnotitel maturitních slohů",
-  "appVersion": "1.5.22",
+  "appVersion": "1.5.25",
   "entryPoint": "dist/index.html",
   "serveRoot": "dist",
   "buildRoot": "dist",
@@ -47,22 +47,22 @@
     {
       "file": "CHANGELOG.md",
       "regex": "## ([0-9.]+)",
-      "expected": "1.5.22"
+      "expected": "1.5.25"
     },
     {
       "file": "dist/app.js",
       "regex": "version:'([0-9.]+)'",
-      "expected": "1.5.22"
+      "expected": "1.5.25"
     },
     {
       "file": "dist/sw.js",
       "regex": "ghrab-essay-evaluator-v([0-9.]+)",
-      "expected": "1.5.22"
+      "expected": "1.5.25"
     },
     {
       "file": "dist/studio-manifest.json",
       "regex": "\"version\"\\s*:\\s*\"([0-9.]+)\"",
-      "expected": "1.5.22"
+      "expected": "1.5.25"
     }
   ],
   "pwaTargets": [

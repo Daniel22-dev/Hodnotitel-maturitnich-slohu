@@ -1,0 +1,232 @@
+
+> hodnotitel-maturitnich-slohu@1.5.25 qa:quality
+> node scripts/qa-p3-quality.mjs
+
+{
+  "schema": "ghrab-p3-quality-result-v1",
+  "appId": "essay-evaluator",
+  "appVersion": "1.5.25",
+  "contracts": {
+    "accessibility": "ghrab-a11y-v1",
+    "performance": "ghrab-performance-v1",
+    "modules": "ghrab-lazy-modules-v1"
+  },
+  "metrics": {
+    "schema": "ghrab-performance-report-v1",
+    "appId": "essay-evaluator",
+    "appVersion": "1.5.25",
+    "platformVersion": "1.1.2",
+    "measuredAt": "2026-09-07T17:01:16.985Z",
+    "distBytes": 1169923,
+    "jsBytes": 662894,
+    "cssBytes": 26832,
+    "htmlBytes": 146428,
+    "fileCount": 47,
+    "fullHtmlCount": 2,
+    "entryHtmlBytes": 110115,
+    "entryCriticalBytes": 303320,
+    "largestInlineScriptBytes": 2177,
+    "precacheBytes": 932005,
+    "precacheAssetCount": 21,
+    "largestFileBytes": 383969,
+    "largestFilePath": "app.js",
+    "duplicateLargeBytes": 0
+  },
+  "budget": {
+    "distBytes": 1170000,
+    "entryHtmlBytes": 120000,
+    "entryCriticalBytes": 320000,
+    "largestInlineScriptBytes": 10000,
+    "precacheBytes": 1100000,
+    "largestFileBytes": 410000,
+    "duplicateLargeBytes": 20000
+  },
+  "precacheAssets": [
+    "access-gate.css",
+    "access/access-gate.css",
+    "access/error-reporter.css",
+    "app.js",
+    "assets/brand/school-logo.png",
+    "config/brand-manifest.json",
+    "config/platform-manifest.json",
+    "ghrab/ghrab-app-registry-v2.schema.json",
+    "ghrab/ghrab-artifact-envelope-v1.schema.json",
+    "ghrab/ghrab-platform-manifest-1.1.2.json",
+    "ghrab/ghrab-platform.css",
+    "icons/hodnotitel-shield-20260711-180.png",
+    "icons/hodnotitel-shield-20260711-192.png",
+    "icons/hodnotitel-shield-20260711-32.png",
+    "icons/hodnotitel-shield-20260711-512.png",
+    "icons/hodnotitel-shield-20260711-maskable-512.png",
+    "index.html",
+    "manifest.webmanifest",
+    "manual/index.html",
+    "manual/manual.js",
+    "vendor/jszip.min.js"
+  ],
+  "duplicateGroups": [],
+  "checks": [
+    {
+      "id": "dist.exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "platform.version",
+      "ok": true,
+      "detail": "1.1.2"
+    },
+    {
+      "id": "contract.a11y",
+      "ok": true,
+      "detail": "ghrab-a11y-v1"
+    },
+    {
+      "id": "contract.performance",
+      "ok": true,
+      "detail": "ghrab-performance-v1"
+    },
+    {
+      "id": "contract.modules",
+      "ok": true,
+      "detail": "ghrab-lazy-modules-v1"
+    },
+    {
+      "id": "platform.runtime",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "platform.styles",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.reduced-motion",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.focus-visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.skip-link",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.html-documents",
+      "ok": true,
+      "detail": "2"
+    },
+    {
+      "id": "a11y.lang:index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.viewport:index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.zoom:index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.title:index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.main:index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.runtime:index.html",
+      "ok": true,
+      "detail": "platform=1; engine=0"
+    },
+    {
+      "id": "a11y.lang:manual/index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.viewport:manual/index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.zoom:manual/index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.title:manual/index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.main:manual/index.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "a11y.runtime:manual/index.html",
+      "ok": true,
+      "detail": "platform=1; engine=0"
+    },
+    {
+      "id": "budget.distBytes",
+      "ok": true,
+      "detail": "1169923 <= 1170000"
+    },
+    {
+      "id": "budget.entryHtmlBytes",
+      "ok": true,
+      "detail": "110115 <= 120000"
+    },
+    {
+      "id": "budget.entryCriticalBytes",
+      "ok": true,
+      "detail": "303320 <= 320000"
+    },
+    {
+      "id": "budget.largestInlineScriptBytes",
+      "ok": true,
+      "detail": "2177 <= 10000"
+    },
+    {
+      "id": "budget.precacheBytes",
+      "ok": true,
+      "detail": "932005 <= 1100000"
+    },
+    {
+      "id": "budget.largestFileBytes",
+      "ok": true,
+      "detail": "383969 <= 410000"
+    },
+    {
+      "id": "budget.duplicateLargeBytes",
+      "ok": true,
+      "detail": "0 <= 20000"
+    },
+    {
+      "id": "budget.minimum-count",
+      "ok": true,
+      "detail": "7"
+    }
+  ],
+  "warnings": [],
+  "summary": {
+    "total": 31,
+    "passed": 31,
+    "failed": 0,
+    "warnings": 0
+  }
+}

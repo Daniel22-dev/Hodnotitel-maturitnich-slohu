@@ -1,0 +1,6 @@
+Independent Claude Role B round 2 (2026-09-07) verified ONLINE SCA on the exact 1.5.24 lock set:
+- npm ci PASS
+- npm audit: 0 info / 0 low / 0 moderate / 0 high / 0 critical across 5 locked packages
+- red-before-green control: known vulnerable lodash@4.17.11 + minimist@1.2.0 returned 2 critical findings
+The 1.5.25 cleanup round does not change dependency versions or resolved/integrity entries; qa:sca remains a fail-closed CI step.
+Local ChatGPT sandbox rerun for 1.5.25 is separately recorded as NOT REPRODUCED / network failure, not relabeled PASS.

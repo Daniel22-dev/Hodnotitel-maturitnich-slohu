@@ -1,0 +1,55 @@
+GARP 2.5.1 – SECURITY ASSURANCE CROSSWALK – essay-evaluator 1.5.25
+
+Kontrola / Evidence / Stav
+GH-02 Service Worker freeze | security-critical-assets.json + R2 checker + behaviorální qa-sw-boundary + full-boundary negative control | PASS (static/build profiles); guard-only sabotage je navíc zachycena default-deny allowlistem
+GH-05 school build profile | dist-school-server config: server-session, school-gateway, local keys false, offline age 0 | PASS (static build), LIVE NOT TESTED
+GH-06 data/egress | pseudonymization/privacy tests, AI boundary, provider path inventory | AMBER; provider retention/consent/LIVE egress NOT TESTED
+GH-07 error reporter | security-regressions: canary/filename/phone/human text redaction | PASS for tested client sanitization
+GH-08 PWA identity | build and platform conformance | PASS for source/public; school relative identity is deployment-profile specific and must be validated LIVE
+GH-09 five gates | this crosswalk + handoff verdict | AMBER overall
+GH-10 no self-certification | pre-fix R2 FAIL + behaviorální fetch/Cache API probe + povinná full-boundary sabotáž, která musí FAIL | PASS pro GH-02 evidence chain
+GH-11 key custody | no production key in source; disposable PREP key only | NOT TESTED / EXTERNAL
+GH-12 legal artifacts | LEGAL-ARTIFACT-INVENTORY.json; JSZip license present | AMBER pending organizational confirmation of first-party assets/license policy
+GH-13 served headers | source school CSP/HSTS contract | STATIC PASS; LIVE NOT TESTED
+GH-14 agentic security | application has no autonomous MCP/tool agent loop | N/A for agent profile; client vynucuje max. 20 prací a output-token ceilings, provider-request budget je deklarace pro server/gateway
+
+SHIELD – APPLICATION
+- project tests 454/454 PASS + security regressions 96/96 PASS.
+- custom security scan PASS; PWA/technical/XSS/lock/suite-session/quality PASS.
+- dedicated external SAST: NOT TESTED.
+
+SHIELD – SUPPLY CHAIN
+- package-lock exact/pinned direct deps; lock audit PASS.
+- GitHub Actions exact commit SHA pinning covered by regressions.
+- vendored GHRAB Platform/AI Core are hash-checked by project conformance/build.
+- CycloneDX 1.7 SBOM generated.
+- npm audit online SCA PASS in independent review (0 vulnerabilities; unchanged dependency set); local 1.5.25 rerun NOT REPRODUCED/EAI_AGAIN; qa:sca is a permanent CI step.
+
+SHIELD – RUNTIME
+- isolated P3 browser PASS on exact 1.5.25.
+- served-app runtime did not complete in sandbox time limit -> NOT TESTED for exact candidate.
+- axe runtime NOT READY because npm ci dependencies unavailable in sandbox.
+- school-server LIVE -> NOT TESTED.
+
+SHIELD – AI
+- structural prompt boundary inherited and regression-covered.
+- 4 AI operations mají explicitní output ceilings; maxProviderRequestsPerWorkflow je deklarovaný server/gateway budget, nikoli klientský enforcement.
+- behaviorální AIR-01..12/live-model ASR -> NOT TESTED.
+
+SHIELD – EVIDENCE
+- audit-evidence/garp251 + security-evidence-manifest.json.
+- no real student data; synthetic controls only.
+
+VERDICT
+SECURITY: AMBER
+PRIVACY: AMBER
+RED TEAM: AMBER
+RELEASE INTEGRITY: AMBER
+SUPPLY CHAIN: AMBER
+OVERALL: AMBER / SHIELD-PREP ONLY
+
+1.5.25 delta evidence
+- executable assurance verifier: scripts/qa-assurance-links.mjs; qa:garp25 selftest PASS, exact PREP links 10/10 PASS, tampered SBOM link rejected.
+- release registry/anti-rollback retained and negative-control newer approved version rejected.
+- P3 cache behavior is measured by qa-sw-boundary v2, not inferred from precache text.
+- sourcePackageSha256 is corrective-input provenance; published 1.5.25 source ZIP hash is carried externally in the release record.

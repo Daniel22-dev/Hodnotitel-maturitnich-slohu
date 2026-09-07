@@ -1,0 +1,14 @@
+{
+  "schema": "ghrab-app-assurance-links-selftest-v1",
+  "status": "passed",
+  "positive": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0
+  },
+  "negative": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1
+  }
+}

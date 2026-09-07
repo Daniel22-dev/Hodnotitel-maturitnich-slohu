@@ -54,7 +54,7 @@ const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workfl
 const releaseAcceptance=JSON.parse(text('src/config/release-acceptance.json'));
 const acceptanceGate=text('scripts/qa-p5-acceptance.mjs');
 
-check(pkg.version==='1.5.22','package verze 1.5.22');
+check(pkg.version==='1.5.25','package verze 1.5.25');
 check(releaseAcceptance.releaseStatus==='ecosystem-wave-candidate','release acceptance zachovává ecosystem-wave-candidate');
 check(releaseAcceptance.primaryRuntime?.currentUseApproved===false,'wave kandidát není schválen k běžnému použití');
 check(releaseAcceptance.github?.status==='post-fix-ci-validation-required'&&releaseAcceptance.github?.postUploadValidationRequired===true,'release metadata pravdivě vyžadují post-upload GitHub validaci');
@@ -141,6 +141,8 @@ check(contains(reportEnhancements,'r?.approved&&r?.validation?.ok!==false'),'ana
 check(contains(reportEnhancements,'singleEffective?.verified'),'historie jednotlivce vyžaduje finální kontrolu učitele');
 check(contains(sw,"./vendor/jszip.min.js"),'service worker cacheuje lokální JSZip');
 check(contains(sw,"request.mode === 'navigate'")&&contains(sw,"event.respondWith(networkFirst(request, fallback))"),'HTML fallback service workeru je omezen na navigaci');
+check(contains(sw,'CACHEABLE_STATIC_PATHS')&&contains(sw,'isCacheableStaticRequest'),'service worker používá explicitní allowlist pro cacheFirst');
+check(contains(sw,'event.respondWith(networkOnlyNoStore(request))'),'neklasifikované same-origin assety jsou network-only');
 check((sw.match(/event\.respondWith\(networkFirst\(request, fallback\)\)/g)||[]).length===1,'navigační fallback existuje pouze v navigační větvi');
 check(release.length<12000,'analytická rubrika je výrazně kratší než původní chatový prompt');
 check(!contains(release,'Můžu rovnou vložit konkrétní slohovou práci')&&!contains(release,'V závěru napíšeš získaný počet bodů')&&!contains(release,'Napravo od slohové práce'),'prompt neobsahuje chatovou archeologii ani instrukce k ruční anotaci');

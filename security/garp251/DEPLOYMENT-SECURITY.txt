@@ -1,0 +1,31 @@
+GARP 2.5.1 – DEPLOYMENT SECURITY – essay-evaluator 1.5.25
+
+PUBLIC STATIC PROFILE
+- profile=github-pages; authMode=signed-permit; aiTransport=direct-gemini.
+- client provider key je legacy/non-school runtime možnost a není school-target trust boundary.
+- SW security-critical soubory network-only/no-store; běžný shell může být offline cached.
+- veřejný deploy zůstává pod existující fail-closed GitHub governance kontrolou.
+
+SCHOOL SERVER PROFILE – TARGET
+- profile=school-server; authMode=server-session; aiTransport=school-gateway.
+- API base /api/v1/ same-origin; credentials/session jsou server-authoritative.
+- allowLocalProviderKeys=false.
+- maxOfflineAgeHours=0 a failClosedWhenStale=true.
+- school CSP connect-src/form-action same-origin; HSTS deklarováno v security headers config.
+- build je pouze PREP; serverConnection prepared-not-connected.
+
+POVINNÉ LIVE KROKY PŘED REAL DATA
+1. reverse proxy/security headers ověřit přes skutečné HTTP odpovědi;
+2. secure/HttpOnly/SameSite session cookie a logout/revocation;
+3. same-origin gateway authz a role enforcement;
+4. egress allowlist/provider retention/deletion;
+5. multi-user/session isolation a shared-device cleanup;
+6. signed production release + trust root + registry + key custody;
+7. přesný CI served runtime/a11y a staging DAST.
+
+Dokud nejsou tyto kroky provedeny, school-server LIVE není GREEN.
+
+1.5.25 release-record clarification
+- sourcePackageSha256 in upstream GARP manifests/provenance means the corrective INPUT source package (1.5.24), not the self-containing 1.5.25 source ZIP.
+- The published 1.5.25 source ZIP SHA-256 is recorded externally next to the artifacts in RELEASE-RECORD-HODNOTITEL-1.5.25-GARP2.5.1-R2.json and the handoff protocol.
+- This avoids a recursive/self-referential hash while keeping third-party provenance readable.

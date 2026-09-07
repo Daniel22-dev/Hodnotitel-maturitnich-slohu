@@ -1,0 +1,105 @@
+{
+  "schema": "ghrab-security-scan-summary-v1",
+  "appId": "essay-evaluator",
+  "version": "1.5.25",
+  "profile": "SHIELD-PREP",
+  "syntheticDataOnly": true,
+  "results": [
+    {
+      "category": "project-regression",
+      "tool": "tests/test.mjs",
+      "status": "PASS",
+      "summary": "454/454"
+    },
+    {
+      "category": "security-regression",
+      "tool": "tests/security-regressions.mjs",
+      "status": "PASS",
+      "summary": "96/96"
+    },
+    {
+      "category": "SAST-custom",
+      "tool": "scripts/qa-security.mjs + qa-p5-xss-sinks.mjs",
+      "status": "PASS",
+      "summary": "0 security findings; XSS inventory 0 failures",
+      "limitation": "not a third-party general SAST engine"
+    },
+    {
+      "category": "SAST-third-party",
+      "status": "NOT_TESTED",
+      "reason": "CodeQL/Semgrep not installed in authorized audit environment"
+    },
+    {
+      "category": "SCA",
+      "tool": "npm audit",
+      "status": "PASS_INDEPENDENT_DEPENDENCY_SET",
+      "summary": "Claude role B round 2: 0 vulnerabilities across 5 locked dependency packages; red-before-green advisory endpoint control succeeded",
+      "reviewedCandidate": "1.5.24",
+      "currentCandidate": "1.5.25",
+      "dependencySetSha256": "5d93e0e002ef849b73e787ca973fbc3056793c521032a5a3fa430ea2c823fd4f",
+      "dependencySet": "axe-core 4.12.1; fsevents 2.3.2; playwright 1.61.1; playwright-core 1.61.1; pngjs 7.0.0",
+      "candidateChange": "root application version changed; dependency package entries/resolved/integrity unchanged",
+      "localRerun": "NOT_REPRODUCED: registry.npmjs.org EAI_AGAIN in ChatGPT sandbox",
+      "permanentControl": "qa:sca runs npm audit --audit-level=high in qa:p5:ci; independent round 3 should rerun against 1.5.25"
+    },
+    {
+      "category": "lockfile",
+      "tool": "scripts/qa-p5-lock.mjs",
+      "status": "PASS",
+      "summary": "3 direct dependencies; 5 locked packages"
+    },
+    {
+      "category": "secret-source",
+      "tool": "scripts/qa-secret-scan.mjs",
+      "status": "PASS",
+      "summary": "0 findings"
+    },
+    {
+      "category": "secret-deployment",
+      "tool": "GARP scan-deployment-leaks R2",
+      "status": "PASS",
+      "summary": "public and school-server PASS"
+    },
+    {
+      "category": "service-worker-freeze",
+      "tool": "GARP check-sw-security-freeze R2",
+      "status": "PASS",
+      "summary": "public and school-server PASS after pre-fix FAIL"
+    },
+    {
+      "category": "SBOM",
+      "tool": "scripts/create-garp25-sbom.mjs",
+      "status": "PASS",
+      "format": "CycloneDX 1.7"
+    },
+    {
+      "category": "browser-isolated",
+      "tool": "scripts/qa-p3-browser.mjs",
+      "status": "PASS"
+    },
+    {
+      "category": "served-runtime",
+      "tool": "scripts/qa-p5-runtime.mjs",
+      "status": "NOT_TESTED",
+      "reason": "sandbox timeout"
+    },
+    {
+      "category": "axe-runtime",
+      "tool": "scripts/qa-p5-axe-runtime.mjs",
+      "status": "NOT_TESTED",
+      "reason": "npm ci / axe-core unavailable in sandbox"
+    },
+    {
+      "category": "DAST",
+      "status": "NOT_TESTED",
+      "reason": "no authorized staging/LIVE target in this PREP run"
+    },
+    {
+      "category": "container-image",
+      "status": "N/A",
+      "reason": "no OCI image in candidate"
+    }
+  ],
+  "blockingKnownReachableHighCritical": 0,
+  "overall": "AMBER"
+}

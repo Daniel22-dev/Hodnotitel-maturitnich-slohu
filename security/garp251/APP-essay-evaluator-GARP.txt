@@ -1,0 +1,71 @@
+GARP 2.5.1 – PRŮVODNÍ LIST APLIKACE
+Aplikace: Hodnotitel maturitních slohů
+appId: essay-evaluator
+Verze kandidáta: 1.5.25
+Datum: 2026-09-07
+Profil: SHIELD-PREP
+
+IDENTITA A ARCHITEKTURA
+- Hybridní PWA child aplikace AI Studio GHRAB.
+- Public profil: GitHub Pages, signed-permit, direct-gemini, lokální provider klíč pouze runtime/session dle existujícího bezpečnostního modelu.
+- School profil: server-session, same-origin /api/v1/, school-gateway, lokální provider klíče zakázány, maxOfflineAgeHours=0.
+- GHRAB Platform 1.1.2; GHRAB AI Core 1.0.0.
+- PWA Service Worker je součástí obou build profilů.
+
+DATA / KLASIFIKACE
+- Studentské práce a přepisy: D2/D3-like školní osobní/obsahová data podle GARP profilu.
+- Jména/e-maily: lokální párování a explicitní distribuční tok; nemají být součástí modelového promptu.
+- Hodnocení/známka a učitelské rozhodnutí: citlivý školní výsledek.
+- Důvěrná ostrá maturitní zadání: samostatně chráněný obsah; úplná nová sada nesmí vstoupit do veřejné Git historie.
+- Reálná studentská data jsou pro tento SHIELD-PREP kandidát zakázána.
+
+PROVENANCE FREEZE
+- Korekční vstupní kandidát 1.5.23 SHA-256: 01d15fed8747fcff36676166cc6a13f4483e75f34c2bf9bb9e3b29224582984f
+- Nezávislý Claude review 1.5.23 SHA-256: 06e4a850913661f4fdf361ce8aa780b06ddbe6705fddc06dc4cf261ca5455e5a
+- Dodaný behaviorální qa-sw-boundary.mjs SHA-256: 4a13ee3ffb10cf778eaa015de6b282176743b44b06471a0cc742bd48a257e570; v 1.5.25 rozšířen pro defense-in-depth po default-deny změně.
+- Vstupní source ZIP 1.5.22 SHA-256: 8ff29fbd2c94d9d269f783ad5ddb091c305ea19c4ba74344989cb384fa760b7f
+- Vstupní GARP 2.5.1 R2 ZIP SHA-256: 3c95f0b487806df63a5b90663d20c4961eebb20681b8c2db77e142426af31aea
+- GARP selftest před migrací: 43/43 PASS.
+- Poslední uzavřený GARP 2.3 baseline: verze 1.5.18, final ZIP SHA-256 ebf95a4ebba9bc3658d8e70392e9134f52207cfaffd806ab33cd659c5ae5ed0b.
+- Přesný source ZIP 1.5.18 nebyl v aktuálním pracovním vstupu k dispozici; boundary diff A je proto doložen protokolem 1.5.18 + changelogem 1.5.19–1.5.22, nikoli byte-diffem 1.5.18→1.5.22.
+- Aktuální source ZIP neobsahuje .git, proto source commit nelze z lokálního artefaktu nezávisle určit. Přesný source input je svázán SHA-256 výše.
+
+ZDĚDĚNÝ GARP 2.3 STAV
+- 1.5.18: SECURITY AMBER, PRIVACY AMBER, RED TEAM AMBER, RELEASE INTEGRITY AMBER, OVERALL AMBER.
+- Strukturální AI prompt boundary: 196/196 PASS; behaviorální live-model AIR: NOT TESTED.
+- Blokery zahrnovaly centrální authorization, served browser lifecycle, provider/server retention, GitHub governance, LIVE school server a nezávislou exact-release provenance.
+
+GARP 2.5 DELTA – HLAVNÍ NÁLEZ A OPRAVA
+GH-02 / Service Worker security freeze:
+- PRE-FIX 1.5.22 R2 checker s autoritativním app-specific seznamem: FAIL.
+- Příčina: precache obsahoval access-bootstrap, deployment config/baked config, error reporter, manual access bootstrap, consumer contract a executable ghrab-platform.js.
+- Oprava 1.5.25: security-critical requesty zůstávají explicitně networkOnlyNoStore a dynamická cache je navíc DEFAULT-DENY – cacheFirst smí pouze explicitní statický allowlist.
+- POST-FIX public: PASS; school-server: PASS; behaviorální qa-sw-boundary 6/6 PASS.
+- Defense-in-depth: samotné vypnutí security guardu kritické assety nezmrazí, protože je zachytí default-deny allowlist. Plná sabotáž obou vrstev vyvolá 26 porušení hranice a test ji odmítne.
+- GHNC-02 precache mutace release-integrity.json nadále musí FAIL.
+
+INTEGRACE DO GATE
+- npm run qa:garp25 je součást npm run qa:p5 i npm run qa:p5:ci.
+- Vendored GARP 2.5.1 R2 tooling má vlastní upstream hashový podklad.
+- Repository secret scan má jedinou hashově připnutou výjimku pro byte-identický upstream selftest obsahující syntetické secret sentinely; hash se počítá ze surových bajtů.
+
+NOT TESTED / EXTERNAL
+- School-server LIVE runtime/security headers/session cookies/reverse proxy: NOT TESTED.
+- Behaviorální live-model AI-RED AIR-01..12: NOT TESTED.
+- Provider retention/data-use a produkční egress evidence pro D2/D3: NOT TESTED.
+- Lock-wide online SCA: PASS v nezávislém review (0 zranitelností, dependency set beze změny); lokální rerun 1.5.25 NOT REPRODUCED/EAI_AGAIN; trvalý CI krok qa:sca.
+- Dedicated third-party SAST (CodeQL/Semgrep): NOT TESTED; projektové custom static security/XSS scany jsou provedeny.
+- DAST: NOT TESTED.
+- OCI/container scan: N/A – tento kandidát není OCI image.
+- Produkční signing key/trust root/key custody: EXTERNAL / NOT TESTED; PREP může použít pouze disposable test key.
+- Nezávislá Claude GARP 2.5 delta review: REQUIRED po tomto předání.
+
+POUŽITÍ
+SHIELD-PREP / SYNTHETICKÁ DATA POUZE.
+REÁLNÁ STUDENTSKÁ DATA: NEPOUŽÍVAT.
+
+1.5.25 – Claude round-2 cleanup
+- R2-N-01: static PREP-ASSURANCE-LINKS claim replaced by executable scripts/qa-assurance-links.mjs; selftest positive 10/10 and negative 9/10, exact PREP deployment verification 10/10 PASS.
+- R2-N-02: sourcePackageSha256 convention documented as corrective-input identity; actual published 1.5.25 source ZIP hash is external release-record data to avoid recursion.
+- R2-N-03/R2-N-04: P3 precache assets are actually cache-readable; path normalization no longer assumes './'; cache.put errors/206 do not break or poison cache-first delivery.
+- N-06 remains LOW/open. SHIELD-PREP remains AMBER because LIVE/DAST/AI-RED/key-custody/prod-CI evidence is external.

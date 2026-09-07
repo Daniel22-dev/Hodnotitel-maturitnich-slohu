@@ -1,0 +1,71 @@
+{
+  "schema": "ghrab-app-assurance-links-verification-v2",
+  "status": "passed",
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "id": "manifest.sbomSha256",
+      "ok": true,
+      "actual": "e8a8291f2d5a21054ba30e4a27addb4e9814114ab9cb61f131a4e9edccd8b659",
+      "expected": "e8a8291f2d5a21054ba30e4a27addb4e9814114ab9cb61f131a4e9edccd8b659"
+    },
+    {
+      "id": "manifest.evidenceManifestSha256",
+      "ok": true,
+      "actual": "61bcb3d34090a705deab9524eca4de23ab45dbbe0a7446008f08ad0b13db62e0",
+      "expected": "61bcb3d34090a705deab9524eca4de23ab45dbbe0a7446008f08ad0b13db62e0"
+    },
+    {
+      "id": "manifest.sourcePackageSha256",
+      "ok": true,
+      "actual": "51839332f918de1dfee5b97408547103afaba631288d8bbb4a0b17851b572493|51839332f918de1dfee5b97408547103afaba631288d8bbb4a0b17851b572493|51839332f918de1dfee5b97408547103afaba631288d8bbb4a0b17851b572493",
+      "expected": "same 64-hex corrective-input source hash in manifest/provenance/evidence"
+    },
+    {
+      "id": "provenance.subject.sha256",
+      "ok": true,
+      "actual": "d40c1f71c28f3fa447c9ca7304b9a827d2832a24b5484776622b66738cdc8bcf",
+      "expected": "d40c1f71c28f3fa447c9ca7304b9a827d2832a24b5484776622b66738cdc8bcf"
+    },
+    {
+      "id": "provenance.releaseIntegrity.artifactDigest",
+      "ok": true,
+      "actual": "bbe1e48184343dc92dc1049cc4b24bd680a4c60162dcdbab9a7db777406cf292",
+      "expected": "bbe1e48184343dc92dc1049cc4b24bd680a4c60162dcdbab9a7db777406cf292"
+    },
+    {
+      "id": "provenance.lockfileSha256",
+      "ok": true,
+      "actual": "d6d43fc5ae24b86076eed6d15a03f96259bea68b99e8902ef02164946fb8dcbb",
+      "expected": "d6d43fc5ae24b86076eed6d15a03f96259bea68b99e8902ef02164946fb8dcbb"
+    },
+    {
+      "id": "registry.artifactDigest",
+      "ok": true,
+      "actual": "bbe1e48184343dc92dc1049cc4b24bd680a4c60162dcdbab9a7db777406cf292",
+      "expected": "bbe1e48184343dc92dc1049cc4b24bd680a4c60162dcdbab9a7db777406cf292"
+    },
+    {
+      "id": "registry.version",
+      "ok": true,
+      "actual": "1.5.25",
+      "expected": "1.5.25"
+    },
+    {
+      "id": "registry.keyId",
+      "ok": true,
+      "actual": "ghrab-prep-20260907-1.5.25-disposable",
+      "expected": "ghrab-prep-20260907-1.5.25-disposable"
+    },
+    {
+      "id": "trustRoot.keyId",
+      "ok": true,
+      "actual": "ghrab-prep-20260907-1.5.25-disposable",
+      "expected": "ghrab-prep-20260907-1.5.25-disposable"
+    }
+  ]
+}

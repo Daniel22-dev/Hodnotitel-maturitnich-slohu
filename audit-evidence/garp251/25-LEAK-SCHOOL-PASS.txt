@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "root": "/mnt/data/garp25_125/dist-school-server",
+  "info": [
+    "INFO-binary-not-scanned:assets/brand/school-logo.png",
+    "INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-180.png",
+    "INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-192.png",
+    "INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-32.png",
+    "INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-512.png",
+    "INFO-binary-not-scanned:icons/hodnotitel-shield-20260711-maskable-512.png"
+  ]
+}

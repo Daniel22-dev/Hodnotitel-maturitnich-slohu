@@ -1,0 +1,44 @@
+GARP 2.5.1 – THREAT MODEL – essay-evaluator 1.5.25
+
+AKTIVA
+1. studentské práce/přepisy, identita a kontaktní údaje;
+2. hodnocení, známky, komentáře a učitelské schválení;
+3. důvěrná ostrá maturitní zadání;
+4. provider/API credentials a školní session;
+5. signed access permit / centrální authorization boundary;
+6. GHRAB Platform + AI Core vendored runtime;
+7. release artefakt, Service Worker cache a release-integrity metadata.
+
+ÚTOČNÍCI / CAPABILITIES
+- student nebo jiný běžný uživatel s browserem a možností měnit client storage;
+- útočník s možností vložit prompt-injection obsah do práce/přílohy;
+- útočník ovládající stale Service Worker cache nebo starý klientský artefakt;
+- supply-chain/repository útočník s možností změnit dependency/workflow/vendor artefakt;
+- náhodná chyba učitele: špatný import, export, příjemce, commit důvěrné sady;
+- kompromitovaný externí egress/provider nebo nesprávná retence;
+- síťový útočník mimo TLS/same-origin hranici (závislé na deploymentu).
+
+TRUST BOUNDARIES
+A. AI Studio signed-permit / school server session -> aplikace.
+B. nedůvěryhodný studentský obsah -> trusted prompt instrukce.
+C. browser/session/local storage -> aplikační state.
+D. aplikace -> Gemini/direct provider nebo same-origin school gateway.
+E. aplikace -> Apps Script/Gmail distribuční tok po explicitním schválení.
+F. source -> build -> deployment -> Service Worker -> runtime.
+G. vendor GHRAB Platform/AI Core -> child aplikace.
+
+KLÍČOVÉ HROZBY A KONTROLY
+- Auth bypass/stale access: fail-closed access bootstrap, signed-permit/server session; LIVE authorization zůstává external NOT TESTED.
+- SW security freeze: GARP R2 checker + autoritativní seznam + networkOnlyNoStore; pre-fix FAIL a post-fix PASS.
+- Prompt injection: oddělené trusted instructions/inputParts, escapované JSON boundary, strukturální korpus; behaviorální live-model red team NOT TESTED.
+- Cross-student leakage/state resurrection: suite-session cleanup, owned storage manifest, multi-tab/back-forward guard; 12/12 synthetic lifecycle QA.
+- Confidential exam leak: session-only complete exam set, persistent redaction, repository parser/scanner, legacy set považována za kompromitovanou.
+- Secret leakage: source secret scan + deployment leak scan; synthetic scanner controls.
+- Supply chain: exact lockfile, pinned GitHub Actions, vendored platform/core hash checks, SBOM; online SCA PASS v nezávislém Claude review 2026-09-07; exact local rerun 1.5.25 je nyní NOT REPRODUCED kvůli EAI_AGAIN; trvalý CI krok qa:sca.
+- XSS/untrusted rendering: CSP source policy, XSS sink regression inventory; served headers LIVE NOT TESTED.
+- Error-reporter exfiltration: canary/filename/phone/human-content redaction; app-specific regression tests.
+- School provider key leak: school profile allowLocalProviderKeys=false, server-session + school-gateway + same-origin; LIVE backend NOT TESTED.
+- Resource abuse/cost loops: klient vynucuje max. 20 prací a output-token stropy; maxProviderRequestsPerWorkflow v ai-operations.json je pouze deklarovaný budget pro school gateway/server a klient jej nevynucuje; no autonomous agent/tool loop.
+
+RESIDUAL RISK
+Kandidát je AMBER, protože SHIELD-PREP nemá school-server LIVE/DAST, behaviorální AI-RED ani produkční key custody/trust-root evidence. Online SCA je uzavřeno na základě nezávislého review nad identickým dependency setem; lokální rerun 1.5.25 je kvůli EAI_AGAIN pouze NOT REPRODUCED. Reálná studentská data nejsou povolena.

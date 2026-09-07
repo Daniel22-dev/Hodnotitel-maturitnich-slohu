@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "serviceWorker": "dist/sw.js",
+  "criticalListSource": "security/garp251/security-critical-assets.json",
+  "precachedEntries": 22,
+  "precacheSources": [
+    {
+      "source": "addAll:expression",
+      "entries": [
+        "./",
+        "./index.html",
+        "./app.js",
+        "./access-gate.css",
+        "./manifest.webmanifest",
+        "./access/access-gate.css",
+        "./access/error-reporter.css",
+        "./manual/index.html",
+        "./manual/manual.js",
+        "./assets/brand/school-logo.png",
+        "./icons/hodnotitel-shield-20260711-32.png",
+        "./icons/hodnotitel-shield-20260711-180.png",
+        "./icons/hodnotitel-shield-20260711-192.png",
+        "./icons/hodnotitel-shield-20260711-512.png",
+        "./icons/hodnotitel-shield-20260711-maskable-512.png",
+        "./vendor/jszip.min.js",
+        "./config/brand-manifest.json",
+        "./config/platform-manifest.json"
+      ]
+    },
+    {
+      "source": "map-add:GHRAB_PLATFORM_P3_ASSETS",
+      "entries": [
+        "./ghrab/ghrab-platform.css",
+        "./ghrab/ghrab-artifact-envelope-v1.schema.json",
+        "./ghrab/ghrab-app-registry-v2.schema.json",
+        "./ghrab/ghrab-platform-manifest-1.1.2.json",
+        "./assets/brand/school-logo.png"
+      ]
+    }
+  ],
+  "unresolvedCacheWrites": [],
+  "cacheFirstDetected": true,
+  "structuralNetworkOnlyGuard": true,
+  "criticalAssetsInDeployment": [
+    "access/deployment-baked.js",
+    "access/deployment-config.js",
+    "access/error-reporter-adapter.js",
+    "access/error-reporter.js",
+    "access/reporter-bootstrap.js",
+    "access/suite-session-cleanup.js",
+    "access-bootstrap.js",
+    "config/deployment.json",
+    "ghrab/ghrab-platform.js",
+    "ghrab-platform.consumer.json",
+    "manual/manual-access-bootstrap.js"
+  ],
+  "findings": [],
+  "checkerRevision": "garp-2.5.1-r2-cache-write-coverage-fail-closed",
+  "note": "Static bounded analysis. PASS means no critical asset found in recognized Cache API write paths, all analyzed writes resolved/guarded, and deployed critical assets have structural isSecurityCriticalRequest -> networkOnlyNoStore routing. Does not replace SIM-07 or behavioral revocation tests."
+}

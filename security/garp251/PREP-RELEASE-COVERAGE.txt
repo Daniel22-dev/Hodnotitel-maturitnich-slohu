@@ -1,0 +1,26 @@
+GARP 2.5.1 PREP release coverage - essay-evaluator 1.5.25
+
+Upstream R2 release-gate.mjs references an optional verify-assurance-links.mjs, but that file is absent from the upstream R2 tooling package. The vendored upstream tooling remains byte-identical and was NOT locally patched.
+
+Application-level replacement:
+- scripts/qa-assurance-links.mjs is an executable verifier, not a hand-written claim;
+- it recalculates ten cross-artifact links from SBOM, evidence manifest, release-integrity manifest, provenance, registry, trust root, lockfile and the actual deployment ZIP;
+- --selftest must PASS a valid synthetic bundle and FAIL a deliberately corrupted link;
+- qa:garp25 executes this selftest so the verifier cannot silently rot;
+- the exact PREP release invokes the same verifier against the real 1.5.25 deployment ZIP and writes PREP-ASSURANCE-LINKS.json.
+
+Canonical PREP gate explicitly runs:
+- deployment-leaks
+- release-integrity
+- release-signature
+- release-registry / anti-rollback
+- build-provenance (local-untrusted-builder allowed only in PREP)
+- evidence-manifest
+- sw-security-freeze
+
+The absent upstream assurance-links step is NOT silently counted as PASS. Its status remains SKIPPED_UPSTREAM_MISSING; the application-level executable verifier is supplemental and separately evidenced.
+
+sourcePackageSha256 convention:
+The upstream GARP fields named sourcePackageSha256 identify the HASH OF THE CORRECTIVE INPUT PACKAGE from which this cleanup round was derived (for 1.5.25, the published 1.5.24 source ZIP). They do NOT claim to be the hash of the source ZIP that contains the field itself, because embedding that hash would be recursively self-referential. The hash of the actually published 1.5.25 source ZIP is therefore recorded externally in RELEASE-RECORD-HODNOTITEL-1.5.25-GARP2.5.1-R2.json and in the handoff protocol together with the deployment ZIP hash.
+
+This remains PREP only and is not school-server LIVE GREEN.

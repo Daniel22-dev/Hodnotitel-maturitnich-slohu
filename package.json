@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "pretest": "npm run build:school-server",
     "test": "node tests/test.mjs && node tests/security-regressions.mjs",
     "check": "npm test && npm run build",
     "qa:technical": "node scripts/qa-technical.mjs",

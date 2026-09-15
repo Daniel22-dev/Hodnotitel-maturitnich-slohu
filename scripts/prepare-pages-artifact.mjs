@@ -8,7 +8,7 @@ if(!fs.existsSync(dist)) throw new Error('Chybí dist/. Nejprve spusť build a Q
 const explicit=[
   'quality-report.json','qa-p3-browser-report.json','qa-p3-reflow-runtime-report.json','qa-p3-axe-report.json',
   'qa-p4-a11y-report.json','qa-p4-release-report.json','qa-p5-runtime-report.json','qa-p5-xss-sinks-report.json',
-  'qa-p5-axe-runtime-report.json','qa-p5-release-report.json','qa-p5-acceptance-report.json','config/quality-manifest.json'
+  'qa-p5-axe-runtime-report.json','qa-p5-release-report.json','qa-p5-acceptance-report.json','qa-suite-session-report.json','config/quality-manifest.json'
 ];
 for(const rel of explicit) fs.rmSync(path.join(dist,...rel.split('/')),{force:true});
 function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const p=path.join(dir,e.name);return e.isDirectory()?walk(p):[p]});}

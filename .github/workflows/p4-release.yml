@@ -2,9 +2,6 @@ name: Legacy P4 entrypoint (delegates to P5 R2)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-  pull_request:
 
 permissions:
   contents: read

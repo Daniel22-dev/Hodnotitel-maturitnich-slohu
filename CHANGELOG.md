@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.26 – N5 scanner + GitHub deploy governance hardening (2026-09-15)
+
+- N5 deployment secret scanner nově fail-closed blokuje privátní JWK a PGP private-key bloky; encrypted PEM zůstává blokován.
+- `qa:garp25` obsahuje povinné negativní regrese pro JWK, PGP a encrypted PEM.
+- Deploy governance nově vyžaduje nejen chráněnou `main`, ale i required GitHub check `p5-release-gate`; chybějící nebo jiný check deploy blokuje.
+- GitHub `main` byla nastavena jako protected a `p5-release-gate` je required status check.
+- Aplikační logika hodnocení, rubrika, AI workflow a studentská data nebyly v tomto patchi měněny.
+- Historické GARP 2.5.1 PREP artefakty 1.5.25 zůstávají neměnné; 1.5.26 je bezpečnostní/governance delta nad tímto baseline.
+
 ## 1.5.25 – GARP 2.5.1 R2 evidence/assurance cleanup po Claude kole 2 (2026-09-07)
 
 - R2-N-01: přidán spustitelný `qa-assurance-links.mjs` s 10 skutečně přepočítávanými vazbami, pozitivní i negativní selftest kontrolou; `qa:garp25` ověřuje, že verifier není dekorativní.

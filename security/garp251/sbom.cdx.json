@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.7",
-  "serialNumber": "urn:uuid:e254936a-0c69-4315-8afb-bc5ac1201bc3",
+  "serialNumber": "urn:uuid:138f9a1f-878b-40d7-90e4-48efc84008fe",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-07T17:02:50.194Z",
+    "timestamp": "2026-09-15T19:13:13.151Z",
     "tools": {
       "components": [
         {
@@ -17,14 +17,14 @@
     "component": {
       "type": "application",
       "name": "hodnotitel-maturitnich-slohu",
-      "version": "1.5.25",
-      "bom-ref": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.25",
-      "purl": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.25"
+      "version": "1.5.26",
+      "bom-ref": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.26",
+      "purl": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.26"
     },
     "properties": [
       {
         "name": "ghrab:lockfileSha256",
-        "value": "d6d43fc5ae24b86076eed6d15a03f96259bea68b99e8902ef02164946fb8dcbb"
+        "value": "e186c960f11ece807d32f82286f23053e2aa59a263602f0199d13e23fd692268"
       },
       {
         "name": "ghrab:profile",
@@ -225,7 +225,7 @@
   ],
   "dependencies": [
     {
-      "ref": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.25",
+      "ref": "pkg:npm/hodnotitel-maturitnich-slohu@1.5.26",
       "dependsOn": [
         "pkg:npm/axe-core@4.12.1",
         "pkg:npm/playwright@1.61.1",

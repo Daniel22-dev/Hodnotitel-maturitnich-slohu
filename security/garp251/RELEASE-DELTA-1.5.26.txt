@@ -1,0 +1,25 @@
+GARP 2.5.1 RELEASE DELTA - essay-evaluator 1.5.26
+Date: 2026-09-15
+
+BASELINE
+- Historical SHIELD-PREP evidence remains pinned to 1.5.25 and is intentionally not rewritten.
+- 1.5.26 is a cumulative security/governance delta over that baseline.
+
+DELTA N5
+- deployment scanner rejects synthetic private JWK material
+- deployment scanner rejects synthetic PGP PRIVATE KEY BLOCK material
+- existing encrypted PEM rejection preserved
+- qa:garp25 contains mandatory negative controls for all three classes
+
+DELTA GOVERNANCE
+- deployment governance requires protected main
+- deployment governance requires GitHub required status check: p5-release-gate
+- missing/incorrect required check fails closed
+- live GitHub branch metadata verified protected=true with p5-release-gate required after stage 2 setup
+
+UNCHANGED / NOT CLAIMED CLOSED
+- school-server LIVE/DAST
+- production signing key/trust-root custody
+- behavior AI-RED
+- provider-side retention/egress evidence
+- other historical SHIELD-PREP AMBER limitations

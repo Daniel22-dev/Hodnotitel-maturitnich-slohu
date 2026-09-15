@@ -2,6 +2,7 @@ import {readFileSync,readdirSync} from 'node:fs';
 import {dirname,join} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import vm from 'node:vm';
+import {spawnSync} from 'node:child_process';
 import {runPromptBoundaryChecks} from '../qa/prompt-boundary-harness.mjs';
 import {containsConfidentialExamJson} from '../scripts/lib/confidential-exam-json.mjs';
 
@@ -230,7 +231,28 @@ check(/const ROOT=fileURLToPath\(new URL\('\.\.',import\.meta\.url\)\)/.test(rea
 const secretScannerSource=read('scripts/qa-secret-scan.mjs');
 check(/TRUSTED_SYNTHETIC_SECRET_FIXTURES/.test(secretScannerSource)&&/1e52035cd256ea2e5e6a10d91b7d8a3b5bdf00a55922b8dcb857baaaf789fa15/.test(secretScannerSource)&&!/IGNORE_DIRS[^\n]+security/.test(secretScannerSource),'GARP selftest syntetické secret fixture má pouze hashově připnutou výjimku, ne plošné ignorování security adresáře');
 const governanceIndex=deployWorkflow.indexOf('npm run qa:github-governance');
-check(governanceIndex>=0&&governanceIndex<deployWorkflow.indexOf('npm run prepare:pages')&&/branch\?\.protected!==true/.test(read('scripts/verify-github-deployment-governance.mjs')),'Pages deploy fail-closed ověřuje ochranu main před vytvořením veřejného artefaktu');
+const governanceSource=read('scripts/verify-github-deployment-governance.mjs');
+check(
+  governanceIndex>=0&&
+  governanceIndex<deployWorkflow.indexOf('npm run prepare:pages')&&
+  /branch\?\.protected\s*!==\s*true/.test(governanceSource)&&
+  /required_status_checks/.test(governanceSource)&&
+  /p5-release-gate/.test(governanceSource),
+  'Pages deploy fail-closed ověřuje ochranu main i required P5 check před vytvořením veřejného artefaktu'
+);
+const governanceUrl=pathToFileURL(join(ROOT,'scripts/verify-github-deployment-governance.mjs')).href;
+function runGovernanceCase(branch,ref='main'){
+  const source=`globalThis.fetch=async()=>({ok:true,status:200,json:async()=>(${JSON.stringify(branch)})});await import(${JSON.stringify(governanceUrl)});`;
+  return spawnSync(process.execPath,['--input-type=module','-e',source],{
+    cwd:ROOT,
+    encoding:'utf8',
+    env:{...process.env,GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'Daniel22-dev/Hodnotitel-maturitnich-slohu',GITHUB_REF_NAME:ref,GITHUB_TOKEN:'synthetic-test-token'}
+  });
+}
+check(runGovernanceCase({protected:false,protection:{required_status_checks:{enforcement_level:'off',contexts:[]}}}).status!==0,'GitHub governance funkčně odmítne nechráněnou main');
+check(runGovernanceCase({protected:true,protection:{required_status_checks:{enforcement_level:'non_admins',contexts:['axe']}}}).status!==0,'GitHub governance funkčně odmítne ochranu bez required P5');
+check(runGovernanceCase({protected:true,protection:{required_status_checks:{enforcement_level:'non_admins',contexts:['p5-release-gate']}}}).status===0,'GitHub governance funkčně přijme chráněnou main s required P5');
+check(runGovernanceCase({protected:true,protection:{required_status_checks:{enforcement_level:'non_admins',contexts:['p5-release-gate']}}},'feature').status!==0,'GitHub governance funkčně odmítne deploy z jiné větve než main');
 const p5Index=deployWorkflow.indexOf('npm run qa:p5:ci'), cleanIndex=deployWorkflow.indexOf('npm run prepare:pages'), uploadIndex=deployWorkflow.indexOf('actions/upload-pages-artifact@');
 check(p5Index>=0&&cleanIndex>p5Index&&uploadIndex>cleanIndex,'Pages workflow čistí QA-only artefakty až po QA a před veřejným uploadem');
 const pagesPrep=read('scripts/prepare-pages-artifact.mjs');

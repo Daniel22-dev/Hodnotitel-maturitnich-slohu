@@ -76,11 +76,27 @@ try {
   runNode('ghnc02.security-critical-precache-mutation-rejected', path.join(tools, 'check-sw-security-freeze.mjs'), [path.join(ncRoot, 'sw.js'), ncRoot, critical], 1);
 } finally { await fsp.rm(ncRoot, { recursive: true, force: true }); }
 
-// Deployment leak scanner negative control: .env.* must be fail-closed.
+// Deployment leak scanner negative controls: common N5 secret classes must fail closed.
 const ncLeak = await fsp.mkdtemp(path.join(os.tmpdir(), 'garp251-leak-nc-'));
 try {
   await fsp.writeFile(path.join(ncLeak, '.env.production'), 'SYNTHETIC_ONLY=not-a-secret\n');
   runNode('negative-control.env-production-rejected', path.join(tools, 'scan-deployment-leaks.mjs'), [ncLeak], 1);
+  await fsp.rm(path.join(ncLeak, '.env.production'));
+
+  const { privateKey: jwkPrivateKey } = await import('node:crypto').then(({ generateKeyPairSync }) =>
+    generateKeyPairSync('ec', { namedCurve: 'prime256v1' })
+  );
+  const jwk = jwkPrivateKey.export({ format: 'jwk' });
+  await fsp.writeFile(path.join(ncLeak, 'jwk.js'), `const k={kty:'${jwk.kty}',crv:'${jwk.crv}',x:'${jwk.x}',y:'${jwk.y}',d:'${jwk.d}'};\n`);
+  runNode('negative-control.private-jwk-rejected', path.join(tools, 'scan-deployment-leaks.mjs'), [ncLeak], 1);
+  await fsp.rm(path.join(ncLeak, 'jwk.js'));
+
+  await fsp.writeFile(path.join(ncLeak, 'pgp.txt'), '-----BEGIN PGP PRIVATE KEY BLOCK-----\nVersion: synthetic-only\nabc123\n-----END PGP PRIVATE KEY BLOCK-----\n');
+  runNode('negative-control.pgp-private-key-rejected', path.join(tools, 'scan-deployment-leaks.mjs'), [ncLeak], 1);
+  await fsp.rm(path.join(ncLeak, 'pgp.txt'));
+
+  await fsp.writeFile(path.join(ncLeak, 'encrypted-pem.txt'), '-----BEGIN ENCRYPTED PRIVATE KEY-----\nSYNTHETIC-ONLY\n-----END ENCRYPTED PRIVATE KEY-----\n');
+  runNode('negative-control.encrypted-pem-rejected', path.join(tools, 'scan-deployment-leaks.mjs'), [ncLeak], 1);
 } finally { await fsp.rm(ncLeak, { recursive: true, force: true }); }
 
 const failed = steps.filter((s) => !s.ok);

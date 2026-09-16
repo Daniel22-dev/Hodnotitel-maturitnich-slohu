@@ -13,6 +13,8 @@ Release path:
 7. deploy verifies that the current main SHA is associated with a merged `candidate -> main` PR,
 8. `app-updated` is emitted only after successful production deployment.
 
+The merge controller resolves the canonical open `candidate -> main` pull request from the exact GREEN candidate commit association; it does not depend on a runner-local event payload path.
+
 ## Required repository governance
 
 `main` must be protected with:

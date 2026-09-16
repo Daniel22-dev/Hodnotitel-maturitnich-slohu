@@ -1,7 +1,8 @@
 name: GHRAB QA and deploy
 
 on:
-  pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -15,6 +16,7 @@ jobs:
   qa-build:
     permissions:
       contents: read
+      pull-requests: read
       pages: write
     runs-on: ubuntu-latest
     steps:
@@ -30,6 +32,16 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
         env:
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org
+
+      - name: Verify deploy originates from Safe Promotion
+        run: npm run qa:promotion-origin
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Verify protected deployment branch
+        run: npm run qa:github-governance
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Run repository secret scan
         run: npm run qa:secrets
@@ -57,7 +69,6 @@ jobs:
         run: npm run qa:p5:ci
 
       - name: Verify AI Studio dispatch credential
-        if: github.event_name == 'workflow_dispatch'
         shell: bash
         env:
           AI_STUDIO_DISPATCH_TOKEN: ${{ secrets.AI_STUDIO_DISPATCH_TOKEN }}
@@ -67,27 +78,17 @@ jobs:
             exit 1
           fi
 
-      - name: Verify protected deployment branch
-        if: github.event_name == 'workflow_dispatch'
-        run: npm run qa:github-governance
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
       - name: Remove QA-only files from public Pages artifact
-        if: github.event_name == 'workflow_dispatch'
         run: npm run prepare:pages
 
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-        if: github.event_name == 'workflow_dispatch'
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        if: github.event_name == 'workflow_dispatch'
         with:
           path: dist
   deploy:
     permissions:
       pages: write
       id-token: write
-    if: github.event_name == 'workflow_dispatch'
     needs: qa-build
     runs-on: ubuntu-latest
     environment:
@@ -102,7 +103,6 @@ jobs:
   notify-ai-studio:
     permissions:
       contents: read
-    if: github.event_name == 'workflow_dispatch'
     needs: deploy
     runs-on: ubuntu-latest
     steps:

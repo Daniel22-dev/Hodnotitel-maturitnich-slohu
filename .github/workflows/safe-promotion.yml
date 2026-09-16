@@ -75,12 +75,17 @@ jobs:
       - name: Merge only verified candidate to protected main
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.SAFE_PROMOTION_TOKEN }}
           REPOSITORY: ${{ github.repository }}
           CHECKED_SHA: ${{ github.event.workflow_run.head_sha }}
           EVENT_PATH: ${{ github.event_path }}
         run: |
           set -euo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::Missing SAFE_PROMOTION_TOKEN. Promotion is fail-closed; merge was not attempted."
+            exit 1
+          fi
 
           pr_number="$(jq -r '.workflow_run.pull_requests[0].number // empty' "$EVENT_PATH")"
           if [ -z "$pr_number" ]; then

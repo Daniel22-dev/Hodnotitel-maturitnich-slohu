@@ -161,8 +161,15 @@ const auditExpr = `(()=>{
 const dialogStateExpr = `(()=>{const results=[];const all=[...document.querySelectorAll('[role="dialog"],dialog')];for(const d of all.slice(0,30)){const snapshot={hidden:d.hidden,style:d.getAttribute('style'),class:d.getAttribute('class'),inert:d.inert,ariaHidden:d.getAttribute('aria-hidden'),open:d.hasAttribute('open')};try{d.hidden=false;d.inert=false;d.removeAttribute('aria-hidden');d.setAttribute('aria-modal','true');d.classList.remove('hidden');if(d.tagName==='DIALOG')d.setAttribute('open','');d.style.display=d.tagName==='DIALOG'?'block':'flex';d.style.visibility='visible';d.style.opacity='1';const overflow=Math.max(0,document.documentElement.scrollWidth-document.documentElement.clientWidth,document.body?.scrollWidth-document.documentElement.clientWidth);results.push({id:d.id||'',overflow,width:d.getBoundingClientRect().width,scrollWidth:d.scrollWidth,clientWidth:d.clientWidth});}finally{d.hidden=snapshot.hidden;d.inert=snapshot.inert;if(snapshot.ariaHidden===null)d.removeAttribute('aria-hidden');else d.setAttribute('aria-hidden',snapshot.ariaHidden);if(!snapshot.open)d.removeAttribute('open');if(snapshot.class===null)d.removeAttribute('class');else d.setAttribute('class',snapshot.class);if(snapshot.style===null)d.removeAttribute('style');else d.setAttribute('style',snapshot.style);}}return results;})()`;
 try {
   await waitJson(`http://127.0.0.1:${debugPort}/json/version`);
-  const targets=await waitJson(`http://127.0.0.1:${debugPort}/json`);
-  client=new Cdp(targets.find(t=>t.type==='page').webSocketDebuggerUrl);
+  let pageTarget=null;
+  for(let i=0;i<200;i++){
+    const targets=await waitJson(`http://127.0.0.1:${debugPort}/json`);
+    pageTarget=targets.find(t=>t.type==='page'&&t.webSocketDebuggerUrl)||null;
+    if(pageTarget)break;
+    await sleep(50);
+  }
+  if(!pageTarget)throw new Error('Chromium page target timeout');
+  client=new Cdp(pageTarget.webSocketDebuggerUrl);
   await client.call('Runtime.enable'); await client.call('Page.enable'); await client.call('Log.enable');
   for (const file of htmlFiles) {
     const rel=path.relative(dist,file).split(path.sep).join('/');

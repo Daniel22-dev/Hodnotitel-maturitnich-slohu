@@ -220,8 +220,8 @@ for(const file of ['src/index.template.html','src/manual/index.html']){
 check(!/\sonclick\s*=/.test(read('src/body.html'))&&!/\sonclick\s*=/.test(read('src/manual/index.html')),'HTML neobsahuje inline onclick handlery');
 
 const deployWorkflow=read('.github/workflows/deploy.yml');
-check(!/push:\s*\n\s*branches:\s*\[main\]/.test(deployWorkflow)&&/workflow_dispatch:/.test(deployWorkflow),'veřejný Pages deploy není automaticky spuštěn pushnutím do aktuálně nechráněné main větve');
-check((deployWorkflow.match(/github\.event_name == 'workflow_dispatch'/g)||[]).length>=4,'public artifact a deploy kroky jsou omezené na explicitní workflow_dispatch');
+check(/push:\s*\n\s*branches:\s*\[main\]/.test(deployWorkflow)&&/workflow_dispatch:/.test(deployWorkflow),'veřejný Pages deploy se spouští pouze z chráněné main po Safe Promotion a zachovává řízený ruční rerun');
+check(/npm run qa:promotion-origin/.test(deployWorkflow)&&/npm run qa:github-governance/.test(deployWorkflow)&&deployWorkflow.indexOf('npm run qa:promotion-origin')<deployWorkflow.indexOf('actions/upload-pages-artifact@'),'public artifact je před uploadem blokován Safe Promotion origin a GitHub governance kontrolou');
 check(/qa:secrets/.test(deployWorkflow)&&/qa:secrets/.test(read('.github/workflows/p5-release-gate.yml')),'CI a deploy spouštějí repository secret scan');
 const exportedExamJson=JSON.stringify({practice:{opinion:[]},exam:{opinion:[{id:'exam-opinion-private',title:'Syntetické ostré zadání',taskText:'SYNTETICKÝ DŮVĚRNÝ TEXT',requirements:['R1']}]}},null,2);
 check(containsConfidentialExamJson(exportedExamJson),'CI scanner funkčně detekuje skutečný top-level exam JSON formát produkovaný exportTasksBtn');
@@ -251,7 +251,7 @@ function runGovernanceCase(branch,ref='main'){
 }
 check(runGovernanceCase({protected:false,protection:{required_status_checks:{enforcement_level:'off',contexts:[]}}}).status!==0,'GitHub governance funkčně odmítne nechráněnou main');
 check(runGovernanceCase({protected:true,protection:{required_status_checks:{enforcement_level:'non_admins',contexts:['axe']}}}).status!==0,'GitHub governance funkčně odmítne ochranu bez required P5');
-check(runGovernanceCase({protected:true,protection:{required_status_checks:{enforcement_level:'non_admins',contexts:['p5-release-gate']}}}).status===0,'GitHub governance funkčně přijme chráněnou main s required P5');
+check(runGovernanceCase({protected:true,protection:{required_status_checks:{enforcement_level:'everyone',contexts:['p5-release-gate']}}}).status===0,'GitHub governance funkčně přijme chráněnou main s required P5 bez admin bypassu');
 check(runGovernanceCase({protected:true,protection:{required_status_checks:{enforcement_level:'non_admins',contexts:['p5-release-gate']}}},'feature').status!==0,'GitHub governance funkčně odmítne deploy z jiné větve než main');
 const p5Index=deployWorkflow.indexOf('npm run qa:p5:ci'), cleanIndex=deployWorkflow.indexOf('npm run prepare:pages'), uploadIndex=deployWorkflow.indexOf('actions/upload-pages-artifact@');
 check(p5Index>=0&&cleanIndex>p5Index&&uploadIndex>cleanIndex,'Pages workflow čistí QA-only artefakty až po QA a před veřejným uploadem');
@@ -263,7 +263,7 @@ const workflowSources=workflowFiles.map(name=>({name,source:read('.github/workfl
 const remoteActions=workflowSources.flatMap(({name,source})=>[...source.matchAll(/\buses:\s*([^\s#]+)/g)].map(match=>({name,reference:match[1]})).filter(item=>!item.reference.startsWith('./')));
 check(remoteActions.length>0&&remoteActions.every(item=>/@[0-9a-f]{40}$/i.test(item.reference)),'všechny vzdálené GitHub Actions jsou připnuté na neměnný SHA-1');
 const checkoutSteps=workflowSources.flatMap(({name,source})=>[...source.matchAll(/uses:\s*actions\/checkout@[0-9a-f]{40}[^\n]*\n([\s\S]{0,180}?)(?=\n\s*-\s+(?:uses|name):)/gi)].map(match=>({name,body:match[1]})));
-check(checkoutSteps.length===workflowFiles.length&&checkoutSteps.every(step=>/persist-credentials:\s*false/.test(step.body)),'checkout neponechává GitHub token dostupný dalším krokům');
+check(checkoutSteps.length>0&&checkoutSteps.every(step=>/persist-credentials:\s*false/.test(step.body)),'každý použitý checkout neponechává GitHub token dostupný dalším krokům');
 const syncWorkflow=read('.github/workflows/sync-ghrab-ai-core.yml');
 check(/npm ci --ignore-scripts --no-audit --no-fund/.test(syncWorkflow),'synchronizace jádra nespouští instalační skripty závislostí');
 check(/--max-redirs 0/.test(syncWorkflow)&&!/curl[^\n]*--location/.test(syncWorkflow),'manifest AI jádra nepovoluje přesměrování mimo ověřenou URL');

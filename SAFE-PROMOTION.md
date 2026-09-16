@@ -22,6 +22,6 @@ Release path:
 - no required human approval for this automated promotion path,
 - administrator/bypass protection enabled so ordinary direct pushes cannot bypass the rule.
 
-The repository secret `SAFE_PROMOTION_TOKEN` is used only to create the promotion PR after a GREEN candidate run. Use a least-privilege fine-grained token scoped to this repository with Contents: Read-only, Pull requests: Read and write, and repository Metadata: Read. Do not grant Administration permission.
+The repository secret `SAFE_PROMOTION_TOKEN` is used to create the promotion PR and to perform the verified merge/synchronization after GREEN P5 checks. A non-`GITHUB_TOKEN` credential is required so the resulting merge can trigger the protected `main` push workflows. Use a least-privilege fine-grained token scoped to this repository with Contents: Read and write, Pull requests: Read and write, and repository Metadata: Read. Do not grant Administration permission.
 
 If the secret is missing, the controller fails closed and no promotion PR is created.

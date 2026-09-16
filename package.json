@@ -48,7 +48,8 @@
     "qa:garp25": "node scripts/qa-garp25.mjs",
     "qa:sw-boundary": "node scripts/qa-sw-boundary.mjs",
     "qa:sca": "npm audit --audit-level=high",
-    "qa:assurance-links": "node scripts/qa-assurance-links.mjs"
+    "qa:assurance-links": "node scripts/qa-assurance-links.mjs",
+    "qa:promotion-origin": "node scripts/verify-safe-promotion-origin.mjs"
   },
   "engines": {
     "node": ">=20"

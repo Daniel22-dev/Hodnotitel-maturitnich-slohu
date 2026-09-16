@@ -48,6 +48,10 @@ if (!requiredStatusChecks || requiredStatusChecks.enforcement_level === 'off') {
   console.error('GITHUB GOVERNANCE FAIL: main nema aktivni required status checks');
   process.exit(1);
 }
+if (requiredStatusChecks.enforcement_level !== 'everyone') {
+  console.error(`GITHUB GOVERNANCE FAIL: required checks nejsou vynuceny i pro administratory (enforcement=${requiredStatusChecks.enforcement_level || 'unknown'})`);
+  process.exit(1);
+}
 
 const configuredChecks = new Set([
   ...(Array.isArray(requiredStatusChecks.contexts) ? requiredStatusChecks.contexts : []),

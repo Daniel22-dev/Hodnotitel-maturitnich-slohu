@@ -181,15 +181,7 @@ jobs:
           SOURCE_SHA: ${{ github.sha }}
           DEPLOYED_URL: ${{ needs.deploy.outputs.page_url }}
           APP_VERSION: ${{ needs.qa-build.outputs.app_version }}
-          ARTIFACT_DIGEST: ${{ needs.qa-build.outputs.artifact_digest }}
           MANIFEST_SHA256: ${{ needs.qa-build.outputs.manifest_sha256 }}
-          SBOM_SHA256: ${{ needs.qa-build.outputs.sbom_sha256 }}
-          EVIDENCE_MANIFEST_SHA256: ${{ needs.qa-build.outputs.evidence_manifest_sha256 }}
-          BUILD_PROVENANCE_SHA256: ${{ needs.qa-build.outputs.build_provenance_sha256 }}
-          ASSURANCE_MODE: ${{ needs.qa-build.outputs.assurance_mode }}
-          RELEASE_STAGE: ${{ needs.qa-build.outputs.release_stage }}
-          GARP_PROFILE: ${{ needs.qa-build.outputs.garp_profile }}
-          RELEASE_GATE: ${{ needs.qa-build.outputs.gate }}
           LIVE_RELEASE_FILE: ${{ runner.temp }}/live-release.json
         run: |
           node <<'NODE' > "$RUNNER_TEMP/ai-studio-dispatch.json"
@@ -199,8 +191,8 @@ jobs:
           const payload = {
             event_type: 'app-updated',
             client_payload: {
-              // app_id zustava beze zmeny kvuli existujicimu kontraktu AI Studia;
-              // kanonicke appId z manifestu/release identity se pridava vedle nej.
+              // repository_dispatch accepts at most 10 top-level client_payload properties.
+              // These fields are trigger/context only; AI Studio independently verifies live evidence.
               app_id: 'hodnotitel-maturitnich-slohu',
               canonical_app_id: 'essay-evaluator',
               version: process.env.APP_VERSION,
@@ -208,20 +200,15 @@ jobs:
               source_sha: process.env.SOURCE_SHA,
               deployed_url: process.env.DEPLOYED_URL,
               release_integrity_url: live.releaseIntegrityUrl,
-              artifact_digest: process.env.ARTIFACT_DIGEST,
+              release_identity_contract: 'ghrab-release-integrity-v2',
               manifest_sha256: process.env.MANIFEST_SHA256,
-              sbom_sha256: process.env.SBOM_SHA256,
-              evidence_manifest_sha256: process.env.EVIDENCE_MANIFEST_SHA256,
-              build_provenance_sha256: process.env.BUILD_PROVENANCE_SHA256,
-              assurance_mode: process.env.ASSURANCE_MODE,
-              release_stage: process.env.RELEASE_STAGE,
-              garp_profile: process.env.GARP_PROFILE,
-              release_gate: process.env.RELEASE_GATE,
-              live_verified_at: live.verifiedAt,
               run_id: process.env.GITHUB_RUN_ID,
-              run_attempt: process.env.GITHUB_RUN_ATTEMPT,
             },
           };
+          if (Object.keys(payload.client_payload).length > 10) {
+            console.error('::error::AI Studio dispatch exceeds GitHub repository_dispatch client_payload limit.');
+            process.exit(1);
+          }
           process.stdout.write(JSON.stringify(payload));
           NODE
 

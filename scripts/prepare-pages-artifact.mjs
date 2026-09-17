@@ -35,4 +35,10 @@ if(platform.schema!=='ghrab-platform-app-integration-v1'||platform.contract!=='g
 if(platform.storagePrefix!==`ghrab.${studioManifest.id}.`) throw new Error('Pages artifact FAIL: studio-manifest má neplatný storagePrefix.');
 if(platform.cacheName!==`ghrab-${studioManifest.id}-v${studioManifest.version}`) throw new Error('Pages artifact FAIL: studio-manifest cacheName neodpovídá publikované verzi.');
 
-console.log('Pages artifact clean: QA-only reporty byly odstraněny z dist/ a veřejný Studio manifest má kanonický deployment-evidence kontrakt.');
+// Bind the exact public bytes to the current app/version/source commit using the
+// existing GARP 2.5.1 release-integrity v2 contract. This stays explicitly
+// TRANSITIONAL until a production signing key is available; no fake signature is
+// asserted merely to turn CI green.
+await import('./create-pages-release-identity.mjs');
+
+console.log('Pages artifact clean: QA-only reporty byly odstraněny, Studio manifest je kanonický a GARP release identity přesně váže veřejný artefakt na source commit.');

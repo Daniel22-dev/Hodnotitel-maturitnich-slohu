@@ -47,3 +47,5 @@ jobs:
             dist/qa-p5-*.json
             dist/qa-p3-browser-report.json
             dist/quality-report.json
+      - name: Validate final Pages release identity
+        run: npm run prepare:pages

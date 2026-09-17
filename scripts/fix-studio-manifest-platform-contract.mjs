@@ -17,12 +17,14 @@ for (const name of targets) {
   if (!fs.existsSync(target)) continue;
 
   const manifest = JSON.parse(fs.readFileSync(target, 'utf8'));
-  const previous = manifest.platform && typeof manifest.platform === 'object' ? manifest.platform : {};
-  const studioBridge = previous.studioBridge ?? manifest.compatibility?.studioBridge ?? consumer.bridge.contract;
-  const artifactEnvelope = previous.artifactEnvelope ?? consumer.artifact.schema;
+  const studioBridge = allowedStudioBridge.has(manifest.compatibility?.studioBridge)
+    ? manifest.compatibility.studioBridge
+    : consumer.bridge.contract;
+  const artifactEnvelope = consumer.artifact.schema;
 
+  // Public Studio manifests expose the canonical deployment-evidence contract only.
+  // P3-only aliases belong to the PWA/platform manifests and would create drift here.
   manifest.platform = {
-    ...previous,
     schema: 'ghrab-platform-app-integration-v1',
     contract: consumer.platform.contract,
     requiredPlatformRange: consumer.platform.requiredRange,
@@ -34,15 +36,6 @@ for (const name of targets) {
     artifactEnvelope,
     storagePrefix: `ghrab.${consumer.appId}.`,
     cacheName: consumer.cache.name,
-
-    // Compatibility aliases retained for the P3 runtime/tooling layer.
-    requiredRange: consumer.platform.requiredRange,
-    storageContract: 'ghrab-storage-namespace-v1',
-    bridgeContract: consumer.bridge.contract,
-    artifactContract: consumer.artifact.schema,
-    accessibilityContract: consumer.quality.accessibilityContract,
-    performanceContract: consumer.quality.performanceContract,
-    moduleContract: consumer.quality.moduleContract,
   };
 
   const platform = manifest.platform;

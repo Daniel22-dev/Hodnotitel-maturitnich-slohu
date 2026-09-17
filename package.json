@@ -1,6 +1,6 @@
 {
   "name": "hodnotitel-maturitnich-slohu",
-  "version": "1.5.26",
+  "version": "1.5.27",
   "private": true,
   "type": "module",
   "scripts": {
@@ -49,7 +49,10 @@
     "qa:sw-boundary": "node scripts/qa-sw-boundary.mjs",
     "qa:sca": "npm audit --audit-level=high",
     "qa:assurance-links": "node scripts/qa-assurance-links.mjs",
-    "qa:promotion-origin": "node scripts/verify-safe-promotion-origin.mjs"
+    "qa:promotion-origin": "node scripts/verify-safe-promotion-origin.mjs",
+    "qa:software-integrity": "node scripts/qa-software-integrity.mjs",
+    "qa:release-chain": "node scripts/verify-release-chain.mjs",
+    "verify:live-release": "node scripts/verify-live-release.mjs"
   },
   "engines": {
     "node": ">=20"

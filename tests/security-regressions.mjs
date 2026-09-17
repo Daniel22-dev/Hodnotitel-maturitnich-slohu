@@ -3,6 +3,7 @@ import {dirname,join} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import vm from 'node:vm';
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {runPromptBoundaryChecks} from '../qa/prompt-boundary-harness.mjs';
 import {containsConfidentialExamJson} from '../scripts/lib/confidential-exam-json.mjs';
 
@@ -91,7 +92,7 @@ check(String(taskWrites.session).includes('GARP-CONFIDENTIAL-EXAM-CANARY')&&!Str
 
 const workflowPersistenceSource=workflowUi.slice(workflowUi.indexOf('function serializableBatchJob'),workflowUi.indexOf('function tryRestoreBatchProgress'));
 const examPersistenceContext=vm.createContext({
-  APP_VERSION:'1.5.26',
+  APP_VERSION:'1.5.27',
   SENSITIVE_STATE_FIELDS:[],
   state:{set:'exam',genre:'opinion',taskIndex:0,taskTitle:'GARP-EXAM-TITLE-CANARY',taskText:'GARP-EXAM-TEXT-CANARY',taskReqs:'GARP-EXAM-REQ-CANARY',result:'',batchJob:null,series:null,inputMode:'batch',evalMode:'api',outputStyle:'standard',resultView:'final',workMode:'api',roster:[],processingMode:'queue',queueRpm:1,usage:{},distribution:{sharedSecret:'SECRET'},backend:{accessToken:'TOKEN'}},
   batchStudents:[],batchResults:[],normalizeGenreId:v=>v,sensitiveSaveEnabled:()=>true,sensitiveSnapshotExpired:()=>false,ensureWorkflowState:()=>{},safeLocalGet:()=>null,safeLocalSet:()=>true
@@ -264,9 +265,108 @@ const remoteActions=workflowSources.flatMap(({name,source})=>[...source.matchAll
 check(remoteActions.length>0&&remoteActions.every(item=>/@[0-9a-f]{40}$/i.test(item.reference)),'všechny vzdálené GitHub Actions jsou připnuté na neměnný SHA-1');
 const checkoutSteps=workflowSources.flatMap(({name,source})=>[...source.matchAll(/uses:\s*actions\/checkout@[0-9a-f]{40}[^\n]*\n([\s\S]{0,180}?)(?=\n\s*-\s+(?:uses|name):)/gi)].map(match=>({name,body:match[1]})));
 check(checkoutSteps.length>0&&checkoutSteps.every(step=>/persist-credentials:\s*false/.test(step.body)),'každý použitý checkout neponechává GitHub token dostupný dalším krokům');
+// --- Master §7.4: nazev required checku musi souhlasit na vsech mistech ---
+// Prejmenovani jobu v p5-release-gate.yml by jinak tise rozpojilo branch protection,
+// governance verifier i merge controller.
+const p5Workflow=read('.github/workflows/p5-release-gate.yml');
+const p5JobNames=[...p5Workflow.matchAll(/^ {2}([a-z0-9][a-z0-9_-]*):$/gm)].map(m=>m[1]);
+const promotionWorkflow=read('.github/workflows/safe-promotion.yml');
+check(
+  p5JobNames.includes('p5-release-gate')&&
+  /REQUIRED_STATUS_CHECKS = \['p5-release-gate'\]/.test(governanceSource)&&
+  /index\("p5-release-gate"\)/.test(promotionWorkflow)&&
+  /name == "p5-release-gate"/.test(promotionWorkflow),
+  'nazev required checku p5-release-gate je shodny ve workflow, governance verifieru i merge controlleru'
+);
+check(
+  /workflows: \["P5 R2 pre-production release gate"\]/.test(promotionWorkflow)&&
+  /^name: P5 R2 pre-production release gate$/m.test(p5Workflow),
+  'Safe Promotion controller navazuje na skutecne existujici nazev workflow'
+);
+
 const syncWorkflow=read('.github/workflows/sync-ghrab-ai-core.yml');
 check(/npm ci --ignore-scripts --no-audit --no-fund/.test(syncWorkflow),'synchronizace jádra nespouští instalační skripty závislostí');
 check(/--max-redirs 0/.test(syncWorkflow)&&!/curl[^\n]*--location/.test(syncWorkflow),'manifest AI jádra nepovoluje přesměrování mimo ověřenou URL');
+
+// --- GARP 2.5.1: integrita samotného bezpečnostního toolingu ---
+const garpGate=read('scripts/qa-garp25.mjs');
+check(/software-integrity\.tooling-and-vendored/.test(garpGate)&&/software-integrity\.negative-controls/.test(garpGate),'GARP gate vynucuje integritu bezpečnostního toolingu i jeho negativní kontrolu');
+const softwareIntegrity=spawnSync(process.execPath,['scripts/qa-software-integrity.mjs'],{cwd:ROOT,encoding:'utf8'});
+check(softwareIntegrity.status===0,'hashově připnutý GARP tooling, vendorovaný AI Core a pinované assety odpovídají autoritativnímu seznamu');
+const softwareIntegritySelftest=spawnSync(process.execPath,['scripts/qa-software-integrity.mjs','--selftest'],{cwd:ROOT,encoding:'utf8'});
+let integritySelftestReport={};
+try{integritySelftestReport=JSON.parse(softwareIntegritySelftest.stdout||'{}');}catch{integritySelftestReport={};}
+check(
+  softwareIntegritySelftest.status===0&&
+  integritySelftestReport.results?.['negative.tampered-garp-tool']===true&&
+  integritySelftestReport.results?.['negative.unlisted-garp-tool']===true&&
+  integritySelftestReport.results?.['negative.tampered-ai-core']===true&&
+  integritySelftestReport.results?.['negative.tampered-vendored-pin']===true,
+  'poškozený, podvržený i nepřihlášený bezpečnostní nástroj je empiricky odmítnut'
+);
+
+// --- GARP 2.5.1: řetězec release identity po všech post-processing krocích ---
+const pagesPrepSource=read('scripts/prepare-pages-artifact.mjs');
+check(
+  pagesPrepSource.indexOf('create-pages-release-identity.mjs')<pagesPrepSource.indexOf('verify-release-chain.mjs')&&
+  /chain\.status !== 0/.test(pagesPrepSource),
+  'příprava Pages artefaktu končí fail-closed regresí celého řetězce release identity'
+);
+const releaseChainSource=read('scripts/verify-release-chain.mjs');
+check(
+  /link\.\$\{field\}|`link\.\$\{field\}`/.test(releaseChainSource)&&
+  /verify-release-integrity\.mjs/.test(releaseChainSource)&&
+  /verify-build-provenance\.mjs/.test(releaseChainSource)&&
+  /verify-evidence-manifest\.mjs/.test(releaseChainSource)&&
+  /scan-deployment-leaks\.mjs/.test(releaseChainSource),
+  'release chain ověřuje integritu, provenance, evidenci i únik tajemství nad skutečným artefaktem'
+);
+check(/GHRAB_EXPECT_BUILDER_ID/.test(releaseChainSource)&&/local-untrusted-builder/.test(read('scripts/create-pages-release-identity.mjs')),'lokální build se nevydává za ověřený GitHub Actions builder');
+// --- Master §13: zaznam z P5 gate se nesmi vydavat za zivy publikovany release ---
+check(
+  /releaseStage/.test(read('scripts/create-pages-release-identity.mjs'))&&
+  /identity\.release-stage/.test(releaseChainSource)&&
+  /releaseStage !== 'LIVE-PUBLIC-PAGES'/.test(deployWorkflow),
+  'release zaznam rozlisuje PREP-VALIDATION a LIVE-PUBLIC-PAGES a deploy jiny nez zivy odmitne'
+);
+
+
+// --- Master §9.1: app-updated smí odejít až po ověření skutečně publikované verze ---
+const liveVerifyIndex=deployWorkflow.indexOf('scripts/verify-live-release.mjs');
+const dispatchIndex=deployWorkflow.indexOf('/AI-Studio-GHRAB/dispatches');
+check(liveVerifyIndex>=0&&dispatchIndex>liveVerifyIndex,'app-updated odchází až po ověření živého release manifestu');
+check(
+  /needs: \[qa-build, deploy\]/.test(deployWorkflow)&&
+  /ARTIFACT_DIGEST: \$\{\{ needs\.qa-build\.outputs\.artifact_digest \}\}/.test(deployWorkflow)&&
+  /"?version"?: process\.env\.APP_VERSION/.test(deployWorkflow),
+  'dispatch payload nese verzi i digest artefaktu, ne jen commit'
+);
+const liveSource=read('scripts/verify-live-release.mjs');
+check(/attempt <= attempts/.test(liveSource)&&/live-release-not-confirmed/.test(liveSource)&&!/while \(true\)/.test(liveSource),'živé ověření má omezený počet pokusů a končí fail-closed bez nekonečné smyčky');
+
+const liveUrl=pathToFileURL(join(ROOT,'scripts/verify-live-release.mjs')).href;
+const liveManifest=JSON.stringify({id:'essay-evaluator',version:'9.9.9'},null,2)+'\n';
+const liveManifestSha=createHash('sha256').update(Buffer.from(liveManifest,'utf8')).digest('hex');
+const liveCommit='a'.repeat(40);
+const liveDigest='b'.repeat(64);
+function runLiveCase(integrityOverrides={},{manifest=liveManifest,failFirst=0}={}){
+  const integrity={appId:'essay-evaluator',version:'9.9.9',sourceCommit:liveCommit,artifactDigest:liveDigest,manifestSha256:liveManifestSha,sbomSha256:'c'.repeat(64),evidenceManifestSha256:'d'.repeat(64),buildProvenanceSha256:'e'.repeat(64),assuranceMode:'TRANSITIONAL',garpProfile:'GARP-2.5.1-SHIELD-PREP',gate:'P5-R2',...integrityOverrides};
+  const source=`let calls=0;globalThis.fetch=async(url)=>{calls++;if(calls<=${failFirst})throw new Error('synthetic-propagation-delay');const body=String(url).endsWith('studio-manifest.json')?${JSON.stringify(manifest)}:${JSON.stringify(JSON.stringify(integrity))};return {ok:true,status:200,text:async()=>body};};await import(${JSON.stringify(liveUrl)});`;
+  return spawnSync(process.execPath,['--input-type=module','-e',source],{
+    cwd:ROOT,
+    encoding:'utf8',
+    env:{...process.env,GHRAB_LIVE_URL:'https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/',GHRAB_LIVE_APP_ID:'essay-evaluator',GHRAB_LIVE_VERSION:'9.9.9',GHRAB_LIVE_SOURCE_SHA:liveCommit,GHRAB_LIVE_ARTIFACT_DIGEST:liveDigest,GHRAB_LIVE_MANIFEST_SHA256:liveManifestSha,GHRAB_LIVE_ATTEMPTS:'3',GHRAB_LIVE_DELAY_MS:'1',GHRAB_LIVE_OUT:''}
+  });
+}
+check(runLiveCase().status===0,'živé ověření přijme shodnou publikovanou verzi');
+check(runLiveCase({},{failFirst:6}).status!==0,'živé ověření po vyčerpání pokusů skončí fail-closed');
+check(runLiveCase({},{failFirst:2}).status===0,'krátké zpoždění propagace Pages nezpůsobí trvalý FAIL');
+check(runLiveCase({artifactDigest:'f'.repeat(64)}).status!==0,'živé ověření odmítne jiný artifact digest');
+check(runLiveCase({version:'9.9.8'}).status!==0,'živé ověření odmítne jinou publikovanou verzi');
+check(runLiveCase({sourceCommit:'b'.repeat(40)}).status!==0,'živé ověření odmítne jiný source commit');
+check(runLiveCase({},{manifest:JSON.stringify({id:'essay-evaluator',version:'9.9.9'})}).status!==0,'živé ověření odmítne manifest, jehož bajty neodpovídají release identitě');
+const liveOriginCase=spawnSync(process.execPath,['scripts/verify-live-release.mjs'],{cwd:ROOT,encoding:'utf8',env:{...process.env,GHRAB_LIVE_URL:'https://attacker.example/Hodnotitel/',GHRAB_LIVE_APP_ID:'essay-evaluator',GHRAB_LIVE_VERSION:'9.9.9',GHRAB_LIVE_SOURCE_SHA:liveCommit,GHRAB_LIVE_ARTIFACT_DIGEST:liveDigest,GHRAB_LIVE_MANIFEST_SHA256:liveManifestSha,GHRAB_LIVE_ATTEMPTS:'1',GHRAB_LIVE_DELAY_MS:'1'}});
+check(liveOriginCase.status!==0&&/unexpected-origin/.test(liveOriginCase.stderr||''),'živé ověření odmítne neočekávaný origin deploymentu');
 
 console.log(`\n${passed} PASS / ${failed} FAIL`);
 if(failed)process.exit(1);

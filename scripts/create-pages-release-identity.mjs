@@ -48,7 +48,13 @@ function resolveSourceCommit() {
 
 const sourceCommit = resolveSourceCommit();
 const repository = process.env.GITHUB_REPOSITORY || 'Daniel22-dev/Hodnotitel-maturitnich-slohu';
-const workflowRef = process.env.GITHUB_WORKFLOW_REF || '.github/workflows/deploy.yml';
+const workflowRef = process.env.GITHUB_WORKFLOW_REF || 'local';
+// Master §13: aktualni stav musi jednoznacne rikat, zda jde o PREP nebo LIVE.
+// prepare:pages bezi i v P5 gate, kde se artefakt nikdy nepublikuje - takovy zaznam
+// se nesmi tvarit jako zivy release.
+const isPagesDeploy = process.env.GITHUB_ACTIONS === 'true'
+  && /\.github\/workflows\/deploy\.yml/.test(workflowRef);
+const releaseStage = isPagesDeploy ? 'LIVE-PUBLIC-PAGES' : 'PREP-VALIDATION';
 const runId = process.env.GITHUB_RUN_ID || 'local';
 const runAttempt = process.env.GITHUB_RUN_ATTEMPT || '1';
 const buildId = `github-${runId}-${runAttempt}`;
@@ -81,7 +87,8 @@ runNode('security/garp251/tools/create-evidence-manifest.mjs', [qaResults, evide
 runNode('security/garp251/tools/create-build-provenance.mjs', [studioManifestPath, provenancePath], {
   GHRAB_SOURCE_REPOSITORY: repository,
   GHRAB_SOURCE_COMMIT: sourceCommit,
-  GHRAB_BUILDER_ID: 'github-actions',
+  // Lokální běh se nesmí vydávat za ověřený GitHub Actions builder.
+  GHRAB_BUILDER_ID: process.env.GITHUB_ACTIONS === 'true' ? 'github-actions' : 'local-untrusted-builder',
   GHRAB_WORKFLOW_REF: workflowRef,
   GHRAB_BUILD_ENTRYPOINT: 'npm run prepare:pages',
   GHRAB_BUILD_STARTED_AT: process.env.GITHUB_RUN_STARTED_AT || createdAt,
@@ -117,6 +124,7 @@ if (!/^[0-9a-f]{64}$/i.test(integrity.artifactDigest || '')) {
   throw new Error('Release identity FAIL: artifactDigest není SHA-256.');
 }
 integrity.assuranceMode = 'TRANSITIONAL';
+integrity.releaseStage = releaseStage;
 integrity.status = 'GREEN';
 integrity.environment = 'github-pages';
 integrity.garpProfile = 'GARP-2.5.1-SHIELD-PREP';
@@ -172,6 +180,7 @@ console.log(JSON.stringify({
   version,
   sourceCommit,
   artifactDigest: finalIntegrity.artifactDigest,
+  releaseStage: finalIntegrity.releaseStage,
   assuranceMode: finalIntegrity.assuranceMode,
   signatureStatus: finalIntegrity.signature.status,
   evidence: {

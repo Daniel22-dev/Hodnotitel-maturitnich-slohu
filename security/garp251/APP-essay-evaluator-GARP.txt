@@ -1,9 +1,20 @@
 GARP 2.5.1 – PRŮVODNÍ LIST APLIKACE
 Aplikace: Hodnotitel maturitních slohů
 appId: essay-evaluator
-Verze kandidáta: 1.5.25
-Datum: 2026-09-07
+Verze kandidáta: 1.5.27
+Datum: 2026-09-17
 Profil: SHIELD-PREP
+
+AKTUÁLNÍ STAV (nezaměňovat s historickými reporty níže)
+- Aktuální verze: 1.5.27. Předchozí uzavřené delty: 1.5.25 (PREP evidence), 1.5.26 (N5 + deploy governance).
+- Strojově čitelný aktuální záznam release je dist/release-integrity.json, který vzniká až na release cestě
+  a nese appId, version, sourceCommit, artifactDigest, manifestSha256, sbomSha256, buildProvenanceSha256,
+  evidenceManifestSha256, tooling, gate, profil, buildRun (repository/runId/runAttempt), datum a status.
+- Assurance stupeň zůstává TRANSITIONAL: release identita je strojově ověřená, ale produkční podpisový klíč
+  ani trust-root custody neexistují. Nic se nevydává za kryptograficky uzavřený AUTO-PATCH gate.
+- Historické soubory ASSURANCE/SHIELD/FINAL-RELEASE-GATE a RELEASE-NOTES-* patří starším commitům
+  a nesmí být použity jako důkaz aktuálního stavu.
+- Rozsah a doklady poslední delty: security/garp251/RELEASE-DELTA-1.5.27.txt.
 
 IDENTITA A ARCHITEKTURA
 - Hybridní PWA child aplikace AI Studio GHRAB.
@@ -46,6 +57,12 @@ GH-02 / Service Worker security freeze:
 
 INTEGRACE DO GATE
 - npm run qa:garp25 je součást npm run qa:p5 i npm run qa:p5:ci.
+- npm run qa:garp25 nově vynucuje i hashovou integritu vendorovaného GARP 2.5.1 toolingu
+  (scripts/qa-software-integrity.mjs) včetně negativních kontrol; oslabení N5 scanneru gate zastaví.
+- npm run prepare:pages končí fail-closed regresí celého řetězce release identity
+  (scripts/verify-release-chain.mjs) nad přesnými bajty veřejného artefaktu.
+- app-updated do AI Studia odchází až po omezeném retry ověření skutečně publikovaného manifestu
+  (scripts/verify-live-release.mjs); payload nese release identitu, ne jen verzi.
 - Vendored GARP 2.5.1 R2 tooling má vlastní upstream hashový podklad.
 - Repository secret scan má jedinou hashově připnutou výjimku pro byte-identický upstream selftest obsahující syntetické secret sentinely; hash se počítá ze surových bajtů.
 

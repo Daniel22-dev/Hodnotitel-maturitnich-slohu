@@ -1,0 +1,20 @@
+{
+  "schema": "ghrab-software-integrity-pins-v1",
+  "appId": "essay-evaluator",
+  "createdFor": "1.5.27",
+  "note": "Pins for third-party vendored assets that are not already hash-verified by another on-path check. GHRAB Platform artifacts are verified by scripts/ghrab-platform-conformance.mjs against the vendored platform release manifest; GHRAB AI Core artifacts are verified by scripts/qa-software-integrity.mjs against the vendored core release manifest. Do not duplicate those here.",
+  "pins": [
+    {
+      "path": "src/vendor/jszip.min.js",
+      "component": "JSZip",
+      "version": "3.10.1",
+      "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+    },
+    {
+      "path": "src/vendor/JSZIP-LICENSE.md",
+      "component": "JSZip license",
+      "version": "3.10.1",
+      "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+    }
+  ]
+}

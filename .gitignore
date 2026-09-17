@@ -1,6 +1,7 @@
 qa-results/
 node_modules/
 dist/
+dist-school-server/
 *.log
 .DS_Store
 private/

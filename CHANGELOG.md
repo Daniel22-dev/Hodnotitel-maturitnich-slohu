@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.28 – oprava dispatch payloadu (limit GitHub API) (2026-09-17)
+
+- `client_payload` události `app-updated` překračoval limit GitHub REST API: API povoluje nejvýše 10 top-level vlastností, posíláno bylo 19. Dispatch končil HTTP 422 a AI Studio se o vydání 1.5.27 nikdy nedozvědělo.
+- Release identita se nově nese v jednom vnořeném objektu `release`; payload má 9 top-level vlastností a ponechává rezervu.
+- Stavba payloadu přesunuta z inline heredocu v `deploy.yml` do `scripts/build-ai-studio-dispatch.mjs`, aby byla testovatelná. Inline heredoc otestovat nešlo, a proto se chyba projevila až v produkčním běhu.
+- Nové trvalé regrese: limit 10 top-level vlastností, úplnost release identity, odmítnutí nepotvrzeného živého releasu, odmítnutí záznamu `PREP-VALIDATION`, odmítnutí nesouladu živého artefaktu s exportovanou identitou.
+- Verze 1.5.27 byla na GitHub Pages skutečně publikována; nová verze je proto nutná, aby stejná verze nepopisovala dva různé artefakty.
+- Aplikační logika hodnocení, rubrika, AI workflow, UI ani zpracování studentských dat nebyly měněny.
+
 ## 1.5.27 – vynucená integrita toolingu, regrese release identity a ověřený live release (2026-09-17)
 
 - `qa:garp25` nově fail-closed vynucuje hashovou integritu všech 14 vendorovaných GARP 2.5.1 nástrojů proti `GARP-2.5.1-TOOLING-SHA256SUMS.txt`; poškozený, podvržený ani nepřihlášený nástroj gate neprojde.

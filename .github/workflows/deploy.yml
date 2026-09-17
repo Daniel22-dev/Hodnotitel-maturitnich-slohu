@@ -19,6 +19,17 @@ jobs:
       pull-requests: read
       pages: write
     runs-on: ubuntu-latest
+    outputs:
+      app_version: ${{ steps.release-identity.outputs.app_version }}
+      artifact_digest: ${{ steps.release-identity.outputs.artifact_digest }}
+      manifest_sha256: ${{ steps.release-identity.outputs.manifest_sha256 }}
+      sbom_sha256: ${{ steps.release-identity.outputs.sbom_sha256 }}
+      evidence_manifest_sha256: ${{ steps.release-identity.outputs.evidence_manifest_sha256 }}
+      build_provenance_sha256: ${{ steps.release-identity.outputs.build_provenance_sha256 }}
+      assurance_mode: ${{ steps.release-identity.outputs.assurance_mode }}
+      release_stage: ${{ steps.release-identity.outputs.release_stage }}
+      garp_profile: ${{ steps.release-identity.outputs.garp_profile }}
+      gate: ${{ steps.release-identity.outputs.gate }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -81,6 +92,40 @@ jobs:
       - name: Remove QA-only files from public Pages artifact
         run: npm run prepare:pages
 
+      - name: Export verified release identity
+        id: release-identity
+        shell: bash
+        run: |
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('node:fs');
+          const integrity = JSON.parse(fs.readFileSync('dist/release-integrity.json', 'utf8'));
+          const required = {
+            app_version: integrity.version,
+            artifact_digest: integrity.artifactDigest,
+            manifest_sha256: integrity.manifestSha256,
+            sbom_sha256: integrity.sbomSha256,
+            evidence_manifest_sha256: integrity.evidenceManifestSha256,
+            build_provenance_sha256: integrity.buildProvenanceSha256,
+            assurance_mode: integrity.assuranceMode,
+            release_stage: integrity.releaseStage,
+            garp_profile: integrity.garpProfile,
+            gate: integrity.gate,
+          };
+          if (integrity.releaseStage !== 'LIVE-PUBLIC-PAGES') {
+            console.error(`::error::Release record is not a live Pages release (releaseStage=${integrity.releaseStage}). Deploy is blocked.`);
+            process.exit(1);
+          }
+          const missing = Object.entries(required).filter(([, value]) => !value).map(([key]) => key);
+          if (missing.length) {
+            console.error(`::error::Release identity is incomplete: ${missing.join(', ')}`);
+            process.exit(1);
+          }
+          for (const [key, value] of Object.entries(required)) {
+            if (/[\r\n]/.test(String(value))) { console.error('::error::Release identity value is not single-line.'); process.exit(1); }
+            process.stdout.write(`${key}=${value}\n`);
+          }
+          NODE
+
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
@@ -103,9 +148,31 @@ jobs:
   notify-ai-studio:
     permissions:
       contents: read
-    needs: deploy
+    needs: [qa-build, deploy]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      # Fail-closed, bounded retry. GitHub Pages may need a short moment before the
+      # new bytes are readable, so a single immediate fetch must not decide a
+      # permanent FAIL - but the retry window is limited and never loops forever.
+      - name: Verify the live release before notifying AI Studio
+        env:
+          GHRAB_LIVE_URL: ${{ needs.deploy.outputs.page_url }}
+          GHRAB_LIVE_APP_ID: essay-evaluator
+          GHRAB_LIVE_VERSION: ${{ needs.qa-build.outputs.app_version }}
+          GHRAB_LIVE_SOURCE_SHA: ${{ github.sha }}
+          GHRAB_LIVE_ARTIFACT_DIGEST: ${{ needs.qa-build.outputs.artifact_digest }}
+          GHRAB_LIVE_MANIFEST_SHA256: ${{ needs.qa-build.outputs.manifest_sha256 }}
+          GHRAB_LIVE_OUT: ${{ runner.temp }}/live-release.json
+        run: node scripts/verify-live-release.mjs
+
       - name: Dispatch app-updated event to AI Studio
         shell: bash
         env:
@@ -113,15 +180,46 @@ jobs:
           SOURCE_REPOSITORY: ${{ github.repository }}
           SOURCE_SHA: ${{ github.sha }}
           DEPLOYED_URL: ${{ needs.deploy.outputs.page_url }}
+          APP_VERSION: ${{ needs.qa-build.outputs.app_version }}
+          ARTIFACT_DIGEST: ${{ needs.qa-build.outputs.artifact_digest }}
+          MANIFEST_SHA256: ${{ needs.qa-build.outputs.manifest_sha256 }}
+          SBOM_SHA256: ${{ needs.qa-build.outputs.sbom_sha256 }}
+          EVIDENCE_MANIFEST_SHA256: ${{ needs.qa-build.outputs.evidence_manifest_sha256 }}
+          BUILD_PROVENANCE_SHA256: ${{ needs.qa-build.outputs.build_provenance_sha256 }}
+          ASSURANCE_MODE: ${{ needs.qa-build.outputs.assurance_mode }}
+          RELEASE_STAGE: ${{ needs.qa-build.outputs.release_stage }}
+          GARP_PROFILE: ${{ needs.qa-build.outputs.garp_profile }}
+          RELEASE_GATE: ${{ needs.qa-build.outputs.gate }}
+          LIVE_RELEASE_FILE: ${{ runner.temp }}/live-release.json
         run: |
           node <<'NODE' > "$RUNNER_TEMP/ai-studio-dispatch.json"
+          const fs = require('node:fs');
+          const live = JSON.parse(fs.readFileSync(process.env.LIVE_RELEASE_FILE, 'utf8'));
+          if (live.status !== 'PASS') { console.error('::error::Live release was not verified.'); process.exit(1); }
           const payload = {
             event_type: 'app-updated',
             client_payload: {
+              // app_id zustava beze zmeny kvuli existujicimu kontraktu AI Studia;
+              // kanonicke appId z manifestu/release identity se pridava vedle nej.
               app_id: 'hodnotitel-maturitnich-slohu',
+              canonical_app_id: 'essay-evaluator',
+              version: process.env.APP_VERSION,
               source_repository: process.env.SOURCE_REPOSITORY,
               source_sha: process.env.SOURCE_SHA,
               deployed_url: process.env.DEPLOYED_URL,
+              release_integrity_url: live.releaseIntegrityUrl,
+              artifact_digest: process.env.ARTIFACT_DIGEST,
+              manifest_sha256: process.env.MANIFEST_SHA256,
+              sbom_sha256: process.env.SBOM_SHA256,
+              evidence_manifest_sha256: process.env.EVIDENCE_MANIFEST_SHA256,
+              build_provenance_sha256: process.env.BUILD_PROVENANCE_SHA256,
+              assurance_mode: process.env.ASSURANCE_MODE,
+              release_stage: process.env.RELEASE_STAGE,
+              garp_profile: process.env.GARP_PROFILE,
+              release_gate: process.env.RELEASE_GATE,
+              live_verified_at: live.verifiedAt,
+              run_id: process.env.GITHUB_RUN_ID,
+              run_attempt: process.env.GITHUB_RUN_ATTEMPT,
             },
           };
           process.stdout.write(JSON.stringify(payload));
@@ -135,4 +233,4 @@ jobs:
             https://api.github.com/repos/Daniel22-dev/AI-Studio-GHRAB/dispatches \
             --data-binary "@$RUNNER_TEMP/ai-studio-dispatch.json"
 
-          echo "AI Studio dispatch accepted for $SOURCE_REPOSITORY@$SOURCE_SHA"
+          echo "AI Studio dispatch accepted for $SOURCE_REPOSITORY@$SOURCE_SHA version $APP_VERSION"

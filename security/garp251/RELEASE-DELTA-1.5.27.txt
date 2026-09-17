@@ -1,0 +1,89 @@
+GARP 2.5.1 RELEASE DELTA - essay-evaluator 1.5.27
+Date: 2026-09-17
+Scope: cumulative security/governance delta over 1.5.26. No application logic, rubric,
+prompt, UI or student-data handling was changed.
+
+BASELINE
+- Historical SHIELD-PREP evidence remains pinned to 1.5.25 and is intentionally not rewritten.
+- 1.5.26 delta (N5 scanner + deploy governance) is preserved unchanged and was not reverted.
+
+DELTA 1 - SOFTWARE INTEGRITY OF THE SECURITY TOOLING ITSELF
+Finding: security/garp251/GARP-2.5.1-TOOLING-SHA256SUMS.txt existed, but no CI or release
+step enforced it. The N5 deployment scanner could have been weakened without detection.
+Change: scripts/qa-software-integrity.mjs, wired into npm run qa:garp25 (therefore into
+qa:p5 and qa:p5:ci). Fail-closed. Verifies:
+- set equality and hash match of all 14 vendored GARP 2.5.1 tools,
+- vendored GHRAB AI Core artifacts against their release manifest,
+- third-party vendored assets pinned in security/garp251/software-integrity-pins.json.
+Negative controls (permanent regression, --selftest):
+- tampered GARP tool               -> REJECTED
+- unlisted extra tool in TOOLS dir -> REJECTED
+- tampered vendored AI Core        -> REJECTED
+- tampered pinned vendored asset   -> REJECTED
+End-to-end proof: appending one comment line to scan-deployment-leaks.mjs turned
+npm run qa:garp25 from 24/24 passed to failed on
+software-integrity.tooling-and-vendored and software-integrity.negative-controls.
+
+DELTA 2 - RELEASE IDENTITY CHAIN IS NOW VERIFIED, NOT ONLY GENERATED
+Finding: dist/build-provenance.json and dist/security-evidence-manifest.json were created
+by the release path but never verified; nothing asserted after ALL post-processing steps
+that release-integrity, the Studio manifest, the SBOM, the provenance and the evidence
+still describe the same release.
+Change: scripts/verify-release-chain.mjs runs as the final, fail-closed step of
+npm run prepare:pages (which runs both in the P5 gate and in deploy).
+34 checks over the exact bytes that go to GitHub Pages, including:
+- release-integrity <-> studio manifest / SBOM / provenance / evidence digest cross-links,
+- canonical platform contract survived the P3 post-processor,
+- independent re-verification by the vendored GARP tools
+  (verify-release-integrity, verify-build-provenance, verify-evidence-manifest,
+  scan-deployment-leaks).
+Negative controls executed:
+- one appended byte in dist/sbom.cdx.json      -> failed (link.sbomSha256, verify.release-integrity)
+- removed platform.studioBridge in the manifest -> failed (contract.platform-complete and 3 more)
+
+DELTA 3 - PROVENANCE BINDING STATED PRECISELY
+Finding: provenance.releaseIntegrity.artifactDigest was always null, so the previously
+documented provenance -> artifact binding did not exist.
+Assessment: the back-link is structurally circular - the artifact digest covers the whole
+dist/ including build-provenance.json. It is NOT faked. Verified instead is the
+non-circular forward chain:
+release-integrity -> buildProvenanceSha256 -> provenance.subject -> studio manifest,
+plus provenance.source.revision == release-integrity.sourceCommit and the lockfile digest.
+This remains TRANSITIONAL: there is still no production signing key or trust-root custody,
+so no cryptographically closed AUTO-PATCH gate is claimed.
+
+DELTA 4 - BUILDER IDENTITY NO LONGER OVERCLAIMED
+Finding: create-pages-release-identity.mjs hard-coded builder id "github-actions" even for
+local runs.
+Change: the builder is "github-actions" only when GITHUB_ACTIONS=true, otherwise
+"local-untrusted-builder". The release chain requires the strict builder identity in CI.
+
+DELTA 5 - app-updated ONLY AFTER A VERIFIED LIVE RELEASE
+Finding: deploy.yml dispatched app-updated to AI Studio immediately after the deploy job,
+with no verification that the published version is the one the release gate approved.
+Change: scripts/verify-live-release.mjs runs before the dispatch. Bounded retry/backoff
+(default 8 attempts, capped delay, per-request timeout), fail-closed after exhaustion,
+no infinite loop. It requires the expected deployment origin over https and verifies:
+appId, version, sourceCommit, artifactDigest, release-integrity.manifestSha256 and the
+SHA-256 of the live manifest bytes themselves.
+Negative controls (permanent regression): different artifact digest, different version,
+different source commit, manifest bytes that do not match the release identity, and an
+unexpected deployment origin are all rejected; a short propagation delay is not.
+
+DELTA 6 - DISPATCH PAYLOAD CARRIES RELEASE IDENTITY
+Finding: the payload carried only app_id, repository, commit and URL, so AI Studio could
+not bind a promotion to a concrete artifact - only to a version string.
+Change: the payload now also carries version, artifact_digest, manifest_sha256,
+sbom_sha256, evidence_manifest_sha256, build_provenance_sha256, release_integrity_url,
+assurance_mode, garp_profile, release_gate, live_verified_at, run_id and run_attempt.
+app_id is deliberately unchanged ("hodnotitel-maturitnich-slohu") so the existing AI Studio
+contract is not broken; the canonical appId is added as canonical_app_id.
+
+UNCHANGED / NOT CLAIMED CLOSED
+- school-server LIVE runtime, security headers, session cookies, reverse proxy: NOT TESTED
+- behavioural live-model AI-RED AIR-01..12: NOT TESTED
+- production signing key / trust root / key custody: EXTERNAL, assurance stays TRANSITIONAL
+- dedicated third-party SAST and DAST: NOT TESTED
+- AI Studio side of the auto-patch (patch eligibility, Studio safe promotion, duplicate and
+  concurrent dispatch, rollback and minor/major rejection): OUT OF SCOPE of this repository;
+  it must be implemented and tested in the AI Studio repository.

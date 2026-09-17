@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 // The Platform P3 post-processor intentionally exposes additional aliases in
 // some build artifacts. AI Studio deployment evidence, however, has one
@@ -46,5 +47,17 @@ if(platform.cacheName!==`ghrab-${studioManifest.id}-v${studioManifest.version}`)
 // TRANSITIONAL until a production signing key is available; no fake signature is
 // asserted merely to turn CI green.
 await import('./create-pages-release-identity.mjs');
+
+// Povinná regresní assertion po VŠECH post-processing krocích: release-integrity,
+// Studio manifest, SBOM, provenance a evidence musí stále popisovat tentýž release.
+// Fail-closed – bez tohoto ověření nesmí artefakt odejít na Pages.
+const chain = spawnSync(process.execPath, [path.join(root, 'scripts', 'verify-release-chain.mjs')], {
+  cwd: root,
+  encoding: 'utf8',
+});
+if (chain.status !== 0) {
+  throw new Error(`Pages artifact FAIL: release chain regression neprošla.\n${chain.stdout || ''}\n${chain.stderr || ''}`);
+}
+console.log('[release-chain] PASS · release-integrity, manifest, SBOM, provenance a evidence popisují tentýž release.');
 
 console.log('Pages artifact clean: QA-only reporty a nepublikovaný .nojekyll byly odstraněny, Studio manifest je kanonický a GARP release identity přesně váže veřejný artefakt na source commit.');

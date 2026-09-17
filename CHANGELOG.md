@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.27 – vynucená integrita toolingu, regrese release identity a ověřený live release (2026-09-17)
+
+- `qa:garp25` nově fail-closed vynucuje hashovou integritu všech 14 vendorovaných GARP 2.5.1 nástrojů proti `GARP-2.5.1-TOOLING-SHA256SUMS.txt`; poškozený, podvržený ani nepřihlášený nástroj gate neprojde.
+- Software integrity kontrola pokrývá i vendorovaný GHRAB AI Core a pinované třetistranné assety; negativní kontroly jsou doložené, ne deklarované.
+- `prepare:pages` končí povinnou regresí celého řetězce release identity: release-integrity, Studio manifest, SBOM, provenance a evidence musí popisovat tentýž release nad skutečnými bajty artefaktu.
+- `build-provenance` a `security-evidence-manifest` se nově skutečně ověřují; dosud se pouze generovaly.
+- Lokální build se už nevydává za ověřený GitHub Actions builder.
+- `app-updated` odchází do AI Studia až po omezeném retry ověření skutečně publikovaného manifestu; po vyčerpání pokusů je výsledek fail-closed, bez nekonečné smyčky.
+- Dispatch payload nově nese release identitu (verze, artifact digest, digesty manifestu, SBOM, provenance a evidence, assurance mode), aby AI Studio mohlo vázat promotion na konkrétní artefakt, nikoli jen na řetězec verze.
+- Aplikační logika hodnocení, rubrika, AI workflow, UI ani zpracování studentských dat nebyly v tomto patchi měněny.
+- Historické GARP 2.5.1 PREP artefakty 1.5.25 zůstávají neměnné; 1.5.27 je kumulativní bezpečnostní/governance delta nad 1.5.26.
+
 ## 1.5.26 – N5 scanner + GitHub deploy governance hardening (2026-09-15)
 
 - N5 deployment secret scanner nově fail-closed blokuje privátní JWK a PGP private-key bloky; encrypted PEM zůstává blokován.

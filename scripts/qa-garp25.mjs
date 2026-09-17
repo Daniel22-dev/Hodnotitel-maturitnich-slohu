@@ -49,6 +49,12 @@ for (const name of ['dist', 'dist-school-server']) {
 runNode('gh02.sw-boundary-behavioral', path.join(root, 'scripts', 'qa-sw-boundary.mjs'));
 runNode('assurance-links.verifier-selftest', path.join(root, 'scripts', 'qa-assurance-links.mjs'), ['--selftest']);
 
+// Software integrity: samotny bezpecnostni tooling musi byt hashove pripnuty,
+// jinak by slo N5 scanner oslabit bez jakekoli detekce. Negativni kontrola
+// dokazuje, ze poskozeny nebo podvrzeny nastroj gate skutecne zastavi.
+runNode('software-integrity.tooling-and-vendored', path.join(root, 'scripts', 'qa-software-integrity.mjs'));
+runNode('software-integrity.negative-controls', path.join(root, 'scripts', 'qa-software-integrity.mjs'), ['--selftest']);
+
 try {
   const school = JSON.parse(await fsp.readFile(path.join(root, 'dist-school-server', 'config', 'deployment.json'), 'utf8'));
   record('gh05.school.auth-server-session', school.authMode === 'server-session', school.authMode);

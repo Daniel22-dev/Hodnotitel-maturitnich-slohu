@@ -2,6 +2,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+// The Platform P3 post-processor intentionally exposes additional aliases in
+// some build artifacts. AI Studio deployment evidence, however, has one
+// canonical public contract. Re-assert it at the final publication boundary so
+// the exact bytes uploaded to Pages are safe for automated release promotion.
+await import('./fix-studio-manifest-platform-contract.mjs');
+
 const root=process.cwd();
 const dist=path.join(root,'dist');
 if(!fs.existsSync(dist)) throw new Error('Chybí dist/. Nejprve spusť build a QA.');
@@ -17,4 +23,16 @@ const forbidden=walk(dist).filter(file=>{
   return /(?:^|\/)qa-[^/]*\.json$/i.test(rel)||/(?:^|\/)(?:quality-report|quality-manifest)\.json$/i.test(rel);
 });
 if(forbidden.length) throw new Error(`Ve veřejném Pages artefaktu zůstaly QA soubory: ${forbidden.map(f=>path.relative(dist,f)).join(', ')}`);
-console.log('Pages artifact clean: QA-only reporty byly odstraněny z dist/.');
+
+const studioManifestPath=path.join(dist,'studio-manifest.json');
+if(!fs.existsSync(studioManifestPath)) throw new Error('Pages artifact FAIL: chybí studio-manifest.json.');
+const studioManifest=JSON.parse(fs.readFileSync(studioManifestPath,'utf8'));
+const platform=studioManifest.platform||{};
+const requiredPlatformKeys=['schema','contract','requiredPlatformRange','platformVersion','brandVersion','themeContract','swContract','studioBridge','artifactEnvelope','storagePrefix','cacheName'];
+const missingPlatformKeys=requiredPlatformKeys.filter(key=>platform[key]==null||platform[key]==='');
+if(missingPlatformKeys.length) throw new Error(`Pages artifact FAIL: studio-manifest platform contract není kanonický; chybí ${missingPlatformKeys.join(', ')}.`);
+if(platform.schema!=='ghrab-platform-app-integration-v1'||platform.contract!=='ghrab-platform-v1') throw new Error('Pages artifact FAIL: studio-manifest má neplatný platform contract.');
+if(platform.storagePrefix!==`ghrab.${studioManifest.id}.`) throw new Error('Pages artifact FAIL: studio-manifest má neplatný storagePrefix.');
+if(platform.cacheName!==`ghrab-${studioManifest.id}-v${studioManifest.version}`) throw new Error('Pages artifact FAIL: studio-manifest cacheName neodpovídá publikované verzi.');
+
+console.log('Pages artifact clean: QA-only reporty byly odstraněny z dist/ a veřejný Studio manifest má kanonický deployment-evidence kontrakt.');

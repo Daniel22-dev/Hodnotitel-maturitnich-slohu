@@ -9,6 +9,8 @@
 - Lokální build se už nevydává za ověřený GitHub Actions builder.
 - `app-updated` odchází do AI Studia až po omezeném retry ověření skutečně publikovaného manifestu; po vyčerpání pokusů je výsledek fail-closed, bez nekonečné smyčky.
 - Dispatch payload nově nese release identitu (verze, artifact digest, digesty manifestu, SBOM, provenance a evidence, assurance mode), aby AI Studio mohlo vázat promotion na konkrétní artefakt, nikoli jen na řetězec verze.
+- Regrese `test:reporter` je nově součástí `qa:p5` i `qa:p5:ci`. Dosud běžela pouze v deploy workflow, takže její selhání zastavilo až deploy z chráněné `main`, nikoli promotion z `candidate`.
+- `npm test` nově kontroluje, že každý soubor z `reporter-test.config.json:versionPaths` nese verzi z `package.json`; drift tohoto seznamu zastavil deploy už u 1.5.26 i 1.5.27.
 - Aplikační logika hodnocení, rubrika, AI workflow, UI ani zpracování studentských dat nebyly v tomto patchi měněny.
 - Historické GARP 2.5.1 PREP artefakty 1.5.25 zůstávají neměnné; 1.5.27 je kumulativní bezpečnostní/governance delta nad 1.5.26.
 

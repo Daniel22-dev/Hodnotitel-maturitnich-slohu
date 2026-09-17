@@ -63,6 +63,13 @@ check(releaseAcceptance.ecosystemReleaseWave?.syntheticDataOnlyUntilWaveComplete
 check(/const isWaveCandidate\s*=/.test(acceptanceGate)&&/acceptance\.github-validation-pending/.test(acceptanceGate)&&/post-fix-ci-validation-required/.test(acceptanceGate),'P5 acceptance gate rozlišuje ecosystem-wave post-upload validaci od legacy pre-upload stavu');
 check(!/need\(acceptance\.github\?\.status==='not-yet-uploaded','acceptance\.github-pending'/.test(acceptanceGate),'P5 acceptance gate už nemá bezpodmínečný legacy github-pending blocker');
 check(contains(text('README.md'),pkg.version),'README obsahuje aktuální verzi');
+// Každý soubor vedený v reporter-test.config.json:versionPaths musí nést aktuální verzi.
+// Drift v tomto seznamu už dvakrát zastavil deploy až po merge do chráněné main.
+const reporterConfig=JSON.parse(text('reporter-test.config.json'));
+check(reporterConfig.version===pkg.version,'reporter-test.config.json má aktuální verzi');
+for(const path of reporterConfig.versionPaths||[]){
+  check(exists(path)&&contains(text(path),pkg.version),`versionPaths: ${path} obsahuje aktuální verzi`);
+}
 check(contains(text('CHANGELOG.md'),`## ${pkg.version}`),'CHANGELOG obsahuje aktuální verzi');
 check(contains(release,"version:'__APP_VERSION__'"),'release přebírá verzi z build tokenu');
 check(/APP_VERSION\s*=\s*['"]__APP_VERSION__['"]/.test(sw),'service worker přebírá verzi z build tokenu');

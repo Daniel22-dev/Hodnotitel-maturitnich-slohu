@@ -285,6 +285,15 @@ check(
 );
 
 const syncWorkflow=read('.github/workflows/sync-ghrab-ai-core.yml');
+// Regrese 1.5.27: test-error-reporter obsahuje kontrolu versionPaths, ktera dvakrat
+// zastavila deploy az PO merge do chranene main, protoze bezela pouze v deploy.yml.
+// Master §4.3: CI gate musi bezne regrese zachytit pred merge.
+const pkgScripts=JSON.parse(read('package.json')).scripts;
+check(
+  /test-error-reporter\.mjs/.test(pkgScripts['qa:p5:ci'])&&
+  /test-error-reporter\.mjs/.test(pkgScripts['qa:p5']),
+  'regrese error reporteru bezi uz v P5 gate, ne az pri deployi'
+);
 check(/npm ci --ignore-scripts --no-audit --no-fund/.test(syncWorkflow),'synchronizace jádra nespouští instalační skripty závislostí');
 check(/--max-redirs 0/.test(syncWorkflow)&&!/curl[^\n]*--location/.test(syncWorkflow),'manifest AI jádra nepovoluje přesměrování mimo ověřenou URL');
 

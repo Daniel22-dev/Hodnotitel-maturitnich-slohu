@@ -1,7 +1,7 @@
 {
   "schema": "ghrab-data-manifest-v1",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.27",
+  "appVersion": "1.5.28",
   "manifestVersion": 4,
   "dataCategories": [
     "settings",

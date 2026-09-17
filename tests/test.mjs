@@ -54,7 +54,7 @@ const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workfl
 const releaseAcceptance=JSON.parse(text('src/config/release-acceptance.json'));
 const acceptanceGate=text('scripts/qa-p5-acceptance.mjs');
 
-check(pkg.version==='1.5.27','package verze 1.5.27');
+check(pkg.version==='1.5.28','package verze 1.5.28');
 check(releaseAcceptance.releaseStatus==='ecosystem-wave-candidate','release acceptance zachovává ecosystem-wave-candidate');
 check(releaseAcceptance.primaryRuntime?.currentUseApproved===false,'wave kandidát není schválen k běžnému použití');
 check(releaseAcceptance.github?.status==='post-fix-ci-validation-required'&&releaseAcceptance.github?.postUploadValidationRequired===true,'release metadata pravdivě vyžadují post-upload GitHub validaci');

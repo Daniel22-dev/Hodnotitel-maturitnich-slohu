@@ -92,7 +92,7 @@ check(String(taskWrites.session).includes('GARP-CONFIDENTIAL-EXAM-CANARY')&&!Str
 
 const workflowPersistenceSource=workflowUi.slice(workflowUi.indexOf('function serializableBatchJob'),workflowUi.indexOf('function tryRestoreBatchProgress'));
 const examPersistenceContext=vm.createContext({
-  APP_VERSION:'1.5.27',
+  APP_VERSION:'1.5.28',
   SENSITIVE_STATE_FIELDS:[],
   state:{set:'exam',genre:'opinion',taskIndex:0,taskTitle:'GARP-EXAM-TITLE-CANARY',taskText:'GARP-EXAM-TEXT-CANARY',taskReqs:'GARP-EXAM-REQ-CANARY',result:'',batchJob:null,series:null,inputMode:'batch',evalMode:'api',outputStyle:'standard',resultView:'final',workMode:'api',roster:[],processingMode:'queue',queueRpm:1,usage:{},distribution:{sharedSecret:'SECRET'},backend:{accessToken:'TOKEN'}},
   batchStudents:[],batchResults:[],normalizeGenreId:v=>v,sensitiveSaveEnabled:()=>true,sensitiveSnapshotExpired:()=>false,ensureWorkflowState:()=>{},safeLocalGet:()=>null,safeLocalSet:()=>true
@@ -285,6 +285,56 @@ check(
 );
 
 const syncWorkflow=read('.github/workflows/sync-ghrab-ai-core.yml');
+
+// --- Regrese 1.5.28: GitHub dovoluje v client_payload nejvyse 10 top-level vlastnosti ---
+// Inline heredoc v deploy.yml to nesel otestovat a limit se porusil az v produkcnim
+// behu (HTTP 422, 19 vlastnosti). Payload se proto stavi v samostatnem skriptu.
+const {buildDispatchPayload,MAX_TOP_LEVEL_PROPERTIES}=await import(pathToFileURL(join(ROOT,'scripts/build-ai-studio-dispatch.mjs')).href);
+const dispatchEnv={
+  APP_VERSION:'1.5.28',
+  SOURCE_REPOSITORY:'Daniel22-dev/Hodnotitel-maturitnich-slohu',
+  SOURCE_SHA:'a'.repeat(40),
+  DEPLOYED_URL:'https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/',
+  ARTIFACT_DIGEST:'b'.repeat(64),
+  MANIFEST_SHA256:'c'.repeat(64),
+  SBOM_SHA256:'d'.repeat(64),
+  EVIDENCE_MANIFEST_SHA256:'e'.repeat(64),
+  BUILD_PROVENANCE_SHA256:'f'.repeat(64),
+  ASSURANCE_MODE:'TRANSITIONAL',
+  RELEASE_STAGE:'LIVE-PUBLIC-PAGES',
+  GARP_PROFILE:'GARP-2.5.1-SHIELD-PREP',
+  RELEASE_GATE:'P5-R2',
+  GITHUB_RUN_ID:'1',
+  GITHUB_RUN_ATTEMPT:'1',
+};
+const dispatchLive={status:'PASS',version:'1.5.28',artifactDigest:'b'.repeat(64),releaseIntegrityUrl:'https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/release-integrity.json',verifiedAt:'2026-09-17T12:00:00.000Z'};
+const builtDispatch=buildDispatchPayload({env:dispatchEnv,live:dispatchLive});
+const topLevel=Object.keys(builtDispatch.client_payload).length;
+check(MAX_TOP_LEVEL_PROPERTIES===10&&topLevel<=MAX_TOP_LEVEL_PROPERTIES,
+  `client_payload ma ${topLevel} top-level vlastnosti, limit GitHub API je 10`);
+check(builtDispatch.event_type==='app-updated'&&builtDispatch.client_payload.app_id==='hodnotitel-maturitnich-slohu',
+  'dispatch zachovava stavajici kontrakt AI Studia');
+check(
+  builtDispatch.client_payload.artifact_digest==='b'.repeat(64)&&
+  builtDispatch.client_payload.release.sbom_sha256==='d'.repeat(64)&&
+  builtDispatch.client_payload.release.build_provenance_sha256==='f'.repeat(64)&&
+  builtDispatch.client_payload.release.release_stage==='LIVE-PUBLIC-PAGES',
+  'vnoreny objekt release nese celou release identitu'
+);
+const dispatchRejects=(mutate)=>{
+  try{ mutate(); return false; }catch{ return true; }
+};
+check(dispatchRejects(()=>buildDispatchPayload({env:dispatchEnv,live:{...dispatchLive,status:'FAIL'}})),
+  'bez overeneho ziveho releasu se payload nepostavi');
+check(dispatchRejects(()=>buildDispatchPayload({env:{...dispatchEnv,RELEASE_STAGE:'PREP-VALIDATION'},live:dispatchLive})),
+  'o zaznamu z P5 gate se AI Studio neinformuje');
+check(dispatchRejects(()=>buildDispatchPayload({env:dispatchEnv,live:{...dispatchLive,artifactDigest:'9'.repeat(64)}})),
+  'nesoulad ziveho artefaktu a exportovane identity payload zastavi');
+check(dispatchRejects(()=>buildDispatchPayload({env:{...dispatchEnv,SBOM_SHA256:''},live:dispatchLive})),
+  'neuplna release identita payload zastavi');
+const dispatchStep=deployWorkflow.slice(deployWorkflow.indexOf('Dispatch app-updated'),deployWorkflow.indexOf('/AI-Studio-GHRAB/dispatches'));
+check(/scripts\/build-ai-studio-dispatch\.mjs/.test(dispatchStep)&&!/node <<'NODE'/.test(dispatchStep),
+  'deploy workflow stavi payload testovatelnym skriptem, ne inline heredocem');
 // Regrese 1.5.27: test-error-reporter obsahuje kontrolu versionPaths, ktera dvakrat
 // zastavila deploy az PO merge do chranene main, protoze bezela pouze v deploy.yml.
 // Master §4.3: CI gate musi bezne regrese zachytit pred merge.
@@ -347,7 +397,7 @@ check(liveVerifyIndex>=0&&dispatchIndex>liveVerifyIndex,'app-updated odchází a
 check(
   /needs: \[qa-build, deploy\]/.test(deployWorkflow)&&
   /ARTIFACT_DIGEST: \$\{\{ needs\.qa-build\.outputs\.artifact_digest \}\}/.test(deployWorkflow)&&
-  /"?version"?: process\.env\.APP_VERSION/.test(deployWorkflow),
+  /APP_VERSION: \$\{\{ needs\.qa-build\.outputs\.app_version \}\}/.test(deployWorkflow),
   'dispatch payload nese verzi i digest artefaktu, ne jen commit'
 );
 const liveSource=read('scripts/verify-live-release.mjs');

@@ -1,8 +1,15 @@
-# QA report — Hodnotitel maturitních slohů 1.5.27 — GARP 2.5.1 SHIELD-PREP
+# QA report — Hodnotitel maturitních slohů 1.5.28 — GARP 2.5.1 SHIELD-PREP
 
 Datum: 2026-09-17
 
-## Rozsah 1.5.27
+## Rozsah 1.5.28
+Oprava dispatch payloadu do AI Studia. Verze 1.5.27 prošla celou release cestou včetně
+publikace na GitHub Pages a živého ověření manifestu; selhal až poslední krok:
+`client_payload` měl 19 top-level vlastností a GitHub REST API jich povoluje 10
+(HTTP 422). Payload se nově staví v testovatelném skriptu, release identita je vnořená
+a payload má 9 top-level vlastností.
+
+## Puvodni rozsah (1.5.27)
 Kumulativní bezpečnostní a governance delta nad 1.5.26 podle Master promptu
 „GARP 2.5 + N5 + Safe Promotion + automatický auto-patch AI Studia" (v1.1).
 Funkční logika hodnocení, rubrika, prompty, UI ani práce se studentskými daty se nemění.
@@ -17,7 +24,7 @@ Uzavřeno:
 - release záznam rozlišuje `PREP-VALIDATION` a `LIVE-PUBLIC-PAGES`,
 - lokální build se nevydává za ověřený GitHub Actions builder.
 
-## Reprodukované kontroly nad 1.5.27
+## Reprodukované kontroly nad 1.5.28
 - projektové testy: **454/454 PASS**
 - security regressions: **121/121 PASS**
 - `qa:garp25`: **24/24 PASS**
@@ -38,14 +45,19 @@ release chain; nesoulad digestu, verze, commitu nebo originu shodí živé ově�
 záznam z P5 gate se nedá vydat za živý release.
 
 ## GitHub CI a governance
-Běh `GHRAB QA and deploy` nad `main` SHA `5fedb04546a46a0d8f282c8c0fd7b1760b16d1ce`
+Běh 95381159019 nad `main` SHA `e4bb33da3daf133b667017f6c85ff05175291a31` doložil zelené
+`qa-build`, úspěšný deploy na GitHub Pages a PASS živého ověření publikovaného manifestu
+na první pokus z osmi (`artifactDigest d994795a…`, `releaseStage LIVE-PUBLIC-PAGES`).
+Selhal pouze poslední krok — dispatch do AI Studia; důvod viz Rozsah 1.5.28.
+
+Předchozí běh nad `main` SHA `5fedb04546a46a0d8f282c8c0fd7b1760b16d1ce`
 doložil, že `main` je protected, `p5-release-gate` je required status check a že tento
 SHA pochází z merged PR #9 `candidate -> main`. Safe Promotion tedy prokazatelně funguje.
 
 Týž běh skončil fail-closed před deployem, protože tento soubor zůstal na verzi 1.5.26 —
 `QA_REPORT.md` je v `reporter-test.config.json` veden mezi `versionPaths`. Nic se
 nepublikovalo a AI Studio nedostalo žádné oznámení. Stejná třída chyby nastala už
-u 1.5.26. Proto 1.5.27 navíc:
+u 1.5.26. Proto 1.5.28 navíc:
 - zařazuje `test:reporter` do `qa:p5` i `qa:p5:ci`, aby regrese spadla na `candidate`
   a ne až po merge do chráněné `main`,
 - přidává do `npm test` generickou kontrolu, že každý soubor z `versionPaths`

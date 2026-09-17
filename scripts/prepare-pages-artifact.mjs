@@ -17,6 +17,12 @@ const explicit=[
   'qa-p5-axe-runtime-report.json','qa-p5-release-report.json','qa-p5-acceptance-report.json','qa-suite-session-report.json','config/quality-manifest.json'
 ];
 for(const rel of explicit) fs.rmSync(path.join(dist,...rel.split('/')),{force:true});
+
+// actions/upload-pages-artifact does not preserve the root .nojekyll dotfile in
+// the published TAR. Remove it before computing GARP release-integrity so the
+// declared file set and digest describe the exact bytes Pages actually receives.
+fs.rmSync(path.join(dist,'.nojekyll'),{force:true});
+
 function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const p=path.join(dir,e.name);return e.isDirectory()?walk(p):[p]});}
 const forbidden=walk(dist).filter(file=>{
   const rel=path.relative(dist,file).split(path.sep).join('/');
@@ -41,4 +47,4 @@ if(platform.cacheName!==`ghrab-${studioManifest.id}-v${studioManifest.version}`)
 // asserted merely to turn CI green.
 await import('./create-pages-release-identity.mjs');
 
-console.log('Pages artifact clean: QA-only reporty byly odstraněny, Studio manifest je kanonický a GARP release identity přesně váže veřejný artefakt na source commit.');
+console.log('Pages artifact clean: QA-only reporty a nepublikovaný .nojekyll byly odstraněny, Studio manifest je kanonický a GARP release identity přesně váže veřejný artefakt na source commit.');

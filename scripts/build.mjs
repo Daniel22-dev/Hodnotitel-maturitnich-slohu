@@ -15,5 +15,7 @@ const manifestText=readInjected(join(SRC,'studio-manifest.template.json')).repla
 const pwa=JSON.parse(readFileSync(join(DIST,'manifest.webmanifest'),'utf8'));if(pwa.id!=='/Hodnotitel-maturitnich-slohu/'||pwa.start_url!=='./')fail('PWA identita musí zůstat stabilní');try{execFileSync(process.execPath,['--check',join(DIST,'app.js')],{stdio:'pipe'});execFileSync(process.execPath,['--check',join(DIST,'access-bootstrap.js')],{stdio:'pipe'})}catch(error){fail('výsledný JavaScript je neplatný: '+String(error.stderr||error.message))}
 const rubric=JSON.parse(readFileSync(join(DIST,'rubric','rubric-v2026.04.27-r1.json'),'utf8'));if(rubric.version!=='2026.04.27-r1')fail('nesouhlasí rubrika');log(`HOTOVO · ${version} · Core ${CORE_VERSION} SHA-256 OK · ${operations.operations.length} operace · ${jsFiles.length} JS modulů`);
 
-// P2: canonical cross-application platform post-processing.
+// P2/P3: canonical cross-application platform post-processing.
 await import("./apply-ghrab-platform.mjs");
+// Preserve the canonical Studio deployment-evidence contract after P3 aliases are applied.
+await import("./fix-studio-manifest-platform-contract.mjs");

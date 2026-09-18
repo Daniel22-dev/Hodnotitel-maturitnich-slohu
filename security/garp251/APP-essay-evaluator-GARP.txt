@@ -14,7 +14,7 @@ AKTUÁLNÍ STAV (nezaměňovat s historickými reporty níže)
   ani trust-root custody neexistují. Nic se nevydává za kryptograficky uzavřený AUTO-PATCH gate.
 - Historické soubory ASSURANCE/SHIELD/FINAL-RELEASE-GATE a RELEASE-NOTES-* patří starším commitům
   a nesmí být použity jako důkaz aktuálního stavu.
-- Rozsah poslední bezpečnostní delty: security/garp251/RELEASE-DELTA-1.5.27.txt. Aktuální end-to-end důkaz 1.5.28 je v FINAL-AUDIT-1.5.28.md.
+- Rozsah poslední bezpečnostní delty: security/garp251/RELEASE-DELTA-1.5.27.txt. Aktuální end-to-end důkaz 1.5.28 je v QA_REPORT.md.
 
 IDENTITA A ARCHITEKTURA
 - Hybridní PWA child aplikace AI Studio GHRAB.

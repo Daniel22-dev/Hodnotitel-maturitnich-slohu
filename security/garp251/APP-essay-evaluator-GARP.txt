@@ -1,12 +1,12 @@
 GARP 2.5.1 – PRŮVODNÍ LIST APLIKACE
 Aplikace: Hodnotitel maturitních slohů
 appId: essay-evaluator
-Verze kandidáta: 1.5.27
-Datum: 2026-09-17
+Verze kandidáta: 1.5.28
+Datum: 2026-09-18
 Profil: SHIELD-PREP
 
 AKTUÁLNÍ STAV (nezaměňovat s historickými reporty níže)
-- Aktuální verze: 1.5.27. Předchozí uzavřené delty: 1.5.25 (PREP evidence), 1.5.26 (N5 + deploy governance).
+- Aktuální verze: 1.5.28. Předchozí uzavřené delty: 1.5.25 (PREP evidence), 1.5.26 (N5 + deploy governance), 1.5.27 (release-chain hardening); 1.5.28 opravuje Studio dispatch payload.
 - Strojově čitelný aktuální záznam release je dist/release-integrity.json, který vzniká až na release cestě
   a nese appId, version, sourceCommit, artifactDigest, manifestSha256, sbomSha256, buildProvenanceSha256,
   evidenceManifestSha256, tooling, gate, profil, buildRun (repository/runId/runAttempt), datum a status.
@@ -14,7 +14,7 @@ AKTUÁLNÍ STAV (nezaměňovat s historickými reporty níže)
   ani trust-root custody neexistují. Nic se nevydává za kryptograficky uzavřený AUTO-PATCH gate.
 - Historické soubory ASSURANCE/SHIELD/FINAL-RELEASE-GATE a RELEASE-NOTES-* patří starším commitům
   a nesmí být použity jako důkaz aktuálního stavu.
-- Rozsah a doklady poslední delty: security/garp251/RELEASE-DELTA-1.5.27.txt.
+- Rozsah poslední bezpečnostní delty: security/garp251/RELEASE-DELTA-1.5.27.txt. Aktuální end-to-end důkaz 1.5.28 je v FINAL-AUDIT-1.5.28.md.
 
 IDENTITA A ARCHITEKTURA
 - Hybridní PWA child aplikace AI Studio GHRAB.

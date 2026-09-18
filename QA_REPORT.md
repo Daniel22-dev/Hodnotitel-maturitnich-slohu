@@ -77,18 +77,17 @@ důkazem bude běh `p5-release-gate` v GitHub Actions.
 - provider retention / D2-D3 provider-side egress evidence: **NOT TESTED**
 - behaviorální AI-RED AIR-01..12 + ASR: **NOT TESTED**
 - produkční signing key, trust root a key custody: **NOT TESTED**
-- AI Studio auto-patch: Hodnotitel 1.5.28 je již přijat v release-wave; patch eligibility, Safe Promotion a live release identity byly ověřeny v AI Studio P5. Duplicate dispatch se znovu ověřuje aktuálním 1.5.28 deploy cyklem; concurrent duplicate má trvalou regresi v AI Studiu.
 
 ## Verdikt
-**AMBER / SHIELD-PREP.** Aplikační strana standardu je uzavřená a doložená.
-Assurance zůstává `TRANSITIONAL` — release identita je strojově ověřená, ale bez
-produkčního podpisu. Neprohlašuje se school-server LIVE GREEN ani hotový auto-patch
-AI Studia.
+**AMBER / SHIELD-PREP.** Aplikační GARP/N5/Safe Promotion část a patch-only auto-patch cesta do AI Studia jsou uzavřené a empiricky doložené. Assurance zůstává `TRANSITIONAL` — release identita je strojově ověřená, ale bez produkčního podpisu. Neprohlašuje se school-server LIVE GREEN, third-party SAST/DAST ani produkční signing.
 
 
 ## Aktuální audit 2026-09-18
 - Lokální reprodukce nad přesným zdrojovým balíčkem 1.5.28: GARP selftest **43/43 PASS**, build + Platform conformance **118/118 PASS**, `qa:garp25` **24/24 PASS**, projektové testy **459/459 PASS**, security regressions **129/129 PASS**.
-- Poslední potvrzený GREEN Safe Promotion před tímto dokumentačním cyklem: candidate `da3e326117c2fe312b09d02f2cfab4e1c2707241`, P5 run `35256956615`, následně merge do main `41eadc2ed42708ead57b8d5a413a6996d6632009`.
-- Live release 1.5.28 byl AI Studiem ověřen jako `VERIFIED` se source commit `41eadc2ed42708ead57b8d5a413a6996d6632009` a artifact digest `33d01656e7bb868bd77fc1395b82d1fc0721bb35ad351dd770005f6eeb9d3fd6`.
+- GREEN Safe Promotion dokumentačního cyklu: candidate `b4faf52201d8ce1bc87bdd0f9232ba3cc79766a4`, PR #14, PR-level P5 run `35336634654`, následně merge do main `9f285f54c5d03945766fe87dd91f44ec1dedd8b1`; `candidate` byl po merge synchronizován na stejný SHA.
+- Live release 1.5.28 z tohoto cyklu byl AI Studiem ověřen jako `VERIFIED` se source commit `9f285f54c5d03945766fe87dd91f44ec1dedd8b1` a artifact digest `116086ee7ab926b6e39a667b8bde9470c29d6c05289393f77cbf58383d86ba91`.
 - Řízený negativní test 2026-09-18: candidate commit `d5ffc5829066a5048ce592700b6843d4e25c41ca` obsahoval pouze záměrný version drift `package.json 1.5.29` proti lock/evidence. Required `p5-release-gate` run `35336247793` skončil **FAIL**, produkční `main` se nezměnil a deploy se nespustil. Candidate byl následně obsahově vrácen na 1.5.28.
+- **Test E — duplicate dispatch, reálné E2E:** Hodnotitel deploy run `35336755506` po live verifikaci odeslal znovu `app-updated` pro již přijatou 1.5.28. AI Studio ingest run `35336957396` skončil **PASS**: release identity VERIFIED, **0 auto-patch promotion**, `release wave unchanged`, `safe NO-OP`.
+- **Test F — concurrent duplicate, reálné E2E:** dva identické AI Studio ingest runy `35337041026` a `35337128564` byly rerunovány současně (attempt 2). První byl `in_progress`, druhý zůstal `pending` do jeho dokončení; oba následně skončily **PASS**, **0 promotions**, `release wave unchanged`, `safe NO-OP`. AI Studio `main` i `candidate` zůstaly na `2d4ec4095d3176e1ca118b5503ea1d45ef2f406c` a `essay-evaluator` zůstal na 1.5.28.
+- Trvalá regrese idempotence/concurrency je součástí AI Studio P5 (`test:auto-patch-idempotence`); její zavedení prošlo P5 runem `35336430979` a Safe Promotion PR #22 do main `2d4ec4095d3176e1ca118b5503ea1d45ef2f406c`.
 - Produkční signing key/trust-root custody zůstává vědomě mimo SHIELD-PREP: assurance mode je nadále **TRANSITIONAL**, nikoli kryptograficky uzavřený production signing.

@@ -82,12 +82,15 @@ důkazem bude běh `p5-release-gate` v GitHub Actions.
 **AMBER / SHIELD-PREP.** Aplikační GARP/N5/Safe Promotion část a patch-only auto-patch cesta do AI Studia jsou uzavřené a empiricky doložené. Assurance zůstává `TRANSITIONAL` — release identita je strojově ověřená, ale bez produkčního podpisu. Neprohlašuje se school-server LIVE GREEN, third-party SAST/DAST ani produkční signing.
 
 
-## Aktuální audit 2026-09-18
-- Lokální reprodukce nad přesným zdrojovým balíčkem 1.5.28: GARP selftest **43/43 PASS**, build + Platform conformance **118/118 PASS**, `qa:garp25` **24/24 PASS**, projektové testy **459/459 PASS**, security regressions **129/129 PASS**.
-- GREEN Safe Promotion dokumentačního cyklu: candidate `b4faf52201d8ce1bc87bdd0f9232ba3cc79766a4`, PR #14, PR-level P5 run `35336634654`, následně merge do main `9f285f54c5d03945766fe87dd91f44ec1dedd8b1`; `candidate` byl po merge synchronizován na stejný SHA.
-- Live release 1.5.28 z tohoto cyklu byl AI Studiem ověřen jako `VERIFIED` se source commit `9f285f54c5d03945766fe87dd91f44ec1dedd8b1` a artifact digest `116086ee7ab926b6e39a667b8bde9470c29d6c05289393f77cbf58383d86ba91`.
-- Řízený negativní test 2026-09-18: candidate commit `d5ffc5829066a5048ce592700b6843d4e25c41ca` obsahoval pouze záměrný version drift `package.json 1.5.29` proti lock/evidence. Required `p5-release-gate` run `35336247793` skončil **FAIL**, produkční `main` se nezměnil a deploy se nespustil. Candidate byl následně obsahově vrácen na 1.5.28.
-- **Test E — duplicate dispatch, reálné E2E:** Hodnotitel deploy run `35336755506` po live verifikaci odeslal znovu `app-updated` pro již přijatou 1.5.28. AI Studio ingest run `35336957396` skončil **PASS**: release identity VERIFIED, **0 auto-patch promotion**, `release wave unchanged`, `safe NO-OP`.
-- **Test F — concurrent duplicate, reálné E2E:** dva identické AI Studio ingest runy `35337041026` a `35337128564` byly rerunovány současně (attempt 2). První byl `in_progress`, druhý zůstal `pending` do jeho dokončení; oba následně skončily **PASS**, **0 promotions**, `release wave unchanged`, `safe NO-OP`. AI Studio `main` i `candidate` zůstaly na `2d4ec4095d3176e1ca118b5503ea1d45ef2f406c` a `essay-evaluator` zůstal na 1.5.28.
-- Trvalá regrese idempotence/concurrency je součástí AI Studio P5 (`test:auto-patch-idempotence`); její zavedení prošlo P5 runem `35336430979` a Safe Promotion PR #22 do main `2d4ec4095d3176e1ca118b5503ea1d45ef2f406c`.
-- Produkční signing key/trust-root custody zůstává vědomě mimo SHIELD-PREP: assurance mode je nadále **TRANSITIONAL**, nikoli kryptograficky uzavřený production signing.
+## Aktuální audit 2026-09-18 — Master v1.1 closure
+
+Autoritativní podrobný stav je v `FINAL-AUDIT-1.5.28.md`; přesná aktuální live source/artifact identita se po deployi čte z `release-integrity.json`, nikoli ze staticky hardcodovaného SHA v tomto reportu.
+
+Nově empiricky uzavřeno:
+- **Test B / GARP fail:** candidate `a70f7924a7045f37c9503aacec38f9c941b5576d`, P5 run `35342438838`, job `105591201428` = FAIL na software-integrity GARP toolingu; main/deploy beze změny.
+- **Test C / N5 fail:** candidate `12d3f4cd4a7b7e1caa863e0878820d4a8abccdf7`, P5 run `35342797447`, job `105592353228` = FAIL přímo na `deployment.leak-scan.dist` a `deployment.leak-scan.dist-school-server`; main/deploy beze změny. Permanentní N5 regression nadále obsahuje JWK `d`, private PGP i encrypted private PEM.
+- **Test G/H/I / Studio acceptance policy:** `test:release-promotion` je nyní povinnou součástí Studio `qa:p5` i `qa:p5:ci`; ověřuje minor/major rejection, rollback rejection a chybějící povinnou manifest položku. Required P5 run `35343176748` = PASS; změna prošla Studio Safe Promotion PR #23.
+- **Duplicate/concurrent:** reálné ingest běhy `35336957396`, `35337041026`, `35337128564` a `35338398070` potvrzují GREEN/NO-OP, bez druhé promotion a bez rollbacku.
+- Exact-source lokální reprodukce 1.5.28: GARP selftest **43/43 PASS**, Platform **118/118 PASS**, `qa:garp25` **24/24 PASS**, projektové testy **459/459 PASS**, security regressions **129/129 PASS**.
+
+Assurance zůstává vědomě **TRANSITIONAL / SHIELD-PREP**: production signing key/trust-root custody není zaveden a tento report netvrdí school-server LIVE, third-party SAST/DAST ani behaviorální live-model AI-RED.

@@ -92,7 +92,7 @@ check(String(taskWrites.session).includes('GARP-CONFIDENTIAL-EXAM-CANARY')&&!Str
 
 const workflowPersistenceSource=workflowUi.slice(workflowUi.indexOf('function serializableBatchJob'),workflowUi.indexOf('function tryRestoreBatchProgress'));
 const examPersistenceContext=vm.createContext({
-  APP_VERSION:'1.5.28',
+  APP_VERSION:'1.5.29',
   SENSITIVE_STATE_FIELDS:[],
   state:{set:'exam',genre:'opinion',taskIndex:0,taskTitle:'GARP-EXAM-TITLE-CANARY',taskText:'GARP-EXAM-TEXT-CANARY',taskReqs:'GARP-EXAM-REQ-CANARY',result:'',batchJob:null,series:null,inputMode:'batch',evalMode:'api',outputStyle:'standard',resultView:'final',workMode:'api',roster:[],processingMode:'queue',queueRpm:1,usage:{},distribution:{sharedSecret:'SECRET'},backend:{accessToken:'TOKEN'}},
   batchStudents:[],batchResults:[],normalizeGenreId:v=>v,sensitiveSaveEnabled:()=>true,sensitiveSnapshotExpired:()=>false,ensureWorkflowState:()=>{},safeLocalGet:()=>null,safeLocalSet:()=>true
@@ -291,7 +291,7 @@ const syncWorkflow=read('.github/workflows/sync-ghrab-ai-core.yml');
 // behu (HTTP 422, 19 vlastnosti). Payload se proto stavi v samostatnem skriptu.
 const {buildDispatchPayload,MAX_TOP_LEVEL_PROPERTIES}=await import(pathToFileURL(join(ROOT,'scripts/build-ai-studio-dispatch.mjs')).href);
 const dispatchEnv={
-  APP_VERSION:'1.5.28',
+  APP_VERSION:'1.5.29',
   SOURCE_REPOSITORY:'Daniel22-dev/Hodnotitel-maturitnich-slohu',
   SOURCE_SHA:'a'.repeat(40),
   DEPLOYED_URL:'https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/',
@@ -307,7 +307,7 @@ const dispatchEnv={
   GITHUB_RUN_ID:'1',
   GITHUB_RUN_ATTEMPT:'1',
 };
-const dispatchLive={status:'PASS',version:'1.5.28',artifactDigest:'b'.repeat(64),releaseIntegrityUrl:'https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/release-integrity.json',verifiedAt:'2026-09-17T12:00:00.000Z'};
+const dispatchLive={status:'PASS',version:'1.5.29',artifactDigest:'b'.repeat(64),releaseIntegrityUrl:'https://daniel22-dev.github.io/Hodnotitel-maturitnich-slohu/release-integrity.json',verifiedAt:'2026-09-17T12:00:00.000Z'};
 const builtDispatch=buildDispatchPayload({env:dispatchEnv,live:dispatchLive});
 const topLevel=Object.keys(builtDispatch.client_payload).length;
 check(MAX_TOP_LEVEL_PROPERTIES===10&&topLevel<=MAX_TOP_LEVEL_PROPERTIES,

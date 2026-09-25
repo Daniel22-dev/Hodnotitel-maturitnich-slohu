@@ -1,0 +1,10 @@
+{
+  "schema":"garp27-capability-inventory-v1","garpVersion":"2.7","appId":"essay-evaluator","appVersion":"1.5.29","dataClass":"D2","agentic":false,
+  "aiOperations":["attachment-transcription","essay-evaluation","essay-series-evaluation","essay-batch-job"],"providerTools":[],"aiCore":"1.0.0","platform":"1.1.2",
+  "runtimeProfiles":{"standalone":{"defaultMode":"direct-gemini","allowedModes":["direct-gemini"],"allowLocalProviderKeys":true,"automaticFallback":false},"school":{"defaultMode":"school-gateway","allowedModes":["school-gateway"],"allowLocalProviderKeys":false,"automaticFallback":false,"status":"DEFERRED_BY_OWNER_DECISION"}},
+  "inputClasses":["text","image","document"],"importClasses":["text","image","document"],"storageClasses":["localStorage","sessionStorage","CacheStorage"],
+  "crossAppInterfaces":["AI Studio signed access bootstrap","suite-session lifecycle events","studio-manifest contract","repository_dispatch app-updated after verified live release","teacher-confirmed Google Apps Script feedback delivery"],
+  "privilegedBrowserCapabilities":["file-open","file-download","print","clipboard-when-user-invoked","teacher-confirmed-email-feedback"],"autonomousToolCapabilities":[],
+  "releaseAuthorities":["GARP-2.7","GARP-2.5.1-legacy-regression","P5-R2","Safe-Promotion"],
+  "serverCapabilities":{"schoolSession":"DEFERRED","schoolGateway":"DEFERRED","serverEgress":"DEFERRED","serverAuditWatchdog":"DEFERRED","containerReverseProxyValidation":"DEFERRED"},"agenticProfile":"NO"
+}

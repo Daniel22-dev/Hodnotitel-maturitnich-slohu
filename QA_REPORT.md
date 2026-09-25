@@ -1,6 +1,19 @@
-# QA report — Hodnotitel maturitních slohů 1.5.28 — GARP 2.5.1 SHIELD-PREP
+# QA report — Hodnotitel maturitních slohů 1.5.29 — GARP 2.7 r2 / G-02
 
-Datum: 2026-09-18
+Datum: 2026-09-25
+
+## Rozsah 1.5.29
+Bezpečnostní a governance migrace na GARP 2.7 r2 / G-02 bez změny maturitní rubriky, scoringu, promptového významu, UI nebo pedagogického workflow. GARP 2.5.1/N5 zůstává zachován jako regresní baseline. Školní server je nadále DEFERRED_BY_OWNER_DECISION; LIVE stav je NOT_TESTED.
+
+Lokální ověření migrace zahrnuje GARP 2.7 package/contract selftest, G-02 policy admission, architecture-integrity, mutation testy, auto-patch contract, GHRAB Platform conformance a úplné aplikační/security regrese. Exact live release identity a online browser P5 evidence vznikají až v GitHub Actions po Safe Promotion.
+
+Aktuální lokální výsledek 1.5.29:
+- projektové testy: 459/459 PASS
+- security regressions: 129/129 PASS
+- GHRAB Platform: 118/118 PASS
+- GARP 2.7 architecture integrity: 31/31 PASS
+- GARP 2.7 mutation scenarios: 10/10 PASS
+- GARP 2.7 FOUNDATION: 8/8 PASS — FOUNDATION_PASS_LIVE_NOT_TESTED
 
 ## Rozsah 1.5.28
 Oprava dispatch payloadu do AI Studia. Verze 1.5.27 prošla celou release cestou včetně

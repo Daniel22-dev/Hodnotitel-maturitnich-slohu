@@ -150,6 +150,26 @@ async function waitForImages(page) {
   });
 }
 
+async function waitForScenarioReadiness(page, scenario) {
+  const expectedText = String(scenario.expectedText || "").trim();
+  const mustExist = Array.isArray(scenario.mustVisible) ? scenario.mustVisible : [];
+  if (!expectedText && !mustExist.length) return;
+  await page.waitForFunction(
+    ({ expectedText, mustExist }) => {
+      const visibleText = (document.body?.innerText || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+      return (
+        (!expectedText || visibleText.includes(expectedText.toLowerCase())) &&
+        mustExist.every((selector) => document.querySelector(selector))
+      );
+    },
+    { expectedText, mustExist },
+    { timeout: Number(scenario.readyTimeoutMs || 5000) },
+  );
+}
+
 async function inspectPage(page, scenario) {
   return page.evaluate(
     ({ expectedText, mustVisible }) => {
@@ -383,6 +403,7 @@ try {
             if (step.action === "evaluate") await page.evaluate(step.script);
           }
           await page.waitForTimeout(scenario.settleMs || 700);
+          await waitForScenarioReadiness(page, scenario);
           await waitForImages(page);
           const checks = await inspectPage(page, scenario);
           const filename =

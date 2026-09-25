@@ -33,3 +33,5 @@ jobs:
           node -e "console.log('CHROMIUM_PATH=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
       - name: Run current P5 R2 gate
         run: npm run qa:p5:ci
+        env:
+          GARP27_EXTERNAL_TRUST_SHA256: 02fb2ea8cd1f59d8da2924c312a0765438f88c48e5542c52d94146c27d830137

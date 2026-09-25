@@ -36,8 +36,14 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           node -e "console.log('CHROMIUM_PATH=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
-      - name: Run P5 R2 release gate
+      - name: Run P5 R2 + cumulative GARP 2.7 release gate
         run: npm run qa:p5:ci
+        env:
+          GARP27_EXTERNAL_TRUST_SHA256: 02fb2ea8cd1f59d8da2924c312a0765438f88c48e5542c52d94146c27d830137
+      - name: Enforce GARP 2.7 foundation admission and legacy regressions
+        run: npm run qa:garp27:foundation
+        env:
+          GARP27_EXTERNAL_TRUST_SHA256: 02fb2ea8cd1f59d8da2924c312a0765438f88c48e5542c52d94146c27d830137
       - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -2,7 +2,7 @@
   "schema": "ghrab-release-acceptance-v1",
   "stage": "P5",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.28",
+  "appVersion": "1.5.29",
   "releaseStatus": "ecosystem-wave-candidate",
   "primaryRuntime": {
     "mode": "standalone-github-pages",
@@ -37,13 +37,14 @@
     "sourceRepositoriesExcludedFromSchoolOperationalPackage": true,
     "legalTermsRequireSeparateAgreement": true
   },
-  "revision": "P5-R2",
+  "revision": "P5-R4-GARP27-R2-G02-SAFE-PROMOTION",
   "runtimeAudit": {
     "required": true,
     "scriptsExecuted": true,
-    "transport": "local-http",
+    "transport": "source-only pre-release attestation; exact-lockfile GitHub CI/deployment pending",
     "status": "pending-post-fix-ci-validation",
-    "passed": false
+    "passed": false,
+    "note": "1.5.29 migrates active security authority to GARP 2.7 r2/G-02 while preserving GARP 2.5.1 as regression baseline. This is not LIVE school-server evidence."
   },
   "ecosystemReleaseWave": {
     "platformVersion": "1.1.2",
@@ -60,5 +61,11 @@
     "schoolServerLiveGate": "NOT_TESTED",
     "independentDeltaReview": "REQUIRED",
     "toolingRevision": "GARP-2.5.1-R2"
-  }
+  },
+  "garpReview": {
+    "activeAuthority": "GARP-2.7",
+    "legacyRegressionBaseline": "GARP-2.5.1",
+    "externalRuntimeAndProviderValidationPending": true
+  },
+  "note": "Source-only P5 acceptance input for Essay Evaluator 1.5.29 under GARP 2.7 r2/G-02; school-server LIVE remains NOT_TESTED."
 }

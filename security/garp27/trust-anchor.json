@@ -1,0 +1,28 @@
+{
+  "schema": "garp27-trust-anchor-v1",
+  "garpVersion": "2.7",
+  "consolidationRevision": "2026-09-23-r2",
+  "appId": "essay-evaluator",
+  "appVersion": "1.5.29",
+  "inputGarpZipSha256": "0c278aefa0581b3ba13dd5725da9d3fc624976c255602ec16b054fc81da6f7c8",
+  "inputAppZipSha256": "e9deae600e8848434cddee3c64ce5bbc0ffb6eb0fa47b7cd43fb3bb986d5ef6e",
+  "canonicalPackageContractCheckSha256": "ddc64e0f88ff82e4af9440a3e8f5dcabafa83eb7ab45bf7efb2d84b4b34f47e5",
+  "architecturePolicySha256": "e224393b1b0bb182eeb85520e3bd7177c51744c91b0665c7000ea2a184df976c",
+  "capabilityInventorySha256": "79ce4721854ee8d501c2b60bf86a8b291c6025297d96a9c189baf23ae6f32959",
+  "garpPolicySha256": "762ceeee3d9e81908c2d3f709984d819cc875b74a094b098adb8e7ae027f0c5f",
+  "garp27CoreContractSha256": "c0728c4b231767f3c62932511a3b2b09c5c9f682b2765def55064fd3cf3d3fb1",
+  "garp27EcosystemInventorySha256": "b5a738f20745283159bfc7563900cf555406c62e3121fb56abb4fd11639a86bf",
+  "garp27VendorTreeSha256": "2c653aa771c16ce1b610492bf5bf9d57c37af4987c85109de6cbb7cf8aa9a2fb",
+  "garp27VendorFileCount": 64,
+  "serverDecision": "DEFERRED_BY_OWNER_DECISION",
+  "governanceAcceptance": "G-01-SEPARATE-OWNER-ACTION",
+  "note": "Binds Essay Evaluator GARP 2.7 r2 policy/inventory, complete vendored master and application verification tools. Preserves D2 / AGENTIC=NO, four AI operations and release-integrity v2. CI pins this anchor externally.",
+  "adapterToolSha256s": {
+    "scripts/garp27/architecture-integrity.mjs": "01c5c341ff0f984b7e97d732802ff1a17c3702273b43795cbd2fe8113ef27b3e",
+    "scripts/garp27/mutation-tests.mjs": "134d52b5b164fc2b1418f6cde1e23d061c3f97aa6d9c9c0350d0859adc602e06",
+    "scripts/garp27/contract-gate.mjs": "cfea69009d97e6c10210325e45a7cbdc3e5320dc5c44f3ebfd3a0579211f15a5",
+    "scripts/garp27/policy-admission-mutations.mjs": "d4eeb7298610a2192b25a23a1efbf71596a87e63b21e6bab7da8a6e09f1a467c",
+    "scripts/garp27/auto-patch-contract.mjs": "a93d5f0fb2eadd1d4dbf421a6407a9ee95a7cb3738715902ae7a1f46134b10d5",
+    "scripts/garp27/foundation-gate.mjs": "22e3c7717120f0d23f05db914fe66284c038b7e694ce698e685381e78de93414"
+  }
+}

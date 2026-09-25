@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.5.29 – migrace na GARP 2.7 r2 / G-02 (2026-09-25)
+
+- Aktivní bezpečnostní autorita aplikace přechází na **GARP 2.7 r2 / G-02**; GARP 2.5.1/N5 zůstává povinnou regresní vrstvou.
+- Přidán aplikační GARP 2.7 adaptér: policy, capability inventory, migration profile, trust anchor, contract/architecture/mutation/auto-patch/foundation gates a bitově převzatý 64souborový normativní master.
+- Školní profil zůstává nepřipojený a při budoucím připojení musí projít LIVE validací; aktuální LIVE stav je NOT_TESTED.
+- Zachována datová třída D2, AGENTIC=NO, čtyři stávající AI operace bez provider tools, Safe Promotion a ghrab-release-integrity-v2.
+- Inventarizován také učitelem potvrzený egress přes Google Apps Script pro distribuci zpětné vazby.
+- Release identity a P5 gate jsou rozšířeny o GARP 2.7 a externí SHA-256 pin trust anchoru.
+- Funkční logika hodnocení, maturitní rubrika, scoring, pedagogické workflow ani UI nebyly měněny.
+
 ## 1.5.28 – oprava dispatch payloadu (limit GitHub API) (2026-09-17)
 
 - `client_payload` události `app-updated` překračoval limit GitHub REST API: API povoluje nejvýše 10 top-level vlastností, posíláno bylo 19. Dispatch končil HTTP 422 a AI Studio se o vydání 1.5.27 nikdy nedozvědělo.

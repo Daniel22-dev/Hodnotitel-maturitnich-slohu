@@ -1,5 +1,5 @@
 {
-  "schema":"garp27-capability-inventory-v1","garpVersion":"2.7","appId":"essay-evaluator","appVersion":"1.5.29","dataClass":"D2","agentic":false,
+  "schema":"garp27-capability-inventory-v1","garpVersion":"2.7","appId":"essay-evaluator","appVersion":"1.5.30","dataClass":"D2","agentic":false,
   "aiOperations":["attachment-transcription","essay-evaluation","essay-series-evaluation","essay-batch-job"],"providerTools":[],"aiCore":"1.0.0","platform":"1.1.2",
   "runtimeProfiles":{"standalone":{"defaultMode":"direct-gemini","allowedModes":["direct-gemini"],"allowLocalProviderKeys":true,"automaticFallback":false},"school":{"defaultMode":"school-gateway","allowedModes":["school-gateway"],"allowLocalProviderKeys":false,"automaticFallback":false,"status":"DEFERRED_BY_OWNER_DECISION"}},
   "inputClasses":["text","image","document"],"importClasses":["text","image","document"],"storageClasses":["localStorage","sessionStorage","CacheStorage"],

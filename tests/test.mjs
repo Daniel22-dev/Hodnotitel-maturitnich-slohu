@@ -54,7 +54,7 @@ const deployWorkflow=exists('.github/workflows/deploy.yml')?text('.github/workfl
 const releaseAcceptance=JSON.parse(text('src/config/release-acceptance.json'));
 const acceptanceGate=text('scripts/qa-p5-acceptance.mjs');
 
-check(pkg.version==='1.5.29','package verze 1.5.29');
+check(pkg.version==='1.5.30','package verze 1.5.30');
 check(releaseAcceptance.releaseStatus==='ecosystem-wave-candidate','release acceptance zachovává ecosystem-wave-candidate');
 check(releaseAcceptance.primaryRuntime?.currentUseApproved===false,'wave kandidát není schválen k běžnému použití');
 check(releaseAcceptance.github?.status==='post-fix-ci-validation-required'&&releaseAcceptance.github?.postUploadValidationRequired===true,'release metadata pravdivě vyžadují post-upload GitHub validaci');
@@ -90,7 +90,7 @@ for(const file of jsFiles){
 }
 
 const requiredIds=[
-  'btnTheme','btnFs','privacyIntroBtn','changesBtn','progressArea','step0','step1','step2','step3','step4','runBtn','resultBox','teacherReviewPanel','reportStudioPanel','reportSignature','reportShowChart','reportShowPriorities','reportIncludeRevision','classAnalyticsBtn','saveHistoryBtn','openHistoryBtn','commentBankSelect','insertCommentBtn','addCommentBtn','deleteCommentBtn',
+  'btnTheme','btnFs','privacyIntroBtn','aboutBtn','progressArea','step0','step1','step2','step3','step4','runBtn','resultBox','teacherReviewPanel','reportStudioPanel','reportSignature','reportShowChart','reportShowPriorities','reportIncludeRevision','classAnalyticsBtn','saveHistoryBtn','openHistoryBtn','commentBankSelect','insertCommentBtn','addCommentBtn','deleteCommentBtn',
   'seriesName','seriesClass','seriesDate','seriesTeacher','rubricVersionLabel','rosterInput','rosterParseStatus','importRosterBtn','clearRosterBtn','rosterTable','zipInput','pickZipBtn','exportPairingBtn',
   'workflowDashboard','queueRpm','seriesBudget','todayUsage','batchJobPanel','batchJobState','checkBatchJobBtn','batchReviewDashboard','approveAllValidBtn',
   'appsScriptUrl','appsScriptSecret','emailSubjectTemplate','emailSenderName','emailIncludeScore','emailIncludeOriginal','openAppsScriptBridgeBtn','createDraftsBtn','sendApprovedBtn','downloadDistributionJsonBtn','downloadDistributionCsvBtn',
@@ -610,8 +610,11 @@ check(!contains(appsScript,'SHARED_SECRET ='),'bez vloženého sdíleného tajem
 
 const changelogBlock=js.slice(js.indexOf('const CHANGELOG = ['),js.indexOf('];\nfunction latestChangelog'));
 check((changelogBlock.match(/\{version:/g)||[]).length===10,'UI changelog má přesně 10 verzí');
-check(changelogBlock.trimStart().startsWith("const CHANGELOG = [\n  {version:APP_VERSION+' AI STUDIO EDITION'"),'changelog začíná aktuální APP_VERSION');
+check(changelogBlock.trimStart().startsWith("const CHANGELOG = [\n  {version:APP_VERSION,"),'changelog začíná aktuální APP_VERSION');
 check(contains(js,'CHANGELOG_MAX_ENTRIES = 10'),'limit changelogu 10');
+check(contains(body,'id="aboutBtn"')&&contains(body,'ⓘ O aplikaci'),'horní lišta obsahuje O aplikaci');
+check(contains(js,"function showAbout()")&&contains(js,'Katalog změn')&&contains(js,'TECHNICKÝ STAV'),'O aplikaci obsahuje identitu, technický stav a katalog změn');
+check(!contains(body,'id="changesBtn"'),'samostatný Deník změn byl odstraněn z horní lišty');
 
 for(const path of [
   'README.md','CHANGELOG.md','QA_REPORT.md','docs/ARCHITEKTURA.md','docs/BEZPECNOST.md','docs/ZMENY-A-OPRAVY.md','docs/PRACOVNI-POSTUP.md','docs/NAHRANI-NA-GITHUB.md',

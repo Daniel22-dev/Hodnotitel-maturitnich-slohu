@@ -1,5 +1,5 @@
 {
-  "schema":"garp27-policy-v1","garpVersion":"2.7","appId":"essay-evaluator","appVersion":"1.5.29",
+  "schema":"garp27-policy-v1","garpVersion":"2.7","appId":"essay-evaluator","appVersion":"1.5.30",
   "identity":{"standaloneProfile":"Signed-permit bootstrap is bound to appId=essay-evaluator; browser state alone is never authority for a future protected school-server action.","schoolProfile":"Server-session enforcement remains deferred until approved school runtime is connected.","rule":"Client storage claims never authorize a future protected server-side action."},
   "requestApiAi":{"registry":"src/ai-operations.json","registeredOperations":4,"agentic":"NO","controls":"Four bounded AI Core operations; no provider tools, autonomous tool loop, or model-triggered application side effects."},
   "egress":{"standalone":"Explicit direct-gemini transport with session-scoped teacher key and no automatic fallback.","school":"Only school-gateway is allowed; local provider keys are forbidden and LIVE validation is mandatory when connected.","feedback":"Optional feedback delivery is teacher-configured, restricted to validated Google Apps Script exec endpoints, and requires explicit teacher confirmation."},

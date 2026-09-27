@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.30 – sjednocená sekce O aplikaci (2026-09-27)
+
+- Přidána sekce **O aplikaci** podle společného vzoru AI Studia/SORTIO: identita aplikace, autor a vývojový garant, školní projekt, přístup a určení a technický stav.
+- Doplněny provozní zásady pro práci s daty, roli AI, dostupné režimy zpracování a bezpečnostní vrstvu GARP.
+- Samostatný **Deník změn** byl odstraněn z horní lišty; posledních deset vydání je nově ve sbaleném **Katalogu změn** uvnitř karty O aplikaci.
+- Hodnoticí logika, maturitní rubrika, scoring, prompty, zpracování studentských dat ani exportní workflow se touto změnou nemění.
+
 ## 1.5.29 – migrace na GARP 2.7 r2 / G-02 (2026-09-25)
 
 - Aktivní bezpečnostní autorita aplikace přechází na **GARP 2.7 r2 / G-02**; GARP 2.5.1/N5 zůstává povinnou regresní vrstvou.

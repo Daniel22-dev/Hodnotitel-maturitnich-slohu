@@ -1,3 +1,34 @@
+# QA report — Hodnotitel maturitních slohů 1.5.30 — O aplikaci
+
+Datum: 2026-09-27
+
+## Rozsah 1.5.30
+UI změna sjednocuje Hodnotitele se společným vzorem ekosystému: přidává kartu **O aplikaci**, provozní zásady a sbalený katalog posledních deseti vydání. Hodnoticí logika, maturitní rubrika, scoring, AI operace ani práce se studentskými daty se nemění. Aktivní bezpečnostní autorita zůstává GARP 2.7 r2 / G-02; školní server zůstává nepřipojený a LIVE stav NOT_TESTED.
+
+### Lokální validační výsledek
+- projektové testy: **462/462 PASS**
+- security regressions: **129/129 PASS**
+- GHRAB Platform conformance: **118/118 PASS**
+- GARP 2.7 static gate: **PASS**
+  - architecture integrity: **31/31 PASS**
+  - mutation scenarios: **10/10 PASS**
+  - policy-admission mutations: **6/6 PASS**
+  - contracts + auto-patch contract: **PASS**
+- GARP 2.5 regresní baseline: **24/24 PASS**
+- quality gate: **31/31 PASS**
+- PWA gate: **PASS, 0 nálezů**
+- service-worker boundary: **PASS** včetně negativní kontroly
+- XSS sink regression inventory: **PASS**
+- secret scan: **PASS, 0 nálezů**
+- browser smoke QA: **PASS**
+
+### Performance budget
+Původní release 1.5.29 měl distribuční velikost **1 169 930 B** při limitu **1 170 000 B**, tedy pouze **70 B rezervy**. Nová sjednocená karta O aplikaci zvyšuje čistý build na **1 178 117 B**. Proto byl cíleně zvýšen pouze celkový `distBytes` budget na **1 180 000 B**; ostatní dílčí performance limity zůstaly beze změny a procházejí. Nejde o skryté obejití regresní brány, ale o explicitní rozšíření rozpočtu o 10 kB pro novou uživatelskou funkci.
+
+### Lokální omezení browser runtime/axe auditu
+`qa:runtime` zde nelze korektně dokončit kvůli správcovské politice testovacího Chromium v pracovním prostředí: systémový policy soubor nastavuje `URLBlocklist: ["*"]`, takže Chromium zablokuje i lokální auditní server na `127.0.0.1` a zobrazí „Your organization doesn’t allow you to view this site“. Stejný transport používá `qa:axe`, proto se tento lokální běh nevydává za PASS. Jde o omezení prostředí před načtením aplikace, nikoli o detekovanou runtime chybu Hodnotitele. Autoritativní browser runtime/axe důkaz má vzniknout v GitHub Actions v P5 release gate.
+
+## Historický QA report 1.5.29
 # QA report — Hodnotitel maturitních slohů 1.5.29 — GARP 2.7 r2 / G-02
 
 Datum: 2026-09-25

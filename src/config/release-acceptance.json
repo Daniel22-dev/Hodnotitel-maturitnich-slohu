@@ -2,7 +2,7 @@
   "schema": "ghrab-release-acceptance-v1",
   "stage": "P5",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.29",
+  "appVersion": "1.5.30",
   "releaseStatus": "ecosystem-wave-candidate",
   "primaryRuntime": {
     "mode": "standalone-github-pages",
@@ -44,7 +44,7 @@
     "transport": "source-only pre-release attestation; exact-lockfile GitHub CI/deployment pending",
     "status": "pending-post-fix-ci-validation",
     "passed": false,
-    "note": "1.5.29 migrates active security authority to GARP 2.7 r2/G-02 while preserving GARP 2.5.1 as regression baseline. This is not LIVE school-server evidence."
+    "note": "1.5.30 adds the unified About card while preserving GARP 2.7 r2/G-02 as active authority and GARP 2.5.1 as regression baseline. This is not LIVE school-server evidence."
   },
   "ecosystemReleaseWave": {
     "platformVersion": "1.1.2",
@@ -67,5 +67,5 @@
     "legacyRegressionBaseline": "GARP-2.5.1",
     "externalRuntimeAndProviderValidationPending": true
   },
-  "note": "Source-only P5 acceptance input for Essay Evaluator 1.5.29 under GARP 2.7 r2/G-02; school-server LIVE remains NOT_TESTED."
+  "note": "Source-only P5 acceptance input for Essay Evaluator 1.5.30 with the unified About card; GARP 2.7 r2/G-02 remains active and school-server LIVE remains NOT_TESTED."
 }

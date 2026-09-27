@@ -37,14 +37,17 @@ function safeSessionRemove(k){ try{sessionStorage.removeItem(k); return true}cat
 
 let modalReturnFocus=null;
 function hideModal(){
-  $('uiModal')?.classList.add('hidden');
+  const modal=$('uiModal');
+  modal?.classList.add('hidden');
+  if(modal) delete modal.dataset.variant;
   const target=modalReturnFocus;
   modalReturnFocus=null;
   if(target&&typeof target.focus==='function'&&document.contains(target)) setTimeout(()=>target.focus(),0);
 }
-function showModal(title,body,actions){
+function showModal(title,body,actions,variant=''){
   const modal=$('uiModal');
   if(modal?.classList.contains('hidden')) modalReturnFocus=document.activeElement;
+  if(modal){ if(variant) modal.dataset.variant=variant; else delete modal.dataset.variant; }
   $('uiModalTitle').textContent=title;
   $('uiModalBody').innerHTML=body;
   const a=$('uiModalActions');
@@ -79,19 +82,49 @@ function initTooltips(){ document.querySelectorAll('.tt-icon[data-tip]').forEach
 
 const CHANGELOG_MAX_ENTRIES = 10;
 const CHANGELOG = [
-  {version:APP_VERSION+' AI STUDIO EDITION', items:['Ostrá maturitní zadání už nejsou součástí veřejného zdroje ani buildu a po importu zůstávají jen v aktuální browser relaci.', 'Zpevněna AI trust boundary všech vstupů.', 'School-server je same-origin a fail-closed.', 'Citlivé snapshoty expirují za 30 dní; migrace nezálohuje jejich obsah.', 'Rozšířeny GARP 2.3 bezpečnostní regrese.']},
-  {version:'1.4.0 AI STUDIO EDITION', items:['Anonymní provozní telemetrie bez studentského obsahu.', 'Batch metriky se zapisují až po dokončení.']},
-  {version:'1.3.7 AI STUDIO EDITION', items:['Přidán interaktivní manuál se stejným oprávněním AI Studia.', 'Manuál je součástí offline PWA.']},
-  {version:'1.3.6 AI STUDIO EDITION', items:['Stabilizována PWA, přístupová brána a bezpečná obnova dávky.', 'Verze řízena z package.json; doplněny zlaté testy.']},
-  {version:'1.3.5 AI STUDIO EDITION', items:['Sjednocen branding a autorské zápatí AI Studia.']},
-  {version:'1.3.4 AI STUDIO EDITION', items:['Stabilizován CI/deploy a import seznamu z IS.']},
-  {version:'1.3.3 AI STUDIO EDITION', items:['Upravena PWA ikona a regrese importu e-mailů z IS.']},
-  {version:'1.3.2 AI STUDIO EDITION', items:['Opraven import skupiny z IS a sjednocen vzhled.']},
-  {version:'1.3.0 AI STUDIO EDITION', items:['Dokončeno Report Studio, DOCX, komentáře, analytika a historie.', 'DOCX běží lokálně bez CDN.']},
-  {version:'1.2.0 AI STUDIO EDITION', items:['Přepracovány reporty, dávka, validace kontaktů a studentská zpětná vazba.']},
+  {version:APP_VERSION, date:'27. 9. 2026', title:'Sjednocená karta O aplikaci', items:['Přidána společná sekce O aplikaci s identitou projektu, autorem, určením, technickým stavem a provozními zásadami.', 'Samostatný Deník změn byl přesunut do sbaleného Katalogu změn uvnitř této sekce.']},
+  {version:'1.5.29', date:'25. 9. 2026', title:'GARP 2.7 r2 / G-02', items:['Aktivní bezpečnostní autorita přešla na GARP 2.7 r2 / G-02; GARP 2.5.1/N5 zůstává regresní vrstvou.', 'Školní profil zůstává nepřipojený a LIVE stav je NOT_TESTED.']},
+  {version:'1.5.28', date:'17. 9. 2026', title:'Oprava dispatch payloadu', items:['Opraven limit GitHub REST API pro app-updated payload; release identita se přenáší v jednom vnořeném objektu.']},
+  {version:'1.5.27', date:'17. 9. 2026', title:'Integrita toolingu a release identity', items:['Fail-closed kontrola GARP toolingu, SBOM/provenance/evidence a živé release identity byla rozšířena o trvalé regrese.']},
+  {version:'1.5.26', date:'15. 9. 2026', title:'N5 scanner a deploy governance', items:['Secret scanner pokrývá další typy privátních klíčů a deploy vyžaduje chráněnou main i required check p5-release-gate.']},
+  {version:'1.5.25', date:'7. 9. 2026', title:'GARP 2.5.1 assurance cleanup', items:['Doplněny přepočítávané assurance vazby, negativní kontroly a nezávislé SCA ověření.']},
+  {version:'1.5.24', date:'7. 9. 2026', title:'Service Worker boundary hardening', items:['Service Worker přešel na explicitní static allowlist a bezpečnostní hranice dostala behaviorální regresní testy.']},
+  {version:'1.5.23', date:'7. 9. 2026', title:'GARP 2.5.1 SHIELD-PREP', items:['Security-critical assety byly vyřazeny z precache/cache-first cest a vydávají se pouze přes síť bez cache.']},
+  {version:'1.5.22', date:'5. 9. 2026', title:'P5 acceptance gate hotfix', items:['P5 gate rozlišuje legacy pre-upload stav od ecosystem-wave kandidáta bez oslabení fail-closed podmínek.']},
+  {version:'1.5.21', date:'5. 9. 2026', title:'Runtime bootstrap hotfix', items:['Odstraněno neexistující volání renderRelease() a přidána regrese všech app-owned startup hooků.']},
 ];
 function latestChangelog(){ return CHANGELOG.slice(0, CHANGELOG_MAX_ENTRIES); }
-function showChangelog(){ const items=latestChangelog(); const html=`<p class="small-muted" style="margin-bottom:10px">Zobrazuje se posledních ${items.length} změn. Starší položky se v nových verzích průběžně odstraňují.</p>`+items.map(v=>`<h3 style="color:var(--acc);margin:8px 0 4px">${escapeHtml(v.version)}</h3><ul style="margin-left:18px">${v.items.map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul>`).join(''); showModal('Co je nového',html,[{label:'Zavřít',className:'primary'}]); }
+function aboutChangelogHtml(){
+  return latestChangelog().map((entry,index)=>`<article class="about-changelog-entry${index===0?' current':''}"><header><b>v${escapeHtml(entry.version)}</b><span>${escapeHtml(entry.date)}</span></header><h4>${escapeHtml(entry.title)}</h4><ul>${entry.items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul></article>`).join('');
+}
+function aboutHtml(){
+  return `<div class="about-modal-content">
+    <section class="about-identity-card">
+      <div class="about-app-mark" aria-hidden="true"><img src="icons/hodnotitel-shield-20260711-192.png" alt=""></div>
+      <div><span class="about-eyebrow">HODNOTITEL MATURITNÍCH SLOHŮ</span><h2>Školní hodnoticí studio</h2><p>Důkazní hodnocení maturitních slohů podle pevné školní rubriky, ochrana citlivých údajů a finální kontrola učitele v jednom pracovním toku.</p><span class="about-version">v${escapeHtml(APP_VERSION)}</span></div>
+    </section>
+    <section class="about-facts-grid" aria-label="Identita a projekt">
+      <article><span>AUTOR A VÝVOJOVÝ GARANT</span><h3>Daniel Baláž</h3><p>Koncepce, návrh funkcí, metodické vedení a vývoj aplikace.</p></article>
+      <article><span>ŠKOLNÍ PROJEKT</span><h3>Gymnázium, Ostrava-Hrabůvka</h3><p>Interní nástroj AI Studia GHRAB určený pro práci učitele s maturitními slohy.</p></article>
+      <article><span>PŘÍSTUP A URČENÍ</span><h3>Pro učitele s přístupem z AI Studia</h3><p>Aplikace podporuje hodnocení a přípravu zpětné vazby; konečné pedagogické rozhodnutí a schválení výsledku zůstává na učiteli.</p></article>
+      <article><span>TECHNICKÝ STAV</span><h3>v${escapeHtml(APP_VERSION)} · PWA</h3><p>GHRAB Platform 1.1.2 · AI Core 1.0.0 · GARP 2.7 r2 / G-02. Školní server je připraven, ale zatím nepřipojen; LIVE stav je NOT_TESTED.</p></article>
+    </section>
+    <section class="about-principles" aria-labelledby="aboutPrinciplesTitle">
+      <div class="about-section-heading"><span>PROVOZNÍ ZÁSADY</span><h3 id="aboutPrinciplesTitle">Co je dobré vědět</h3></div>
+      <div class="about-principles-grid">
+        <article><span>01</span><h4>Práce s daty</h4><p>Studentský obsah může obsahovat osobní údaje. Pseudonymizace není anonymizace; citlivé pracovní kopie se řídí relací a retenčním pravidlem 30 dnů. Export vzniká pouze na výslovnou akci učitele.</p></article>
+        <article><span>02</span><h4>AI je podklad</h4><p>AI připravuje analýzu a důkazy. Aplikace uplatňuje školní rubriku a validační pravidla, ale výsledné hodnocení musí projít finální kontrolou učitele.</p></article>
+        <article><span>03</span><h4>Režimy zpracování</h4><p>K dispozici je offline příprava, ruční AI režim a přímé Gemini API. Školní gateway je připravená jako budoucí profil, v aktuálním provozu není připojená.</p></article>
+        <article><span>04</span><h4>Bezpečnostní vrstva</h4><p>Aktivní autoritou je GARP 2.7 r2 / G-02; GARP 2.5.1/N5 zůstává povinnou regresní baseline. Přístup i release cesta jsou fail-closed.</p></article>
+      </div>
+    </section>
+    <details class="about-changelog" id="aboutChangelog">
+      <summary><span><b>Katalog změn</b><small>Posledních ${CHANGELOG_MAX_ENTRIES} vydání aplikace</small></span><span class="about-changelog-toggle" aria-hidden="true"></span></summary>
+      <div class="about-changelog-list">${aboutChangelogHtml()}</div>
+    </details>
+  </div>`;
+}
+function showAbout(){ showModal('O aplikaci',aboutHtml(),[{label:'Zavřít',className:'primary'}],'about'); }
 
 function buildPersistentTaskSnapshot(sourceTasks=tasks){
   const snapshot=cloneTaskData(sourceTasks||makeDefaultTasks());
@@ -251,7 +284,7 @@ async function toggleAppFullscreen(){
 function bindEvents(){
   $('btnTheme').onclick=()=>{document.body.classList.toggle('light');safeLocalSet('maturitniHodnotitelTheme',document.body.classList.contains('light')?'light':'dark');updateThemeBtn();};
   $('btnFs').onclick=toggleAppFullscreen;
-  $('changesBtn').onclick=showChangelog; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=endSensitiveWork; $('endSensitiveWorkBtn')?.addEventListener('click',endSensitiveWork);
+  $('aboutBtn').onclick=showAbout; $('privacyIntroBtn').onclick=()=>showPrivacyIntro(true); $('clearSavedBtn').onclick=endSensitiveWork; $('endSensitiveWorkBtn')?.addEventListener('click',endSensitiveWork);
   $('next0').onclick=()=>goTo(1); $('back1').onclick=()=>goTo(0); if($('againBtn')) $('againBtn').onclick=()=>goTo(2); $('next1').onclick=()=>{commitTaskFieldsToDb();goTo(2)}; $('back2').onclick=()=>goTo(1); $('next2').onclick=()=>goTo(3); $('back3').onclick=()=>goTo(2); $('next3').onclick=()=>goTo(4); $('back4').onclick=()=>goTo(3); $('newEvalBtn').onclick=()=>{state.studentText='';state.result='';state.studentIdentity='';state.extraPii='';state.teacherReview=defaultTeacherReview();attachedFiles=[];batchStudents=[];batchResults=[];clearBatchProgress();state.privacyApprovedHash='';goTo(0);syncFieldsFromState();renderFiles();renderBatchList();renderResult();updateStats();saveState();};
   ['taskTitle','taskText','taskReqs','studentText','studentIdentity','studentCode','extraPii'].forEach(id=>$(id).addEventListener('input',()=>{state.privacyApprovedHash='';updateStats();updatePromptPreview();saveState(false);renderPrivacyMode();}));
   $('anonymizeBtn').onclick=applyPseudonymizationToField; $('previewAnonBtn').onclick=showAnonPreview; $('clearTextBtn').onclick=()=>{$('studentText').value=''; attachedFiles=[]; syncStateFromFields(); renderFiles(); updateStats(); updatePromptPreview(); saveState();}; $('togglePrivacyBtn')?.addEventListener('click',togglePrivacyMode); $('runPrivacyCheckBtn')?.addEventListener('click',()=>{syncStateFromFields(); renderPrivacyReport(runPrivacyScan(), false);}); $('applyPrivacyFixBtn')?.addEventListener('click',applySelectedPrivacyFindings); $('approvePrivacyBtn')?.addEventListener('click',approvePrivacyCheck); $('toggleSensitiveSaveBtn')?.addEventListener('click',toggleSensitiveStateSaving); $('clearSensitiveSavedBtn')?.addEventListener('click',clearSensitiveSavedData);

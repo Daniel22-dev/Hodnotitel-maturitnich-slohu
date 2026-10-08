@@ -28,8 +28,7 @@ if (!action.includes("MutationObserver") || !action.includes("downloadManualPdf"
 if (/https?:\/\/(?:cdn|unpkg|jsdelivr)\./i.test(engine + action))
   fail("Remote CDN dependency in private manual exporter");
 if (expectTour) {
-  const js = rootManual.includes("Hodnotitel") ? read("src/manual/manual.js") :
-    rootManual.includes("src/manual/index") && read("package.json").includes("essay-evaluator") ? read("src/manual/manual.js") : html;
+  const js = read("src/manual/manual.js");
   if (!js.includes("GHRAB_MANUAL_EXPORT") || !js.includes("MANUAL.tour") || !js.includes("MANUAL.map"))
     fail("Interactive hidden tour or map missing from PDF export");
 }

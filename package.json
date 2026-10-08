@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "pretest": "npm run build:school-server",
-    "test": "node tests/test.mjs && node tests/security-regressions.mjs",
+    "test": "node tests/test.mjs && node tests/security-regressions.mjs && npm run test:manual-pdf:structure",
     "check": "npm test && npm run build",
     "qa:technical": "node scripts/qa-technical.mjs",
     "qa:security": "node scripts/qa-security.mjs",
@@ -60,7 +60,8 @@
     "qa:garp27:auto-patch": "node scripts/garp27/auto-patch-contract.mjs",
     "qa:garp27:static": "npm run qa:garp27:contracts && npm run qa:garp27:architecture && npm run qa:garp27:policy-mutations && npm run qa:garp27:mutations && npm run qa:garp27:auto-patch",
     "qa:garp27": "npm run build && npm run qa:garp25 && npm run qa:garp27:static",
-    "qa:garp27:foundation": "node scripts/garp27/foundation-gate.mjs"
+    "qa:garp27:foundation": "node scripts/garp27/foundation-gate.mjs",
+    "test:manual-pdf:structure": "node scripts/qa-manual-pdf-structure.mjs"
   },
   "engines": {
     "node": ">=20"

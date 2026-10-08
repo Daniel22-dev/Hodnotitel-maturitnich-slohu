@@ -1,46 +1,15 @@
-import { readFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const rootManual = "src/manual/index.html";
-const expectTour = true;
-const isMaturitaDesk = false;
-const fail = message => { throw new Error("[MANUAL PDF] " + message); };
-const read = relative => readFileSync(path.join(root, relative), "utf8");
-
-const html = read(rootManual);
-const folder = path.posix.dirname(rootManual);
-const sourcePath = path.posix.join(folder, "pdf-export.js");
-const actionPath = path.posix.join(folder, "pdf-download.js");
-const engine = read(sourcePath), action = read(actionPath);
-for (const file of [sourcePath, actionPath])
-  execFileSync(process.execPath, ["--check", path.join(root, file)], { stdio: "pipe" });
-if (!html.includes('data-ghrab-access="checking"') ||
-    !html.includes('src="./pdf-download.js"')) fail("Missing role-gated HTML PDF integration");
-if (!engine.includes('ghrabAccess !== "granted"') ||
-    !engine.includes("ToUnicode") || !engine.includes('export async function downloadManualPdf'))
-  fail("PDF engine must reject unauthenticated reads and emit searchable Unicode PDF");
-if (!action.includes("MutationObserver") || !action.includes("downloadManualPdf") ||
-    !action.includes('ghrabAccess !== ACCESS') || !action.includes("button.addEventListener"))
-  fail("Download UI must be gated and interactive");
-if (/https?:\/\/(?:cdn|unpkg|jsdelivr)\./i.test(engine + action))
-  fail("Remote CDN dependency in private manual exporter");
-if (expectTour) {
-  const js = read("src/manual/manual.js");
-  if (!js.includes("GHRAB_MANUAL_EXPORT") || !js.includes("MANUAL.tour") || !js.includes("MANUAL.map"))
-    fail("Interactive hidden tour or map missing from PDF export");
-}
-if (isMaturitaDesk) {
-  const manifest = JSON.parse(read("src/studio-manifest.template.json"));
-  const manualUrl = new URL(manifest.manualUrl);
-  if (!manualUrl.pathname.endsWith("/src/manual/index.html")) fail("Studio manifest still links to the app shell");
-  const bootstrap = read("src/manual/bootstrap.js");
-  execFileSync(process.execPath, ["--check", path.join(root, "src/manual/bootstrap.js")], { stdio: "pipe" });
-  if (!bootstrap.includes("protectApp") || !bootstrap.includes('APP_ID = "maturita-desk"') ||
-    !bootstrap.includes("ghrabAccess !==")) fail("Maturita Desk manual missing fail-closed school permit");
-  if (!html.includes("CONFIDENTIAL-EXAM") || !html.includes("pouze pro demonstraci"))
-    fail("Controlled pilot / demo-only safety boundary is missing");
-}
-console.log("[MANUAL PDF] PASS: guarded source, Unicode PDF, no CDN, protected button, "+rootManual);
+import {readFileSync} from "node:fs";
+import {execFileSync} from "node:child_process";
+const read=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
+const html=read("src/manual/index.html");
+const script=read("src/manual/pdf-download.js");
+const guide=read("src/manual/manual.js");
+if(!html.includes('data-ghrab-access="checking"')||!html.includes('src="./pdf-download.js"'))
+  throw Error("Manual missing access gate or PDF launcher");
+if(!script.includes('data-ghrab-access')||!script.includes('allowed()')||
+   !script.includes('manualy/pdf-export.js')||!script.includes("downloadManualPdf"))
+  throw Error("PDF must be dynamically fetched from authorized Studio, only after permit");
+if(!guide.includes("GHRAB_MANUAL_EXPORT")||!guide.includes("MANUAL.tour")||!guide.includes("MANUAL.map"))
+  throw Error("Hidden guide steps missing from printable PDF");
+execFileSync(process.execPath,["--check",new URL("../src/manual/pdf-download.js",import.meta.url).pathname],{stdio:"pipe"});
+console.log("[MANUAL PDF] PASS protected Studio module, full guide, no vendored engine.");

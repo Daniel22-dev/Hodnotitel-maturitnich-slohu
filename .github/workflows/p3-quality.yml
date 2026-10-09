@@ -1,10 +1,9 @@
 name: Legacy quality entrypoint (delegates to P5 R2)
 
+# Historical P3 entrypoint remains manual for compatibility.
+# Canonical P5 is independently required by protected main.
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-  pull_request:
 
 permissions:
   contents: read

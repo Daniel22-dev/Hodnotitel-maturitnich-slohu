@@ -6,7 +6,7 @@ function refreshPdfControl(){
   const main=document.querySelector("main");if(!main)return;
   const b=document.createElement("button"),s=document.createElement("span");
   b.id="manual-pdf";b.type="button";s.id="manual-pdf-status";s.setAttribute("role","status");
-  b.textContent=window.GHRAB_MANUAL_DOC_INFO?.reviewStatus==="verified"?"↓ Stáhnout manuál PDF":"↓ Náhled PDF (čeká na obsahovou revizi)";
+  b.textContent="↓ Stáhnout PDF";
   b.style.cssText="padding:12px;margin:12px;border-radius:10px;min-height:44px;cursor:pointer";
   b.addEventListener("click",async()=>{
     if(!allowed())return;

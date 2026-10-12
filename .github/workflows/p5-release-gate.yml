@@ -33,6 +33,10 @@ jobs:
           node -e "const p=require('./node_modules/playwright/package.json'); if(p.version!=='1.61.1') process.exit(1)"
       - name: Run repository secret scan
         run: npm run qa:secrets
+      # Core test suite includes security regressions and protected PDF structure.
+      # Run before Chromium setup, but after pinned dependency/secret checks.
+      - name: Run mandatory core regression suite before browser bootstrap
+        run: npm test
       - name: Install pinned Playwright Chromium
         shell: bash
         run: |

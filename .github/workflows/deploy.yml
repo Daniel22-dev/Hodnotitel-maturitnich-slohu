@@ -16,6 +16,7 @@ jobs:
   qa-build:
     permissions:
       contents: read
+      actions: read
       pull-requests: read
       pages: write
     runs-on: ubuntu-latest
@@ -107,6 +108,40 @@ jobs:
           path: ${{ runner.temp }}/ghrab-certification-p5/
           if-no-files-found: error
           retention-days: 30
+
+      # A green deploy-local P5 must not override a RED independent main P5:
+      # production admission requires both for this exact commit.
+      - name: Await independent same-SHA main P5 certification
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 48); do
+            payload="$(gh api "repos/${REPOSITORY}/actions/runs?branch=main&event=push&head_sha=${EXPECTED_SHA}&per_page=100")"
+            result="$(jq -c --arg sha "$EXPECTED_SHA" '
+              [.workflow_runs[] | select(
+                .path == ".github/workflows/p5-release-gate.yml" and
+                .head_sha == $sha and .head_branch == "main" and .event == "push"
+              )] | sort_by(.id) | last // null' <<<"$payload")"
+            if [ "$result" != "null" ]; then
+              state="$(jq -r '.status' <<<"$result")"
+              verdict="$(jq -r '.conclusion // "pending"' <<<"$result")"
+              if [ "$state" = "completed" ]; then
+                if [ "$verdict" != "success" ]; then
+                  echo "::error::Independent main P5 is $verdict for exact SHA $EXPECTED_SHA; Pages publish is blocked."
+                  exit 1
+                fi
+                echo "Independent main P5 PASS for exact SHA $EXPECTED_SHA."
+                exit 0
+              fi
+            fi
+            if [ "$attempt" -lt 48 ]; then sleep 5; fi
+          done
+          echo "::error::Independent main P5 did not complete within the bounded admission window."
+          exit 1
 
       - name: Verify AI Studio dispatch credential
         shell: bash

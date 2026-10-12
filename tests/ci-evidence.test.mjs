@@ -25,6 +25,14 @@ function fixture() {
       checks: [{ id: 'contract', ok: true }], failures: [],
     }));
   }
+  // Real qa-p3-quality.mjs emits a checks/summary verdict without status.
+  fs.writeFileSync(path.join(dir, 'dist/quality-report.json'), JSON.stringify({
+    schema: 'ghrab-p3-quality-result-v1',
+    appId: 'essay-evaluator',
+    appVersion: '1.5.30',
+    checks: [{ id: 'budget', ok: true }, { id: 'assets', ok: true }],
+    summary: { total: 2, passed: 2, failed: 0 },
+  }));
   const ids = ['build', 'contracts', 'architecture', 'policy-mutations', 'mutations', 'auto-patch', 'legacy-garp25', 'platform'];
   fs.writeFileSync(path.join(dir, 'audit/evidence/garp27-current/foundation-summary.json'), JSON.stringify({
     classification: 'GARP27_FOUNDATION_GATE', garpVersion: '2.7', appId: 'essay-evaluator',
@@ -100,5 +108,31 @@ test('GARP foundation rejected if failed, missing steps, or stale app version', 
     assert.throws(() => invoke(dir, 'foundation'), /did not PASS/);
     summary.steps[3].pass = true; summary.appVersion = '1.5.29'; fs.writeFileSync(file, JSON.stringify(summary));
     assert.throws(() => invoke(dir, 'foundation'), /identity mismatch/);
+  } finally { clean(dir); }
+});
+
+test('quality without status fails closed when check list and summary disagree', () => {
+  const dir = fixture();
+  try {
+    const file = path.join(dir, 'dist/quality-report.json');
+    const quality = JSON.parse(fs.readFileSync(file, 'utf8'));
+    quality.checks[1].ok = false;
+    fs.writeFileSync(file, JSON.stringify(quality));
+    assert.throws(() => invoke(dir), /quality checks did not all pass/);
+    quality.checks[1].ok = true;
+    quality.summary.passed = 1;
+    fs.writeFileSync(file, JSON.stringify(quality));
+    assert.throws(() => invoke(dir), /quality PASS summary is inconsistent/);
+  } finally { clean(dir); }
+});
+
+test('statusless non-quality report is blocked', () => {
+  const dir = fixture();
+  try {
+    const file = path.join(dir, 'dist/qa-p5-release-report.json');
+    const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+    delete report.status;
+    fs.writeFileSync(file, JSON.stringify(report));
+    assert.throws(() => invoke(dir), /non-PASS/);
   } finally { clean(dir); }
 });

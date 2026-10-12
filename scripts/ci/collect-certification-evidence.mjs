@@ -37,7 +37,19 @@ function verifiedReport(root, relative, appId, version) {
   requireCondition(report && typeof report === 'object' && !Array.isArray(report), `invalid JSON object ${relative}`);
   requireCondition(report.appId === appId, `appId mismatch in ${relative}`);
   requireCondition(!report.appVersion || report.appVersion === version, `appVersion mismatch in ${relative}`);
-  requireCondition(report.status === 'passed', `non-PASS report ${relative}: ${report.status}`);
+  // P3 quality reports do not expose a top-level status; their checks and
+  // summary are the authoritative PASS criteria. All other reports require
+  // an explicit PASS status.
+  if (path.basename(relative) === 'quality-report.json') {
+    requireCondition(report.schema === 'ghrab-p3-quality-result-v1', 'unexpected quality report schema');
+    requireCondition(Array.isArray(report.checks) && report.checks.length > 0 &&
+      report.checks.every(check => check.ok === true), 'quality checks did not all pass');
+    requireCondition(report.summary?.failed === 0 &&
+      report.summary?.passed === report.checks.length &&
+      report.summary?.total === report.checks.length, 'quality PASS summary is inconsistent');
+  } else {
+    requireCondition(report.status === 'passed', `non-PASS report ${relative}: ${report.status}`);
+  }
   if (report.summary && Object.hasOwn(report.summary, 'failed')) {
     requireCondition(report.summary.failed === 0, `failed tests in ${relative}`);
   }
@@ -82,7 +94,7 @@ export function collectCertificationEvidence({
       if (file === 'qa-p5-xss-sinks-report.json') {
         requireCondition(Array.isArray(report.failures) && report.failures.length === 0, 'XSS regression failures detected');
       }
-      reports.push({ file, bytes, status: report.status });
+      reports.push({ file, bytes, status: report.status || 'passed' });
     } else {
       const source = path.join(root, relative);
       requireCondition(fs.existsSync(source) && fs.lstatSync(source).isFile(), 'GARP 2.7 foundation summary is absent');

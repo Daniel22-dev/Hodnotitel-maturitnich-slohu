@@ -76,10 +76,37 @@ jobs:
       - name: Verify GHRAB Platform P3 conformance
         run: npm run qa:platform
 
+      # P5 on main is independent and parallel; production deploy must itself
+      # reject a failed GARP 2.7 foundation on the *same checked-out SHA*.
+      # Foundation rebuilds dist, therefore always run it BEFORE the final P5 build.
+      - name: Enforce GARP 2.7 foundation before production release
+        run: npm run qa:garp27:foundation
+        env:
+          GARP27_EXTERNAL_TRUST_SHA256: 794689a3da6a0dc74fef58ad5c1c7e87f03f1a472e77e0aa6aa4ab87e0321992
+      - name: Verify deployment GARP foundation PASS and exact SHA
+        run: node scripts/ci/collect-certification-evidence.mjs foundation
+      - name: Upload required deployment GARP foundation evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: deploy-garp27-foundation-${{ github.sha }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/ghrab-certification-foundation/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Enforce P5 R2 release gate
         run: npm run qa:p5:ci
         env:
           GARP27_EXTERNAL_TRUST_SHA256: 794689a3da6a0dc74fef58ad5c1c7e87f03f1a472e77e0aa6aa4ab87e0321992
+
+      - name: Verify deployment P5 PASS and exact SHA
+        run: node scripts/ci/collect-certification-evidence.mjs p5
+      - name: Upload required deployment P5 certification evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: deploy-p5-r2-${{ github.sha }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/ghrab-certification-p5/
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Verify AI Studio dispatch credential
         shell: bash

@@ -1,7 +1,9 @@
 name: Legacy quality entrypoint (delegates to P5 R2)
 
 # Historical P3 entrypoint remains manual for compatibility.
-# Canonical P5 is independently required by protected main.
+# Canonical P5 now runs on pull requests to candidate and main, and on both pushes.
+# Protected main requires the independent p5-release-gate status. Never remove
+# PR-to-candidate coverage without ensuring P5 remains a required real execution.
 on:
   workflow_dispatch:
 

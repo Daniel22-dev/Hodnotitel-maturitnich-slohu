@@ -121,9 +121,6 @@ jobs:
           node -e "console.log('CHROMIUM_PATH=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
       # Full QA release runs independently in release-qa, and reporter is
       # still a mandatory regression inside the deploy-local qa:p5:ci.
-      - name: Verify GHRAB Platform P3 conformance
-        run: npm run qa:platform
-
       # P5 on main is independent and parallel; production deploy must itself
       # reject a failed GARP 2.7 foundation on the *same checked-out SHA*.
       # Foundation rebuilds dist, therefore always run it BEFORE the final P5 build.
@@ -131,6 +128,10 @@ jobs:
         run: npm run qa:garp27:foundation
         env:
           GARP27_EXTERNAL_TRUST_SHA256: 794689a3da6a0dc74fef58ad5c1c7e87f03f1a472e77e0aa6aa4ab87e0321992
+      # Foundation builds dist after the parallel QA release moved to its own job.
+      # Run platform conformance only after that build, before independent P5.
+      - name: Verify GHRAB Platform P3 conformance
+        run: npm run qa:platform
       - name: Verify deployment GARP foundation PASS and exact SHA
         run: node scripts/ci/collect-certification-evidence.mjs foundation
       - name: Upload required deployment GARP foundation evidence

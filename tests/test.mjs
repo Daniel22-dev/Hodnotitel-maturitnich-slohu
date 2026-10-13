@@ -636,7 +636,22 @@ check(readFileSync(join(ROOT,'src','body.html'),'utf8').includes('manual-launch-
 
 check(exists('package-lock.json'),'repozitář obsahuje lockfile pro npm ci a npm audit');
 check(exists('qa/qa-manifest.json')&&JSON.parse(text('qa/qa-manifest.json')).standard==='GHRAB-QA-1.0.2','QA manifest používá GHRAB QA 1.0.2');
-check(contains(deployWorkflow,'npm run qa:release')&&contains(deployWorkflow,'playwright install'),'GitHub Actions spouští úplnou QA bránu s Chromium');
+const bootstrapScript=exists('scripts/ci/install-playwright-chromium-parallel.sh')?text('scripts/ci/install-playwright-chromium-parallel.sh'):'';
+const bootstrapFailClosed=contains(bootstrapScript,'npx --no-install playwright install-deps chromium') &&
+  contains(bootstrapScript,'npx --no-install playwright install chromium') &&
+  contains(bootstrapScript,'deps_code != 0 || browser_code != 0') &&
+  contains(bootstrapScript,'PLAYWRIGHT_BOOTSTRAP_FAILED');
+const deployParallelCount=(deployWorkflow.match(/bash scripts\/ci\/install-playwright-chromium-parallel\.sh/g)||[]).length;
+const p5Workflow=exists('.github/workflows/p5-release-gate.yml')?text('.github/workflows/p5-release-gate.yml'):'';
+check(contains(deployWorkflow,'npm run qa:release') &&
+  contains(deployWorkflow,'needs: [qa-build, release-qa]') &&
+  (contains(deployWorkflow,'playwright install --with-deps chromium') ||
+    (deployParallelCount===2 && bootstrapFailClosed && contains(deployWorkflow,'node --test tests/playwright-bootstrap-parallel.test.mjs'))),
+  'GitHub Actions spouští úplnou QA bránu s Chromiem a povinnými OS závislostmi');
+check(contains(p5Workflow,'bash scripts/ci/install-playwright-chromium-parallel.sh') &&
+  contains(p5Workflow,'node --test tests/playwright-bootstrap-parallel.test.mjs') &&
+  bootstrapFailClosed,
+  'Nezávislý P5 vyžaduje Chromium, OS závislosti a fail-closed paralelní bootstrap');
 check(!/\(\?(?:<=|<!)/.test(js),'runtime neobsahuje regex lookbehind');
 
 console.log(`\n${pass} PASS / ${fail} FAIL`);

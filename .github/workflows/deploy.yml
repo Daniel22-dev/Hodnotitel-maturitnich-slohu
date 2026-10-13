@@ -14,6 +14,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  release-qa:
+    # Independent full QA release. The Pages publish job waits for this
+    # exact-SHA QA job AND the existing deploy-local P5/GARP certification.
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: Install locked dependencies for independent QA
+        run: npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+      - name: Run repository secret scan
+        run: npm run qa:secrets
+      - name: Verify fail-closed release admission
+        run: node --test tests/parallel-release-admission.test.mjs
+      - name: Install pinned Playwright Chromium for QA release
+        shell: bash
+        run: |
+          npx playwright install --with-deps chromium
+          node -e "console.log('CHROMIUM_PATH=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
+      - name: Run full independent GHRAB QA release
+        run: npm run qa:release
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
+      - name: Verify full QA release verdict and exact checked-out SHA
+        run: node scripts/ci/verify-qa-release-evidence.mjs
+      - name: Preserve standalone QA release evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ghrab-qa-${{ github.sha }}
+          path: qa-results
+          if-no-files-found: error
+          retention-days: 30
+
   qa-build:
     permissions:
       contents: read
@@ -77,18 +119,8 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           node -e "console.log('CHROMIUM_PATH=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
-      - name: Run unified error reporter regression
-        run: npm run test:reporter
-      - name: Run GHRAB QA release gate
-        run: npm run qa:release
-        env:
-          NPM_CONFIG_REGISTRY: https://registry.npmjs.org
-      - name: Upload QA evidence
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ghrab-qa-${{ github.sha }}
-          path: qa-results
+      # Full QA release runs independently in release-qa, and reporter is
+      # still a mandatory regression inside the deploy-local qa:p5:ci.
       - name: Verify GHRAB Platform P3 conformance
         run: npm run qa:platform
 
@@ -214,7 +246,7 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    needs: qa-build
+    needs: [qa-build, release-qa]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

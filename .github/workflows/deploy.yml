@@ -36,10 +36,12 @@ jobs:
         run: npm run qa:secrets
       - name: Verify fail-closed release admission
         run: node --test tests/parallel-release-admission.test.mjs
-      - name: Install pinned Playwright Chromium for QA release
+      - name: Verify fail-closed Chromium bootstrap contract
+        run: node --test tests/playwright-bootstrap-parallel.test.mjs
+      - name: Install pinned Playwright Chromium for QA release (overlapped OS + browser)
         shell: bash
         run: |
-          npx playwright install --with-deps chromium
+          bash scripts/ci/install-playwright-chromium-parallel.sh
           node -e "console.log('CHROMIUM_PATH=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
       - name: Run full independent GHRAB QA release
         run: npm run qa:release
@@ -114,10 +116,12 @@ jobs:
 
       - name: Run repository secret scan
         run: npm run qa:secrets
-      - name: Install pinned Playwright Chromium
+      - name: Verify fail-closed Chromium bootstrap contract
+        run: node --test tests/playwright-bootstrap-parallel.test.mjs
+      - name: Install pinned Playwright Chromium (overlapped OS + browser)
         shell: bash
         run: |
-          npx playwright install --with-deps chromium
+          bash scripts/ci/install-playwright-chromium-parallel.sh
           node -e "console.log('CHROMIUM_PATH=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
       # Full QA release runs independently in release-qa, and reporter is
       # still a mandatory regression inside the deploy-local qa:p5:ci.

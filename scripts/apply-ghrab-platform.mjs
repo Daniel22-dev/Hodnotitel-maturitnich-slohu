@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { sourceBuildTime } from './ci/source-build-time.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
@@ -261,7 +262,7 @@ fs.writeFileSync(path.join(dist, 'platform-build-info.json'), `${JSON.stringify(
   cacheName: consumer.cache.name,
   processedHtmlFiles: htmlCount,
   qualityContracts: { accessibility: consumer.quality.accessibilityContract, performance: consumer.quality.performanceContract, modules: consumer.quality.moduleContract },
-  builtAt: new Date().toISOString(),
+  builtAt: sourceBuildTime({ root }),
 }, null, 2)}\n`);
 
 console.log(`[P3] ${consumer.appId} ${consumer.appVersion}: platform ${consumer.platform.version}, HTML ${htmlCount}, cache ${consumer.cache.name}`);

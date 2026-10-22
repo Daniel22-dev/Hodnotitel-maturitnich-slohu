@@ -1,12 +1,12 @@
 {
   "name": "hodnotitel-maturitnich-slohu",
-  "version": "1.5.30",
+  "version": "1.5.31",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "pretest": "npm run build:school-server",
-    "test": "node tests/test.mjs && node tests/security-regressions.mjs && npm run test:manual-pdf:structure && node --test tests/ci-cdp-readiness.test.mjs && node --test tests/source-build-time.test.mjs tests/build-reproducibility.test.mjs && node --test tests/deploy-build-order.test.mjs",
+    "test": "node --test tests/central-groups-regressions.mjs && node tests/test.mjs && node tests/security-regressions.mjs && npm run test:manual-pdf:structure && node --test tests/ci-cdp-readiness.test.mjs && node --test tests/source-build-time.test.mjs tests/build-reproducibility.test.mjs && node --test tests/deploy-build-order.test.mjs",
     "check": "npm test && npm run build",
     "qa:technical": "node scripts/qa-technical.mjs",
     "qa:security": "node scripts/qa-security.mjs",

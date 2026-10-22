@@ -18,7 +18,7 @@ for(const name of ['access-bootstrap.js','access-gate.css','manifest.webmanifest
  if(mitStart<0||gplStart<=mitStart)fail('JSZip dual-license reference is missing');
  const jsZipMit=fullJsZipNotice.slice(mitStart,gplStart).trimEnd();
  for(const required of ['Copyright (c) 2009-2016','Permission is hereby granted','THE SOFTWARE IS PROVIDED','LIABILITY'])if(!jsZipMit.includes(required))fail('JSZip MIT notice incomplete: '+required);
- writeFileSync(join(DIST,'vendor','JSZIP-LICENSE.md'),`JSZip — MIT license option selected for this distribution.\\n\\n`+jsZipMit+'\\n');
+ writeFileSync(join(DIST,'vendor','JSZIP-LICENSE.md'),`JSZip — MIT license option selected for this distribution.\n\n`+jsZipMit+'\n');
  
 const deployment=JSON.parse(readInjected(join(SRC,'config','deployment.json')));if(deployment.appId!==APP_ID||deployment.profile!=='github-pages'||deployment.features?.allowLocalProviderKeys!==true)fail('neplatný aktivní GitHub deployment profil');writeFileSync(join(DIST,'access','deployment-baked.js'),`globalThis.__GHRAB_DEPLOYMENT_CONFIG_OVERRIDE__=Object.freeze(${JSON.stringify(deployment)});\n`);
 cpSync(join(SRC,'ghrab-platform.consumer.json'),join(DIST,'ghrab-platform.consumer.json'));cpSync(join(SRC,'ai-operations.json'),join(DIST,'ai-operations.json'));const operations=JSON.parse(readFileSync(join(DIST,'ai-operations.json'),'utf8'));if(operations.appId!==APP_ID||operations.appVersion!==version||operations.coreVersion!==CORE_VERSION||operations.operations.length!==4)fail('neplatný ai-operations.json');for(const op of operations.operations)if(!appModules.includes(`'${op.operation}'`)&&!appModules.includes(`"${op.operation}"`))fail('integrace neobsahuje operaci '+op.operation);

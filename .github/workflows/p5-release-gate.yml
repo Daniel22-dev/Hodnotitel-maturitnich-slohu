@@ -47,7 +47,7 @@ jobs:
       - name: Run P5 R2 + cumulative GARP 2.7 release gate
         run: npm run qa:p5:ci
         env:
-          GARP27_EXTERNAL_TRUST_SHA256: 794689a3da6a0dc74fef58ad5c1c7e87f03f1a472e77e0aa6aa4ab87e0321992
+          GARP27_EXTERNAL_TRUST_SHA256: ecec2d4e844cdc6e9c1a627a662e250d0f371b835c546be47efc81c610d2060f
       # Build rewrites dist/, so preserve the checked P5 results *before* GARP foundation.
       - name: Validate and stage P5 certification evidence
         run: node scripts/ci/collect-certification-evidence.mjs p5
@@ -61,7 +61,7 @@ jobs:
       - name: Enforce GARP 2.7 foundation admission and legacy regressions
         run: npm run qa:garp27:foundation
         env:
-          GARP27_EXTERNAL_TRUST_SHA256: 794689a3da6a0dc74fef58ad5c1c7e87f03f1a472e77e0aa6aa4ab87e0321992
+          GARP27_EXTERNAL_TRUST_SHA256: ecec2d4e844cdc6e9c1a627a662e250d0f371b835c546be47efc81c610d2060f
       - name: Validate and stage GARP 2.7 foundation evidence
         run: node scripts/ci/collect-certification-evidence.mjs foundation
       - name: Upload required GARP 2.7 foundation evidence

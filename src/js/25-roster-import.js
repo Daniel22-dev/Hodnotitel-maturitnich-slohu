@@ -123,11 +123,16 @@ function renderRosterInputPreview(){
   const invalid=data.invalidEntries.length?`<span class="roster-invalid">Nerozpoznané položky: ${data.invalidEntries.slice(0,3).map(escapeHtml).join(' · ')}${data.invalidEntries.length>3?' …':''}</span>`:'';
   box.innerHTML=`<strong>Rozpoznáno studentů: ${data.students.length}</strong><span>${data.students.length?'Seznam je připraven k načtení':'Zkontroluj formát e-mailů'}${limit}</span>${invalid}`;
 }
-function importRosterFromText(){
+async function importRosterFromText(){
   ensureWorkflowState();
   const data=rosterPreviewData($('rosterInput')?.value||'');
   if(!data.students.length){toast('Vložený seznam se nepodařilo rozpoznat. E-maily odděl čárkou, středníkem nebo novým řádkem.','err');renderRosterInputPreview();return;}
+  if((state.roster?.length||batchStudents.some(x=>x.rosterId)) &&
+      !(await uiConfirm('Nahradit dosavadní seznam? Příjemce existujících prací bude nutné zkontrolovat.','Ruční import skupiny')))return;
+  essayHoldPaired('Změna zdroje seznamu');
+  state.centralGroupLink=null;
   state.roster=data.students;
+  essayRenderHolds();essayGroupStatus();
   renderRosterTable();
   pairAllStudentsToRoster();
   renderRosterInputPreview();
@@ -136,11 +141,14 @@ function importRosterFromText(){
 }
 async function clearRoster(){
   if(!(await uiConfirm('Vymazat seznam studentů a všechna párování?','Vymazat skupinu')))return;
+  essayHoldPaired('Seznam vymazán');
+  state.centralGroupLink=null;
   state.roster=[];
   batchStudents.forEach(s=>{s.rosterId='';s.email='';s.pairingStatus='unpaired';});
   renderRosterTable();
   renderBatchList();
-  saveState();
+  essayRenderHolds();essayGroupStatus();
+  saveState();saveBatchProgress();
 }
 function rosterCandidateScore(student,person){
   const source=normalizeMatchText([student.identity,student.sourceName,...(student.sourceFiles||[])].join(' '));
@@ -155,10 +163,10 @@ function rosterCandidateScore(student,person){
   return score;
 }
 function bestRosterMatch(student){
-  const ranked=(state.roster||[]).map(person=>({person,score:rosterCandidateScore(student,person)})).sort((a,b)=>b.score-a.score);
+  const ranked=(state.roster||[]).filter(person=>person.status!=='archived').map(person=>({person,score:rosterCandidateScore(student,person)})).sort((a,b)=>b.score-a.score);
   const best=ranked[0],second=ranked[1]||{score:0};
   if(!best)return null;
-  const unambiguous=best.score>=40||(best.score>=20&&best.score-second.score>=20);
+  const unambiguous=best.score>=20&&best.score-second.score>=20;
   return unambiguous?best:null;
 }
 function syncStudentContactToResult(student){
@@ -201,7 +209,7 @@ function pairAllStudentsToRoster(){
 }
 function setStudentRosterPair(index,rosterId){
   const s=batchStudents[index];
-  const p=(state.roster||[]).find(x=>x.id===rosterId)||null;
+  const p=(state.roster||[]).find(x=>x.id===rosterId&&x.status!=='archived')||null;
   applyRosterPair(s,p);
   renderBatchList();
   renderRosterTable();
@@ -214,7 +222,7 @@ function renderRosterTable(){
   if(!rows.length){box.innerHTML='<div class="empty-workflow">Skupina zatím není načtena.</div>';return;}
   box.innerHTML=`<div class="roster-head"><span>Kód</span><span>Jméno</span><span>E-mail</span><span>Práce</span></div>`+rows.map(p=>{
     const paired=batchStudents.find(s=>s.rosterId===p.id);
-    return `<div class="roster-row"><span>${escapeHtml(p.code)}</span><strong>${escapeHtml(p.name||'—')}</strong><span>${escapeHtml(p.email||'bez e-mailu')}</span><span class="status-chip ${paired?'ok':'warn'}">${paired?escapeHtml(paired.code):'čeká'}</span></div>`;
+    return `<div class="roster-row"><span>${escapeHtml(p.code||'—')}</span><strong>${escapeHtml(p.name||'—')}${p.status==='archived'?' (archiv)':''}</strong><span>${escapeHtml(p.email||'bez e-mailu')}</span><span class="status-chip ${paired?'ok':'warn'}">${paired?escapeHtml(paired.code):'čeká'}</span></div>`;
   }).join('');
 }
 function fileStem(name){return String(name||'').replace(/\.[^.]+$/,'');}

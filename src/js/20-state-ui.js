@@ -1,7 +1,7 @@
 let suiteSessionLifecycle = null;
 function makeInitialState(){ return {
   step:0, workMode:'offline', set:'practice', genre:'opinion', taskIndex:0, evalMode:'deep', outputStyle:'teacher', resultView:'teacher',
-  taskTitle:'', taskText:'', taskReqs:'', studentText:'', studentIdentity:'', studentCode:'STUDENT_001', extraPii:'', inputMode:'single', privacyMode:'strict', privacyApprovedHash:'', result:'', teacherReview:{sections:{}, score_total:null, grade:null, note:'', verified:false, verifiedAt:''}
+  taskTitle:'', taskText:'', taskReqs:'', studentText:'', studentIdentity:'', studentCode:'STUDENT_001', extraPii:'', inputMode:'single', privacyMode:'strict', privacyApprovedHash:'', result:'', centralGroupLink:null, centralGroupHolds:{}, teacherReview:{sections:{}, score_total:null, grade:null, note:'', verified:false, verifiedAt:''}
 }; }
 let tasks = loadTasks();
 let state = makeInitialState();

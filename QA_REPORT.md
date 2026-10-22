@@ -1,4 +1,15 @@
-# QA report — Hodnotitel maturitních slohů 1.5.30 — O aplikaci
+# QA report — Hodnotitel maturitních slohů 1.5.31 — Moje skupiny
+
+## Vydání 1.5.31 (22. 10. 2026)
+
+- Napojení `essay-evaluator` na AI Studio Moje skupiny; ruční import z IS zachován.
+- Nové syntetické regresní kontroly identit, revizí, archivu a pozastavení distribuce.
+- P5 release evidence se ověřuje nad přesným candidate commitem; bez GREEN výsledku není oprávněné vydání do main.
+- Zůstává bezpečnostní omezení: school-server LIVE není testován, práce se skutečnými osobními údaji podléhá samostatnému školnímu schválení.
+
+---
+
+## Historická QA zpráva k verzi 1.5.30
 
 Datum: 2026-09-27
 

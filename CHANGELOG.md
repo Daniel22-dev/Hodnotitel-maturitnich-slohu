@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.5.31 – propojení Hodnotitele s Moje skupiny (2026-10-22)
+
+- Volitelné napojení na centrální seznam studentů v AI Studiu přes `ghrab-roster-projection-v1` pro `essay-evaluator`.
+- Přehled revizí skupin a učitelsky potvrzovaná synchronizace; ruční import z IS zachován.
+- Archivace původních lokálních vazeb bez ztráty práce a výsledků; odhalování nejednoznačných přiřazení.
+- Ochrana distribuce: změna příjemce vyžaduje kontrolu učitelem; schválené hodnocení není při synchronizaci přepisováno.
+- Zachováno GARP 2.7 a P5, čistě lokální čtení členství ze Studia; žádný zápis slohů, bodů nebo e-mailových výsledků zpět do Studia.
+- Distributor volí licenci MIT knihovny JSZip a publikuje úplnou MIT povinnou doložku; úplný upstream dual-license text zůstává v repozitáři.
+
+
 ## 1.5.30 – sjednocená sekce O aplikaci (2026-09-27)
 
 - Přidána sekce **O aplikaci** podle společného vzoru AI Studia/SORTIO: identita aplikace, autor a vývojový garant, školní projekt, přístup a určení a technický stav.

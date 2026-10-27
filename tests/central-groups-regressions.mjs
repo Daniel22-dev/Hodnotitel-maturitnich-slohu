@@ -118,7 +118,7 @@ function verifiedClientHarness({access='granted',studioUrl='/AI-Studio-GHRAB/',l
   context.globalThis=context;
   vm.createContext(context);
   vm.runInContext(instrumented+
-    '\\n;globalThis.__v2={essayGroupService};',context,{filename:'26-central-groups-v2-test.js'});
+    '\n;globalThis.__v2={essayGroupService};',context,{filename:'26-central-groups-v2-test.js'});
   return context;
 }
 test('v2 verified essay-evaluator consumer preserves full roster projection and stable member IDs',async()=>{

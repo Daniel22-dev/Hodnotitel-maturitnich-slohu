@@ -90,12 +90,101 @@ test('read-only official consumer boundary and sensitive lifecycle remain wired'
   assert.match(source,/listGroupMetadata\(ESSAY_GROUPS_ID/);
   assert.doesNotMatch(source,/localStorage|getItem\(|setItem\(/);
   assert.doesNotMatch(source,/service\.importRoster\(|service\.createGroup\(|service\.deleteGroup\(/);
+  assert.match(source,/groups\/verified-client\.js/);
+  assert.match(source,/openVerifiedGroupsV2\('essay-evaluator'\)/);
+  assert.doesNotMatch(source,/groups\/group-service\.js/);
+  assert.doesNotMatch(source,/module\.createGroupsService/);
+  assert.match(source,/CENTRAL_LEGACY_MIGRATION_REQUIRED/);
+
   const rubric=readFileSync(new URL('../src/js/00-release-rubric.js',import.meta.url),'utf8');
   const review=readFileSync(new URL('../src/js/75-distribution.js',import.meta.url),'utf8');
   assert.match(rubric,/'centralGroupLink','centralGroupHolds'/);
   assert.match(review,/distributionReadyResults\(\).*isCentralDeliveryHeld/);
   assert.match(review,/approveAllValidResults\(\).*isCentralDeliveryHeld/);
 });
+
+function verifiedClientHarness({access='granted',studioUrl='/AI-Studio-GHRAB/',loader}={}){
+  const dynamic='const module=await import(moduleUrl.href);';
+  assert.equal(source.split(dynamic).length-1,1);
+  const instrumented=source.replace(dynamic,'const module=await globalThis.__loadV2(moduleUrl.href);');
+  const context={
+    state:{roster:[],centralGroupLink:null,centralGroupHolds:{}},
+    batchStudents:[],batchResults:[],console,URL,
+    document:{documentElement:{dataset:{ghrabAccess:access}}},
+    location:{href:'https://school.example/Hodnotitel/',origin:'https://school.example'},
+    __GHRAB_STUDIO_URL__:studioUrl,
+    __loadV2:loader||(()=>{throw Error('Loader must not run')}),
+  };
+  context.globalThis=context;
+  vm.createContext(context);
+  vm.runInContext(instrumented+
+    '\\n;globalThis.__v2={essayGroupService};',context,{filename:'26-central-groups-v2-test.js'});
+  return context;
+}
+test('v2 verified essay-evaluator consumer preserves full roster projection and stable member IDs',async()=>{
+  let calls=0,lists=0,projections=0;
+  const ctx=verifiedClientHarness({loader:async url=>{
+    calls++;
+    assert.equal(url,'https://school.example/AI-Studio-GHRAB/groups/verified-client.js');
+    return {async openVerifiedGroupsV2(appId) {
+      assert.equal(appId,'essay-evaluator');
+      return {schema:'ghrab-groups-verified-consumer-v2',consumerAppId:appId,
+        legacyStorePresent:false,service:{
+          schema:'ghrab-groups-service-v1',contractVersion:1,
+          listGroupMetadata(consumer){lists++;assert.equal(consumer,'essay-evaluator');return [projection(7,[]).group];},
+          getRosterProjection(id,consumer){
+            projections++;assert.equal(id,gid);assert.equal(consumer,'essay-evaluator');
+            return projection(7,[member(m1,'Synthetic Student','synthetic@example.invalid')]);
+          },
+        }};
+    }};
+  }});
+  const client=await ctx.__v2.essayGroupService();
+  const list=client.list();
+  assert.equal(list.length,1);assert.equal(list[0].groupId,gid);
+  assert.equal(Object.hasOwn(list[0],'members'),false);
+  const roster=client.roster(gid);
+  assert.equal(roster.members[0].memberId,m1);
+  assert.equal(roster.members[0].schoolEmail,'synthetic@example.invalid');
+  assert.equal(calls,1);assert.equal(lists,1);assert.equal(projections,1);
+});
+test('v2 essay group reader fails closed without signed verified consumer or foreign origin',async()=>{
+  const missing=verifiedClientHarness({loader:async()=>({createGroupsService(){
+    throw Error('legacy must never be loaded');}})});
+  await assert.rejects(missing.__v2.essayGroupService(),/CENTRAL_V2_REQUIRED/);
+
+  const foreign=verifiedClientHarness({studioUrl:'https://evil.example/AI-Studio-GHRAB/',loader:async()=>{
+    throw Error('foreign loader should not be invoked');
+  }});
+  await assert.rejects(foreign.__v2.essayGroupService(),/CENTRAL_ORIGIN_DENIED/);
+
+  const revoked=verifiedClientHarness({loader:async()=>{
+    revoked.document.documentElement.dataset.ghrabAccess='denied';
+    return {openVerifiedGroupsV2:async()=>({schema:'ghrab-groups-verified-consumer-v2',
+      consumerAppId:'essay-evaluator',legacyStorePresent:false,
+      service:{schema:'ghrab-groups-service-v1',contractVersion:1,
+        listGroupMetadata(){return[]},getRosterProjection(){return null}}})};
+  }});
+  await assert.rejects(revoked.__v2.essayGroupService(),/CENTRAL_ACCESS_DENIED/);
+});
+test('v2 essay evaluator refuses unowned legacy group storage and invalid app binding',async()=>{
+  const legacy=verifiedClientHarness({loader:async()=>({
+    openVerifiedGroupsV2:async()=>({schema:'ghrab-groups-verified-consumer-v2',
+      consumerAppId:'essay-evaluator',legacyStorePresent:true,
+      service:{schema:'ghrab-groups-service-v1',contractVersion:1,
+        listGroupMetadata(){return[]},getRosterProjection(){return null}}}),
+  })});
+  const client=await legacy.__v2.essayGroupService();
+  assert.throws(()=>client.list(),/CENTRAL_LEGACY_MIGRATION_REQUIRED/);
+  const wrong=verifiedClientHarness({loader:async()=>({
+    openVerifiedGroupsV2:async()=>({schema:'ghrab-groups-verified-consumer-v2',
+      consumerAppId:'sortio',legacyStorePresent:false,
+      service:{schema:'ghrab-groups-service-v1',contractVersion:1,
+        listGroupMetadata(){return[]},getRosterProjection(){return null}}}),
+  })});
+  await assert.rejects(wrong.__v2.essayGroupService(),/CENTRAL_V2_CONTRACT_INVALID/);
+});
+
 test('distributed JSZip notice uses complete MIT permission and disclaimer',()=>{
   const license=new URL('../dist/vendor/JSZIP-LICENSE.md',import.meta.url);
   assert.equal(existsSync(license),true);

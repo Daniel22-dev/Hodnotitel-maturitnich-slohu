@@ -37,10 +37,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          npm run build
           node --check src/js/26-central-groups.js
           node --check tests/central-groups-regressions.mjs
           node --test tests/central-groups-regressions.mjs
-          npm run build
       - name: State scope truthfully
         shell: bash
         run: echo 'NONCERTIFYING - NO LIVE SSO / NO SCHOOL UAT / NO P5 / NO DEPLOY'

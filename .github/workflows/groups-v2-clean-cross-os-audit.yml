@@ -17,7 +17,7 @@ jobs:
       - name: Checkout exact clean release source, not QA branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: a99a3d8dc66f37db7b390057a126a294224dbfcc
+          ref: 7bbf89d88b6f56aa644925855626f97a4d43c351
           fetch-depth: 0
           persist-credentials: false
       - name: Set up Node 22
@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "a99a3d8dc66f37db7b390057a126a294224dbfcc"
+          test "$(git rev-parse HEAD)" = "7bbf89d88b6f56aa644925855626f97a4d43c351"
           test ! -e .github/workflows/groups-v2-essay-preprod.yml
       - name: Install exact locked dependencies
         shell: bash

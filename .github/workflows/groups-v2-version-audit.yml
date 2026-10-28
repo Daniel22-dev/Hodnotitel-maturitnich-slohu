@@ -18,7 +18,7 @@ jobs:
       - name: Checkout immutable VERSION source, not temporary QA branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: f8ffa01273008770c149706cb121b1e74baffe9d
+          ref: 3fcd8dd8d04e5223fd3ffdf1995911c25b0621dc
           fetch-depth: 0
           persist-credentials: false
       - name: Set up pinned Node
@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "f8ffa01273008770c149706cb121b1e74baffe9d"
+          test "$(git rev-parse HEAD)" = "3fcd8dd8d04e5223fd3ffdf1995911c25b0621dc"
           test "$(node -p 'require("./package.json").version')" = "1.5.32"
           test ! -e .github/workflows/groups-v2-version-audit.yml
       - name: Install locked npm dependencies
@@ -48,7 +48,7 @@ jobs:
       - name: Checkout exact version source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: f8ffa01273008770c149706cb121b1e74baffe9d
+          ref: 3fcd8dd8d04e5223fd3ffdf1995911c25b0621dc
           fetch-depth: 0
           persist-credentials: false
       - name: Pinned Node 22
@@ -60,7 +60,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "f8ffa01273008770c149706cb121b1e74baffe9d"
+          test "$(git rev-parse HEAD)" = "3fcd8dd8d04e5223fd3ffdf1995911c25b0621dc"
           test ! -e .github/workflows/groups-v2-version-audit.yml
           echo 'Diagnostic QA event SHA is not the reviewed version release SHA'
       - name: Install independently locked tools

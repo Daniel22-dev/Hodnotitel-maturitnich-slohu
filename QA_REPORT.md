@@ -1,3 +1,9 @@
+# Předprodukční dodatek 1.5.32 (2026-10-28)
+
+**Žádná nová finální certifikace zatím nebyla provedena.** Úprava koordinuje verzi, manifesty a cache. Níže uvedené historické výsledky patří původní verzi 1.5.31 a nelze je automaticky přenášet na 1.5.32.
+
+---
+
 # QA report — Hodnotitel maturitních slohů 1.5.31 — Moje skupiny
 
 ## Vydání 1.5.31 (22. 10. 2026)

@@ -1,0 +1,52 @@
+name: Groups v2 exact-source prepublish release-chain rehearsal (NO DEPLOY)
+on:
+  push:
+    branches:
+      - qa/groups-v2-prepublish-chain-1.5.32-20261028
+permissions:
+  contents: read
+jobs:
+  prepublish-chain:
+    name: full P5 and release integrity on immutable candidate source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - name: Checkout exact source SHA (not QA trigger source)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 0b209241e9a2c3078a380f3e7c5293e53f2bfcf7
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Locked Node runtime
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies and pinned Playwright browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "0b209241e9a2c3078a380f3e7c5293e53f2bfcf7"
+          npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          bash scripts/ci/install-playwright-chromium-parallel.sh
+          node -e "console.log('CHROMIUM_PATH='+require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
+      - name: Rehearse protected-style P5 and exact-source release chain without publication
+        shell: bash
+        env:
+          GHRAB_SOURCE_COMMIT: 0b209241e9a2c3078a380f3e7c5293e53f2bfcf7
+          GHRAB_SOURCE_REPOSITORY: Daniel22-dev/Hodnotitel-maturitnich-slohu
+          GHRAB_RELEASE_STAGE: PREP-VALIDATION
+          GARP27_EXTERNAL_TRUST_SHA256: f6f2892530bd198f71fab4dd9d740f93eaa6a6b2656b857ca62ae78587b0e71b
+        run: |
+          set -euo pipefail
+          export SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
+          npm run qa:p5:ci
+          npm run prepare:pages
+          npm run qa:release-chain
+          echo 'RELEASE CHAIN CHECKED - TRANSITIONAL UNSIGNED - NO DEPLOY - NONCERTIFYING'
+      - name: Check source checkout did not move to production
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "0b209241e9a2c3078a380f3e7c5293e53f2bfcf7"
+          echo 'NO PAGES DEPLOYMENT OCCURRED; prod authorization and live UAT pending'

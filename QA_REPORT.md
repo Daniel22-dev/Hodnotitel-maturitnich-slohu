@@ -1,4 +1,13 @@
-# QA report — Hodnotitel maturitních slohů 1.5.31 — Moje skupiny
+# QA report — Hodnotitel 1.5.32 (předprodukční návrh; NO-GO)
+
+## Předprodukční verze 1.5.32 (28. 10. 2026)
+- Připravené verze a bezpečnostní manifesty Moje skupiny v2, bez změn maturitní osmipoložkové rubriky, bodování nebo schválených studentských výsledků.
+- Kompletní GARP 2.7/P5, ověřené školní přihlášení, ochrana příjemců, finální SHA a reálná zařízení zatím nebyly pro 1.5.32 certifikovány.
+- Historická evidence pro 1.5.31 níže se na novou verzi **nepřenáší**. Žádné produkční nasazení.
+
+---
+
+## Historický QA report — Hodnotitel 1.5.31 — Moje skupiny
 
 ## Vydání 1.5.31 (22. 10. 2026)
 

@@ -1,6 +1,6 @@
-# Hodnotitel maturitních slohů 1.5.31
+# Hodnotitel maturitních slohů 1.5.32 (předprodukce)
 
-**Aktuální verze:** 1.5.31  
+**Připravená verze:** 1.5.32 (nevydaná; schválení školy zatím chybí)  
 **Platforma:** GHRAB Platform 1.1.2 · ecosystem release-wave kandidát
 
 

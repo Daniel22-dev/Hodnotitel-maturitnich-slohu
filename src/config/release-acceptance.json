@@ -2,7 +2,7 @@
   "schema": "ghrab-release-acceptance-v1",
   "stage": "P5",
   "appId": "essay-evaluator",
-  "appVersion": "1.5.31",
+  "appVersion": "1.5.32",
   "releaseStatus": "ecosystem-wave-candidate",
   "primaryRuntime": {
     "mode": "standalone-github-pages",
@@ -67,5 +67,5 @@
     "legacyRegressionBaseline": "GARP-2.5.1",
     "externalRuntimeAndProviderValidationPending": true
   },
-  "note": "Source-only P5 acceptance input for Essay Evaluator 1.5.31 with the unified About card; GARP 2.7 r2/G-02 remains active and school-server LIVE remains NOT_TESTED."
+  "note": "Source-only P5 acceptance input for Essay Evaluator 1.5.32 with the unified About card; GARP 2.7 r2/G-02 remains active and school-server LIVE remains NOT_TESTED."
 }

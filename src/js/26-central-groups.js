@@ -45,18 +45,28 @@ async function essayGroupService(){
   essayGroupsClient=(async()=>{
     const config=globalThis.__GHRAB_DEPLOYMENT_CONFIG__?.studioBaseUrl||globalThis.__GHRAB_STUDIO_URL__||'/AI-Studio-GHRAB/';
     const base=new URL(config,location.href);
-    if(base.origin!==location.origin||!['http:','https:'].includes(base.protocol))throw essayGroupError('CENTRAL_ORIGIN_DENIED');
+    if(base.origin!==location.origin||!['http:','https:'].includes(base.protocol)||
+       base.username||base.password||base.search||base.hash)throw essayGroupError('CENTRAL_ORIGIN_DENIED');
     if(!base.pathname.endsWith('/'))base.pathname+='/';
-    const module=await import(new URL('groups/group-service.js',base).href);
-    if(typeof module.createGroupsService!=='function')throw essayGroupError('CENTRAL_SERVICE_UNAVAILABLE');
-    const service=module.createGroupsService();
-    if(service.schema!=='ghrab-groups-service-v1'||service.contractVersion!==1||
+    const moduleUrl=new URL('groups/verified-client.js',base);
+    if(moduleUrl.origin!==location.origin||!moduleUrl.pathname.startsWith(base.pathname))
+      throw essayGroupError('CENTRAL_SERVICE_PATH_DENIED');
+    const module=await import(moduleUrl.href);
+    if(typeof module.openVerifiedGroupsV2!=='function')throw essayGroupError('CENTRAL_V2_REQUIRED');
+    const verified=await module.openVerifiedGroupsV2('essay-evaluator');
+    if(document.documentElement.dataset.ghrabAccess!=='granted')throw essayGroupError('CENTRAL_ACCESS_DENIED');
+    if(verified?.schema!=='ghrab-groups-verified-consumer-v2'||
+       verified.consumerAppId!==ESSAY_GROUPS_ID||
+       typeof verified.legacyStorePresent!=='boolean')throw essayGroupError('CENTRAL_V2_CONTRACT_INVALID');
+    const service=verified.service;
+    if(service?.schema!=='ghrab-groups-service-v1'||service.contractVersion!==1||
        typeof service.listGroupMetadata!=='function'||typeof service.getRosterProjection!=='function')
        throw essayGroupError('CENTRAL_SERVICE_CONTRACT_OLD');
     return {
       list:()=>{
         const list=service.listGroupMetadata(ESSAY_GROUPS_ID,{status:'active'});
         if(!Array.isArray(list)||list.length>200)throw essayGroupError('CENTRAL_LIST_INVALID');
+        if(!list.length&&verified.legacyStorePresent)throw essayGroupError('CENTRAL_LEGACY_MIGRATION_REQUIRED');
         const seen=new Set();
         return list.map(g=>{essayGroupValidateMeta(g);if(seen.has(g.groupId))throw essayGroupError('CENTRAL_DUPLICATE_GROUP');seen.add(g.groupId);return g;});
       },
@@ -160,7 +170,10 @@ async function essayGroupOpen(){
     if(state.centralGroupLink&&groups.some(g=>g.groupId===state.centralGroupLink.groupId))select.value=state.centralGroupLink.groupId;
     if(!groups.length){$('centralGroupPreview').replaceChildren(essayGroupElt('p','Žádné dostupné skupiny. Použij ruční import z IS.'));return;}
     await essayGroupPreviewSelected();
-  }catch(error){$('centralGroupPreview').replaceChildren(essayGroupElt('p','Centrální skupiny nejsou bezpečně dostupné. Ruční import funguje dál.'));}
+  }catch(error){$('centralGroupPreview').replaceChildren(essayGroupElt('p',
+    error?.code==='CENTRAL_LEGACY_MIGRATION_REQUIRED'
+      ? 'Původní společné skupiny nejsou ověřeně přiřazeny k vašemu účtu. Požádejte o kontrolovaný převod; seznamy se nepřenášejí automaticky.'
+      : 'Centrální skupiny nejsou bezpečně dostupné. Ruční import funguje dál.'));}
 }
 async function essayGroupPreviewSelected(){
   const ticket=++essayGroupsGeneration,id=$('centralGroupSelect')?.value;

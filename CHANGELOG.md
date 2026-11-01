@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.32 – předprodukční příprava ověřeného čtení Moje skupiny v2 (2026-10-28)
+
+- Verze, registr operací AI, manifesty a PWA cache připraveny pro samostatně schvalované vydání 1.5.32.
+- Zachováno potvrzování změn příjemců a ochrana schválených hodnocení. Rubrika a výpočet známek se nemění.
+- Plná certifikace na konečném commitu, školní přihlášení a schválení ochrany studentských údajů zůstávají povinné (NO-GO).
+
 ## 1.5.31 – propojení Hodnotitele s Moje skupiny (2026-10-22)
 
 - Volitelné napojení na centrální seznam studentů v AI Studiu přes `ghrab-roster-projection-v1` pro `essay-evaluator`.

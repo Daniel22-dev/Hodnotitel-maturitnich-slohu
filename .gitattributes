@@ -1,0 +1,6 @@
+# Preserve exact SHA-256-attested vendor source bytes across Linux and Windows Git checkouts.
+vendor/ghrab-ai-core-*/*.js text eol=lf
+vendor/ghrab-ai-core-*/*.json text eol=lf
+vendor/ghrab-platform-*/*.js text eol=lf
+vendor/ghrab-platform-*/*.css text eol=lf
+vendor/ghrab-platform-*/*.json text eol=lf

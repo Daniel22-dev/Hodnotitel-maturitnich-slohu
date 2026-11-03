@@ -194,3 +194,146 @@ test('distributed JSZip notice uses complete MIT permission and disclaimer',()=>
   assert.match(content,/THE SOFTWARE IS PROVIDED/);
   assert.doesNotMatch(content,/GNU GENERAL PUBLIC LICENSE/);
 });
+
+
+// R17: confirmation is an asynchronous UI boundary. Simulate changes *during*
+// teacher approval using synthetic student identities, never real school data.
+function confirmationHarness(){
+  const stats={saves:0,paired:0,contacts:0,notifications:[]};
+  const controls={
+    centralGroupSelect:{value:gid},
+    centralGroupApply:{disabled:false},
+    centralGroupDialog:{open:true,close(){this.open=false}},
+    centralGroupHolds:{children:[],replaceChildren(...items){this.children=[...items]},append(...items){this.children.push(...items)}},
+    centralGroupStatus:{textContent:''},
+  };
+  const buttons=[];
+  const makeElement=tag=>{
+    const element={tagName:tag.toUpperCase(),textContent:'',children:[],events:{},
+      append(...nodes){this.children.push(...nodes)},
+      replaceChildren(...nodes){this.children=[...nodes]},
+      addEventListener(type,callback){this.events[type]=callback},
+      setAttribute(){}};
+    if(tag==='button')buttons.push(element);
+    return element;
+  };
+  const ctx={
+    state:{roster:[],centralGroupLink:null,centralGroupHolds:{}},batchStudents:[],batchResults:[],
+    console,URL,
+    document:{documentElement:{dataset:{ghrabAccess:'granted'}},createElement:makeElement},
+    $:id=>controls[id]||null,
+    toast:(msg,kind)=>stats.notifications.push([msg,kind]),
+    uiConfirm:async()=>true,
+    pairAllStudentsToRoster:()=>{stats.paired++},
+    syncStudentContactToResult:()=>{stats.contacts++},
+    renderRosterTable(){},renderBatchList(){},renderBatchReviewDashboard(){},
+    updateWorkflowDashboard(){},saveState(){stats.saves++},saveBatchProgress(){},
+  };
+  ctx.globalThis=ctx;
+  vm.createContext(ctx);
+  vm.runInContext(source+
+    '\n;globalThis.__confirmationQa={setClient(client){essayGroupsClient=Promise.resolve(client)},setDraft(value){essayGroupsPreview={projection:value,plan:essayPlanProjection(value),snapshot:essayGroupSnapshot()}},apply:essayGroupApply,renderHolds:essayRenderHolds};',
+    ctx,{filename:'26-central-groups-r17.js'});
+  return {ctx,controls,buttons,stats,qa:ctx.__confirmationQa};
+}
+function approvedPreview({remote}={}){
+  const h=confirmationHarness();
+  let current=remote||projection(5,[member(m1,'Synthetic Student','synthetic@example.invalid')]);
+  h.qa.setClient({roster:()=>current});
+  h.qa.setDraft(current);
+  return {...h,setRemote:value=>{current=value}};
+}
+test('R17 stable authorized group confirmation commits one verified roster',async()=>{
+  const {ctx,qa,stats,controls}=approvedPreview();
+  await qa.apply();
+  assert.equal(ctx.state.roster.length,1);
+  assert.equal(ctx.state.roster[0].id,m1);
+  assert.equal(ctx.state.centralGroupLink.revision,5);
+  assert.equal(stats.saves,1);
+  assert.equal(controls.centralGroupDialog.open,false);
+});
+test('R17 central group change during confirmation cannot replace local roster',async()=>{
+  const h=approvedPreview();
+  h.ctx.uiConfirm=async()=>{
+    h.setRemote(projection(6,[member(m1,'Synthetic Student','new@example.invalid')]));
+    return true;
+  };
+  await h.qa.apply();
+  assert.equal(h.ctx.state.roster.length,0);
+  assert.equal(h.stats.saves,0);
+  assert.equal(h.controls.centralGroupApply.disabled,true);
+  assert.equal(h.ctx.state.centralGroupLink,null);
+});
+test('R17 changed local evidence during confirmation cannot be overwritten',async()=>{
+  const h=approvedPreview();
+  h.ctx.uiConfirm=async()=>{
+    h.ctx.state.roster.push({id:'synthetic-local',name:'Untouched local',email:'local@example.invalid',status:'active'});
+    return true;
+  };
+  await h.qa.apply();
+  assert.equal(h.ctx.state.roster[0].id,'synthetic-local');
+  assert.equal(h.stats.saves,0);
+  assert.equal(h.ctx.state.centralGroupLink,null);
+});
+test('R17 revoked access or closed central dialog invalidates pending approval',async()=>{
+  for(const change of ['revoked','closed','selection']){
+    const h=approvedPreview();
+    h.ctx.uiConfirm=async()=>{
+      if(change==='revoked')h.ctx.document.documentElement.dataset.ghrabAccess='denied';
+      if(change==='closed')h.controls.centralGroupDialog.open=false;
+      if(change==='selection')h.controls.centralGroupSelect.value='grp_999999999999';
+      return true;
+    };
+    await h.qa.apply();
+    assert.equal(h.stats.saves,0,change);
+    assert.equal(h.ctx.state.roster.length,0,change);
+  }
+});
+function holdHarness(){
+  const h=confirmationHarness();
+  h.ctx.state.roster=[{id:m1,memberId:m1,name:'Synthetic Student',email:'synthetic@example.invalid',status:'active'}];
+  h.ctx.state.centralGroupLink={groupId:gid,revision:5};
+  h.ctx.batchStudents=[{code:'CASE001',rosterId:m1,displayName:'Former Contact',identity:'Former Contact',email:'old@example.invalid',pairingStatus:'paired'}];
+  h.ctx.batchResults=[{code:'CASE001',email:'old@example.invalid',deliveryStatus:'pending',approved:true}];
+  h.ctx.state.centralGroupHolds.CASE001={code:'CASE001',reason:'recipient changed'};
+  h.qa.renderHolds();
+  const button=h.buttons.find(x=>x.textContent==='Zkontrolovat příjemce');
+  assert.ok(button?.events.click,'recipient review action should exist');
+  return {...h,button};
+}
+test('R17 unchanged recipient approval updates contact but not the grade',async()=>{
+  const h=holdHarness();
+  const before=JSON.stringify(h.ctx.batchResults);
+  await h.button.events.click();
+  assert.equal(h.ctx.batchStudents[0].email,'synthetic@example.invalid');
+  assert.equal(h.stats.contacts,1);
+  assert.equal(h.ctx.state.centralGroupHolds.CASE001,undefined);
+  assert.equal(JSON.stringify(h.ctx.batchResults),before,'existing results are never overwritten');
+});
+test('R17 contact change during confirmation leaves HOLD and original recipient intact',async()=>{
+  const h=holdHarness();
+  h.ctx.uiConfirm=async()=>{
+    h.ctx.state.roster[0].email='changed@example.invalid';
+    return true;
+  };
+  await h.button.events.click();
+  assert.equal(h.ctx.batchStudents[0].email,'old@example.invalid');
+  assert.equal(h.stats.contacts,0);
+  assert.ok(h.ctx.state.centralGroupHolds.CASE001);
+});
+test('R17 revocation, HOLD replacement and batch-result changes deny stale recipient approval',async()=>{
+  for(const mode of ['revoked','hold-replaced','result-changed','student-replaced']){
+    const h=holdHarness();
+    h.ctx.uiConfirm=async()=>{
+      if(mode==='revoked')h.ctx.document.documentElement.dataset.ghrabAccess='denied';
+      if(mode==='hold-replaced')h.ctx.state.centralGroupHolds.CASE001={code:'CASE001',reason:'another review'};
+      if(mode==='result-changed')h.ctx.batchResults[0].deliveryStatus='sent';
+      if(mode==='student-replaced')h.ctx.batchStudents=[{...h.ctx.batchStudents[0]}];
+      return true;
+    };
+    await h.button.events.click();
+    assert.equal(h.stats.contacts,0,mode);
+    assert.equal(h.ctx.batchStudents[0].email,'old@example.invalid',mode);
+    assert.ok(h.ctx.state.centralGroupHolds.CASE001,mode);
+  }
+});

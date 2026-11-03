@@ -175,10 +175,15 @@ function syncStudentContactToResult(student){
   if(!result)return;
   result.displayName=student.displayName||student.identity||'';
   result.identity=student.identity||student.displayName||'';
+  const alreadyAttempted=['sent','draft-created','submitted-unconfirmed'].includes(result.deliveryStatus);
+  if(alreadyAttempted&&String(result.email||'').trim().toLowerCase()!==String(student.email||'').trim().toLowerCase())
+    result.deliveryRecipientChangedSinceAttempt=true;
   result.email=student.email||'';
   result.rosterId=student.rosterId||'';
   result.approved=false;
-  result.deliveryStatus='not-ready';
+  // A later contact change must never erase historical evidence that a
+  // Gmail action was already attempted, even if the new recipient is different.
+  if(!alreadyAttempted)result.deliveryStatus='not-ready';
   student.approved=false;
 }
 function applyRosterPair(student,person){

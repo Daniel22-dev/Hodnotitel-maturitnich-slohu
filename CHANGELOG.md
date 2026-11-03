@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.32 – Moje skupiny v2: vydávací identita (předprodukční návrh, 2026-10-28)
+
+- Staged account-scoped v2 reader requires verified teacher access; no automatic reuse of shared unowned v1 rosters.
+- Preserve original eight-part rubric, teacher recipient-change HOLD, approved grading, delivery and local backup workflow.
+- Synchronize app version, manifest, AI operations registry, QA/reporting metadata, PWA cache and release acceptance.
+- NO MERGE / NO DEPLOY: final exact-SHA GARP/P5, real school SSO, ownership migration and physical device UAT remain pending.
+
 ## 1.5.31 – propojení Hodnotitele s Moje skupiny (2026-10-22)
 
 - Volitelné napojení na centrální seznam studentů v AI Studiu přes `ghrab-roster-projection-v1` pro `essay-evaluator`.

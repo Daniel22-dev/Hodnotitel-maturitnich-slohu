@@ -45,18 +45,28 @@ async function essayGroupService(){
   essayGroupsClient=(async()=>{
     const config=globalThis.__GHRAB_DEPLOYMENT_CONFIG__?.studioBaseUrl||globalThis.__GHRAB_STUDIO_URL__||'/AI-Studio-GHRAB/';
     const base=new URL(config,location.href);
-    if(base.origin!==location.origin||!['http:','https:'].includes(base.protocol))throw essayGroupError('CENTRAL_ORIGIN_DENIED');
+    if(base.origin!==location.origin||!['http:','https:'].includes(base.protocol)||
+       base.username||base.password||base.search||base.hash)throw essayGroupError('CENTRAL_ORIGIN_DENIED');
     if(!base.pathname.endsWith('/'))base.pathname+='/';
-    const module=await import(new URL('groups/group-service.js',base).href);
-    if(typeof module.createGroupsService!=='function')throw essayGroupError('CENTRAL_SERVICE_UNAVAILABLE');
-    const service=module.createGroupsService();
-    if(service.schema!=='ghrab-groups-service-v1'||service.contractVersion!==1||
+    const moduleUrl=new URL('groups/verified-client.js',base);
+    if(moduleUrl.origin!==location.origin||!moduleUrl.pathname.startsWith(base.pathname))
+      throw essayGroupError('CENTRAL_SERVICE_PATH_DENIED');
+    const module=await import(moduleUrl.href);
+    if(typeof module.openVerifiedGroupsV2!=='function')throw essayGroupError('CENTRAL_V2_REQUIRED');
+    const verified=await module.openVerifiedGroupsV2('essay-evaluator');
+    if(document.documentElement.dataset.ghrabAccess!=='granted')throw essayGroupError('CENTRAL_ACCESS_DENIED');
+    if(verified?.schema!=='ghrab-groups-verified-consumer-v2'||
+       verified.consumerAppId!==ESSAY_GROUPS_ID||
+       typeof verified.legacyStorePresent!=='boolean')throw essayGroupError('CENTRAL_V2_CONTRACT_INVALID');
+    const service=verified.service;
+    if(service?.schema!=='ghrab-groups-service-v1'||service.contractVersion!==1||
        typeof service.listGroupMetadata!=='function'||typeof service.getRosterProjection!=='function')
        throw essayGroupError('CENTRAL_SERVICE_CONTRACT_OLD');
     return {
       list:()=>{
         const list=service.listGroupMetadata(ESSAY_GROUPS_ID,{status:'active'});
         if(!Array.isArray(list)||list.length>200)throw essayGroupError('CENTRAL_LIST_INVALID');
+        if(!list.length&&verified.legacyStorePresent)throw essayGroupError('CENTRAL_LEGACY_MIGRATION_REQUIRED');
         const seen=new Set();
         return list.map(g=>{essayGroupValidateMeta(g);if(seen.has(g.groupId))throw essayGroupError('CENTRAL_DUPLICATE_GROUP');seen.add(g.groupId);return g;});
       },
@@ -123,8 +133,21 @@ function essayRenderHolds(){
       const msg='Potvrdit nového příjemce '+person.name+' ('+(person.email||'bez e-mailu')+') pro '+s.code+
         '? Hodnocení ani body se nezmění. Výsledek bude nutné znovu schválit.'+
         (sent?' Před případným opakováním distribuce nejprve zkontroluj Gmail.':'');
+      // Teacher confirmation is asynchronous. A changed roster, revocation,
+      // recipient, evaluation result or HOLD must invalidate the approval.
+      const snapshot=essayGroupSnapshot();
+      const expectedName=person.name,expectedEmail=essayGroupEmail(person.email);
       if(!(await uiConfirm(msg,'Kontrola příjemce')))return;
-      s.displayName=person.name;s.identity=person.name;s.email=person.email;s.pairingStatus='paired';
+      const currentPerson=(state.roster||[]).find(x=>x.id===s.rosterId&&x.status!=='archived');
+      if(document.documentElement.dataset.ghrabAccess!=='granted'||
+         essayGroupSnapshot()!==snapshot||batchStudents.find(x=>x.code===s.code)!==s||
+         essayGroupHolds()[hold.code]!==hold||
+         !currentPerson||currentPerson.name!==expectedName||
+         essayGroupEmail(currentPerson.email)!==expectedEmail){
+        toast('Příjemce nebo oprávnění se během potvrzování změnily. Zkontroluj aktuální údaje znovu.','warn');
+        essayRenderHolds();return;
+      }
+      s.displayName=currentPerson.name;s.identity=currentPerson.name;s.email=currentPerson.email;s.pairingStatus='paired';
       syncStudentContactToResult(s);
       delete essayGroupHolds()[s.code];
       renderRosterTable();renderBatchList();renderBatchReviewDashboard();essayRenderHolds();
@@ -160,7 +183,10 @@ async function essayGroupOpen(){
     if(state.centralGroupLink&&groups.some(g=>g.groupId===state.centralGroupLink.groupId))select.value=state.centralGroupLink.groupId;
     if(!groups.length){$('centralGroupPreview').replaceChildren(essayGroupElt('p','Žádné dostupné skupiny. Použij ruční import z IS.'));return;}
     await essayGroupPreviewSelected();
-  }catch(error){$('centralGroupPreview').replaceChildren(essayGroupElt('p','Centrální skupiny nejsou bezpečně dostupné. Ruční import funguje dál.'));}
+  }catch(error){$('centralGroupPreview').replaceChildren(essayGroupElt('p',
+    error?.code==='CENTRAL_LEGACY_MIGRATION_REQUIRED'
+      ? 'Původní společné skupiny nejsou ověřeně přiřazeny k vašemu účtu. Požádejte o kontrolovaný převod; seznamy se nepřenášejí automaticky.'
+      : 'Centrální skupiny nejsou bezpečně dostupné. Ruční import funguje dál.'));}
 }
 async function essayGroupPreviewSelected(){
   const ticket=++essayGroupsGeneration,id=$('centralGroupSelect')?.value;
@@ -193,9 +219,27 @@ async function essayGroupApply(){
     if(JSON.stringify(fresh)!==JSON.stringify(draft.projection)){await essayGroupPreviewSelected();toast('Skupina se změnila. Zkontroluj nový náhled.','warn');return;}
     const plan=essayPlanProjection(fresh);
     if(!(await uiConfirm('Potvrdit synchronizaci skupiny '+plan.group.displayName+'? Dřívější práce ani výsledky nebudou změněny.','Synchronizace skupiny')))return;
-    state.roster=plan.next;
-    state.centralGroupLink={groupId:plan.group.groupId,revision:plan.group.revision,displayName:plan.group.displayName,schoolYear:plan.group.schoolYear};
-    for(const h of plan.holds)essayHold(h.code,h.reason);
+    // Close the time-of-check/time-of-use gap across the async teacher dialog.
+    // Recheck local state, active verified access and canonical roster bytes
+    // immediately before the first write; then commit without another await.
+    if(document.documentElement.dataset.ghrabAccess!=='granted'||
+       draft!==essayGroupsPreview||draft.snapshot!==essayGroupSnapshot()||
+       $('centralGroupSelect').value!==draft.plan.group.groupId||
+       $('centralGroupDialog')?.open===false){
+      essayGroupsPreview=null;$('centralGroupApply').disabled=true;
+      toast('Kontext nebo oprávnění se během potvrzování změnily. Znovu vytvoř náhled.','warn');
+      return;
+    }
+    const confirmed=client.roster(draft.plan.group.groupId);
+    if(JSON.stringify(confirmed)!==JSON.stringify(fresh)){
+      essayGroupsPreview=null;$('centralGroupApply').disabled=true;
+      toast('Centrální skupina se během potvrzování změnila. Znovu vytvoř náhled.','warn');
+      return;
+    }
+    const confirmedPlan=essayPlanProjection(confirmed);
+    state.roster=confirmedPlan.next;
+    state.centralGroupLink={groupId:confirmedPlan.group.groupId,revision:confirmedPlan.group.revision,displayName:confirmedPlan.group.displayName,schoolYear:confirmedPlan.group.schoolYear};
+    for(const h of confirmedPlan.holds)essayHold(h.code,h.reason);
     if(!batchResults.length&&!batchStudents.some(s=>s.approved))pairAllStudentsToRoster();
     essayGroupsPreview=null;$('centralGroupDialog').close();
     renderRosterTable();renderBatchList();renderBatchReviewDashboard();essayRenderHolds();essayGroupStatus();

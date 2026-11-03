@@ -369,7 +369,7 @@ function deliveryHarness({status='not-ready',action='send'}={}){
     batchStudents:[{code:'CASE001',rosterId:m1,displayName:'Synthetic Student',identity:'Synthetic Student',email:'synthetic@example.invalid',approved:true}],
     batchResults:[{code:'CASE001',rosterId:m1,displayName:'Synthetic Student',identity:'Synthetic Student',email:'synthetic@example.invalid',
       approved:true,validation:{ok:true},deliveryStatus:status,finalEvaluation:{},score:21,grade:2}],
-    console:{error(){},log(){}},URL,
+    console:{error(){},log(){}},URL,RUBRIC_VERSION:'synthetic-test-rubric-v1',
     $:id=>controls[id]||null,
     document:{querySelector:()=>({value:action}),querySelectorAll:()=>[],
       createElement:tag=>tag==='form'?form:{style:{},value:'',name:'',type:'',},
@@ -424,7 +424,7 @@ test('R18 every prior Gmail attempt blocks repeat delivery of an approved result
 test('R18 direct delivery persists uncertain state before any network request',async()=>{
   const h=deliveryHarness();
   await h.qa.send('send');
-  assert.equal(h.stats.fetches,1);
+  assert.equal(h.stats.fetches,1,JSON.stringify(h.stats.notifications));
   assert.equal(h.stats.statusAtFetch,'submitted-unconfirmed');
   assert.equal(h.ctx.batchResults[0].deliveryStatus,'sent');
   assert.ok(h.stats.saves>=2);
@@ -435,11 +435,11 @@ test('R18 network exception remains unconfirmed and cannot be retried blindly',a
   const h=deliveryHarness();
   h.ctx.fetch=async()=>{h.stats.fetches++;h.stats.statusAtFetch=h.ctx.batchResults[0].deliveryStatus;throw Error('synthetic network failure');};
   await h.qa.send('send');
-  assert.equal(h.stats.fetches,1);
+  assert.equal(h.stats.fetches,1,JSON.stringify(h.stats.notifications));
   assert.equal(h.stats.statusAtFetch,'submitted-unconfirmed');
   assert.equal(h.ctx.batchResults[0].deliveryStatus,'submitted-unconfirmed');
   await h.qa.send('send');
-  assert.equal(h.stats.fetches,1);
+  assert.equal(h.stats.fetches,1,JSON.stringify(h.stats.notifications));
   assert.equal(h.qa.validate().ok,false);
 });
 test('R18 mutated recipient during confirmation prevents any Gmail attempt',async()=>{

@@ -520,14 +520,14 @@ check(contains(distribution,'Přímé odeslání'),'potvrzení nevratné akce');
 check(contains(distribution,"form.target='_blank'")&&contains(distribution,"input.name='payload'"),'kompatibilní formulářová distribuce');
 check(contains(distribution,'submitted-unconfirmed'),'kompatibilní režim neoznačuje zprávy falešně jako doručené');
 
-check(contains(appsScript,"const MAX_ITEMS = 20"),'Apps Script limit 20');
+check(/const\s+MAX_ITEMS\s*=\s*20\b/.test(appsScript),'Apps Script limit 20');
 check(contains(appsScript,'function doPost(e)'),'Apps Script POST endpoint');
-check(contains(appsScript,'e.parameter && e.parameter.payload'),'Apps Script přijímá kompatibilní formulářový POST');
+check(/e\s*&&\s*e\.parameter\s*&&\s*e\.parameter\.payload/.test(appsScript)&&/e\s*&&\s*e\.postData\s*&&\s*e\.postData\.contents/.test(appsScript),'Apps Script přijímá kompatibilní formulářový POST');
 check(contains(appsScript,'GmailApp.createDraft'),'Apps Script vytváří koncepty');
 check(contains(appsScript,'GmailApp.sendEmail'),'Apps Script umí odeslat');
 check(contains(appsScript,"getProperty('SHARED_SECRET')"),'Apps Script tajemství v Script Properties');
-check(contains(appsScript,'duplicitní e-mail'),'Apps Script kontroluje duplicity');
-check(contains(appsScript,'item.approved'),'Apps Script kontroluje schválení');
+check(/codes\.has\(c\)\s*\|\|\s*emails\.has\(m\)/.test(appsScript)&&contains(appsScript,'DELIVERY_DUPLICATE_ITEM'),'Apps Script kontroluje duplicity');
+check(/i\.approved\s*!==\s*true/.test(appsScript)&&contains(appsScript,'DELIVERY_INVALID_REQUEST'),'Apps Script kontroluje schválení');
 
 check(contains(backend,"BACKEND_CONTRACT_VERSION='1.0'"),'backend kontrakt 1.0');
 check(contains(backend,"backendRequest('health'"),'backend health check');

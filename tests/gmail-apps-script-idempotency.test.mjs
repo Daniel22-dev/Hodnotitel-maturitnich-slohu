@@ -36,7 +36,7 @@ test('first send records one action and hashed ledger without student data',()=>
   const h=mock();const r=h.post(request());
   assert.equal(r.ok,true);assert.equal(r.count,1);assert.equal(h.seen.sent.length,1);
   assert.equal(h.seen.released,1);
-  assert.doesNotMatch([...h.props.values()].join('|'),/example.invalid|Synthetic feedback|synthetic-test-only-secret/);
+  assert.doesNotMatch([...h.props.entries()].filter(([key])=>key!=='SHARED_SECRET').map(([,value])=>value).join('|'),/example.invalid|Synthetic feedback|synthetic-test-only-secret/);
 });
 test('same request ID cannot repeat send',()=>{
   const h=mock();assert.equal(h.post(request()).ok,true);

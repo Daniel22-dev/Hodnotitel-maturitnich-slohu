@@ -376,7 +376,7 @@ function deliveryHarness({status='not-ready',action='send'}={}){
       body:{appendChild(){}}},
     toast:(msg,kind)=>stats.notifications.push([msg,kind]),
     uiConfirm:async()=>true,
-    ensureWorkflowState(){},saveState(){stats.saves++},saveBatchProgress(){stats.saves++},
+    ensureWorkflowState(){},ensureBatchResultShape:r=>r,saveState(){stats.saves++},saveBatchProgress(){stats.saves++},
     updateWorkflowDashboard(){},
     isCentralDeliveryHeld(){return false},
     seriesDisplayName(){return'Synthetic lesson'},
@@ -459,7 +459,7 @@ test('R18 cancelled approval has no write or network side effect',async()=>{
 test('R18 compatible form records uncertain delivery before calling submit',async()=>{
   const h=deliveryHarness({action:'send'});
   await h.qa.viaForm();
-  assert.equal(h.stats.formSubmits,1);
+  assert.equal(h.stats.formSubmits,1,JSON.stringify(h.stats.notifications));
   assert.equal(h.stats.statusAtForm,'submitted-unconfirmed');
   assert.equal(h.ctx.batchResults[0].deliveryStatus,'submitted-unconfirmed');
   assert.equal(h.stats.fetches,0);

@@ -337,3 +337,130 @@ test('R17 revocation, HOLD replacement and batch-result changes deny stale recip
     assert.ok(h.ctx.state.centralGroupHolds.CASE001,mode);
   }
 });
+
+
+// R18: Gmail operations are synthetic. No real network call, student or school
+// account is used. Delivery attempts must never become silently repeatable.
+const distributionSource=readFileSync(new URL('../src/js/75-distribution.js',import.meta.url),'utf8');
+const rosterSource=readFileSync(new URL('../src/js/25-roster-import.js',import.meta.url),'utf8');
+const contactStart=rosterSource.indexOf('function syncStudentContactToResult(student){');
+const contactEnd=rosterSource.indexOf('\nfunction applyRosterPair(',contactStart);
+assert.ok(contactStart>=0&&contactEnd>contactStart,'real roster-contact function boundary');
+const realContactFunction=rosterSource.slice(contactStart,contactEnd);
+
+function deliveryHarness({status='not-ready',action='send'}={}){
+  const stats={fetches:0,formSubmits:0,saves:0,notifications:[],statusAtFetch:null,statusAtForm:null};
+  const form={
+    style:{},appendChild(){},remove(){},
+    submit(){stats.formSubmits++;stats.statusAtForm=ctx.batchResults[0].deliveryStatus},
+  };
+  const controls={
+    appsScriptUrl:{value:'https://script.google.com/macros/s/SYNTHETIC123/exec'},
+    appsScriptSecret:{value:'synthetic-secret-only'},
+    emailSubjectTemplate:{value:'Result {student}'},
+    emailSenderName:{value:'Synthetic teacher'},
+    emailIncludeScore:{checked:true},emailIncludeOriginal:{checked:false},
+  };
+  const ctx={
+    state:{series:{id:'synthetic-series',name:'Synthetic lesson',className:'Synthetic class',teacherName:'Synthetic teacher'},
+      distribution:{appsScriptUrl:controls.appsScriptUrl.value,sharedSecret:controls.appsScriptSecret.value,
+        subjectTemplate:controls.emailSubjectTemplate.value,senderName:'Synthetic teacher',
+        mode:action,includeScore:true,includeOriginal:false}},
+    batchStudents:[{code:'CASE001',rosterId:m1,displayName:'Synthetic Student',identity:'Synthetic Student',email:'synthetic@example.invalid',approved:true}],
+    batchResults:[{code:'CASE001',rosterId:m1,displayName:'Synthetic Student',identity:'Synthetic Student',email:'synthetic@example.invalid',
+      approved:true,validation:{ok:true},deliveryStatus:status,finalEvaluation:{},score:21,grade:2}],
+    console:{error(){},log(){}},URL,
+    $:id=>controls[id]||null,
+    document:{querySelector:()=>({value:action}),querySelectorAll:()=>[],
+      createElement:tag=>tag==='form'?form:{style:{},value:'',name:'',type:'',},
+      body:{appendChild(){}}},
+    toast:(msg,kind)=>stats.notifications.push([msg,kind]),
+    uiConfirm:async()=>true,
+    ensureWorkflowState(){},saveState(){stats.saves++},saveBatchProgress(){stats.saves++},
+    updateWorkflowDashboard(){},
+    isCentralDeliveryHeld(){return false},
+    seriesDisplayName(){return'Synthetic lesson'},
+    evaluationMachineSummary(){return{score_total:21,grade:2}},
+    generatedStudentFeedback(){return'Synthetic feedback only'},
+    escapeHtml:s=>String(s||''),
+    markdownToPlainText:s=>String(s||''),
+    fetch:async(url,options)=>{
+      stats.fetches++;
+      stats.statusAtFetch=ctx.batchResults[0].deliveryStatus;
+      assert.equal(url,controls.appsScriptUrl.value);
+      assert.equal(JSON.parse(options.body).items[0].code,'CASE001');
+      return{ok:true,status:200,json:async()=>({ok:true})};
+    },
+  };
+  ctx.globalThis=ctx;
+  vm.createContext(ctx);
+  vm.runInContext(realContactFunction+'\n'+distributionSource+
+    '\n;globalThis.__deliveryQA={contact:syncStudentContactToResult,validate:validateDistribution,send:sendDistributionToAppsScript,viaForm:submitDistributionViaForm};',
+    ctx,{filename:'distribution-r18-synthetic.js'});
+  return{ctx,stats,controls,qa:ctx.__deliveryQA};
+}
+
+test('R18 editing a sent recipient preserves delivery evidence and revokes approval',()=>{
+  const h=deliveryHarness({status:'sent'});
+  h.ctx.batchStudents[0].email='corrected@example.invalid';
+  h.qa.contact(h.ctx.batchStudents[0]);
+  const r=h.ctx.batchResults[0];
+  assert.equal(r.deliveryStatus,'sent');
+  assert.equal(r.deliveryRecipientChangedSinceAttempt,true);
+  assert.equal(r.approved,false);
+  assert.equal(h.ctx.batchStudents[0].approved,false);
+  assert.equal(r.grade,2);
+  r.approved=true;assert.equal(h.qa.validate().ok,false,'reapproval alone must never bypass prior Gmail evidence');
+});
+test('R18 every prior Gmail attempt blocks repeat delivery of an approved result',()=>{
+  for(const status of ['sent','draft-created','submitted-unconfirmed']){
+    const h=deliveryHarness({status});
+    const check=h.qa.validate();
+    assert.equal(check.ok,false,status);
+    assert.equal(check.items.length,0,status);
+    assert.match(check.issues.join(' '),/Gmail/i,status);
+  }
+});
+test('R18 direct delivery persists uncertain state before any network request',async()=>{
+  const h=deliveryHarness();
+  await h.qa.send('send');
+  assert.equal(h.stats.fetches,1);
+  assert.equal(h.stats.statusAtFetch,'submitted-unconfirmed');
+  assert.equal(h.ctx.batchResults[0].deliveryStatus,'sent');
+  assert.ok(h.stats.saves>=2);
+  await h.qa.send('send');
+  assert.equal(h.stats.fetches,1,'a second click cannot send again');
+});
+test('R18 network exception remains unconfirmed and cannot be retried blindly',async()=>{
+  const h=deliveryHarness();
+  h.ctx.fetch=async()=>{h.stats.fetches++;h.stats.statusAtFetch=h.ctx.batchResults[0].deliveryStatus;throw Error('synthetic network failure');};
+  await h.qa.send('send');
+  assert.equal(h.stats.fetches,1);
+  assert.equal(h.stats.statusAtFetch,'submitted-unconfirmed');
+  assert.equal(h.ctx.batchResults[0].deliveryStatus,'submitted-unconfirmed');
+  await h.qa.send('send');
+  assert.equal(h.stats.fetches,1);
+  assert.equal(h.qa.validate().ok,false);
+});
+test('R18 mutated recipient during confirmation prevents any Gmail attempt',async()=>{
+  const h=deliveryHarness();
+  h.ctx.uiConfirm=async()=>{h.ctx.batchResults[0].email='changed@example.invalid';return true;};
+  await h.qa.send('send');
+  assert.equal(h.stats.fetches,0);
+  assert.equal(h.ctx.batchResults[0].deliveryStatus,'not-ready');
+});
+test('R18 cancelled approval has no write or network side effect',async()=>{
+  const h=deliveryHarness();
+  h.ctx.uiConfirm=async()=>false;
+  await h.qa.send('send');
+  assert.equal(h.stats.fetches,0);
+  assert.equal(h.ctx.batchResults[0].deliveryStatus,'not-ready');
+});
+test('R18 compatible form records uncertain delivery before calling submit',async()=>{
+  const h=deliveryHarness({action:'send'});
+  await h.qa.viaForm();
+  assert.equal(h.stats.formSubmits,1);
+  assert.equal(h.stats.statusAtForm,'submitted-unconfirmed');
+  assert.equal(h.ctx.batchResults[0].deliveryStatus,'submitted-unconfirmed');
+  assert.equal(h.stats.fetches,0);
+});

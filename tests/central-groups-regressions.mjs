@@ -362,6 +362,7 @@ function deliveryHarness({status='not-ready',action='send'}={}){
     emailIncludeScore:{checked:true},emailIncludeOriginal:{checked:false},
   };
   const ctx={
+    crypto:{getRandomValues(bytes){for(let i=0;i<bytes.length;i++)bytes[i]=(11+37*i)&255;return bytes}},
     state:{series:{id:'synthetic-series',name:'Synthetic lesson',className:'Synthetic class',teacherName:'Synthetic teacher'},
       distribution:{appsScriptUrl:controls.appsScriptUrl.value,sharedSecret:controls.appsScriptSecret.value,
         subjectTemplate:controls.emailSubjectTemplate.value,senderName:'Synthetic teacher',
@@ -388,7 +389,9 @@ function deliveryHarness({status='not-ready',action='send'}={}){
       stats.fetches++;
       stats.statusAtFetch=ctx.batchResults[0].deliveryStatus;
       assert.equal(url,controls.appsScriptUrl.value);
-      assert.equal(JSON.parse(options.body).items[0].code,'CASE001');
+      const outgoing=JSON.parse(options.body);
+      assert.equal(outgoing.items[0].code,'CASE001');
+      assert.match(outgoing.requestId,/^req_[a-f0-9]{32}$/);
       return{ok:true,status:200,json:async()=>({ok:true})};
     },
   };
@@ -426,6 +429,7 @@ test('R18 direct delivery persists uncertain state before any network request',a
   await h.qa.send('send');
   assert.equal(h.stats.fetches,1,JSON.stringify(h.stats.notifications));
   assert.equal(h.stats.statusAtFetch,'submitted-unconfirmed');
+  assert.match(h.ctx.batchResults[0].deliveryRequestId,/^req_[a-f0-9]{32}$/);
   assert.equal(h.ctx.batchResults[0].deliveryStatus,'sent');
   assert.ok(h.stats.saves>=2);
   await h.qa.send('send');

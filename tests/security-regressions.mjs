@@ -200,7 +200,7 @@ check(!/KÓD STUDENTA:\s*\$\{out\.code\}/.test(contractSource)&&/student_code:St
 check(/function newBatchRequestRef\(\)/.test(evaluationWorkflow)&&/metadata:\{key:requestRef\}/.test(evaluationWorkflow)&&/requestMap/.test(evaluationWorkflow),'přímý Batch používá kryptograficky generovaný opaque request ref a lokální mapu výsledků');
 check(!/metadata:\{key:student\.code\}/.test(evaluationWorkflow)&&!/key:student\.code/.test(aiSource)&&/return\{key:ref,operation:'essay-series-evaluation'/.test(aiSource),'provider Batch payload neobsahuje interní studentský kód v transportním metadata klíči');
 const distributionSource=read('src/js/75-distribution.js');
-check(/const exportPayload=\{\.\.\.payload,secret:''\}/.test(distributionSource)&&/JSON\.stringify\(exportPayload,null,2\)/.test(distributionSource),'stažený distribuční JSON neexportuje sdílené tajemství');
+check(/const exportPayload=\{\.\.\.payload,requestId:createDistributionRequestId\(\),secret:''\}/.test(distributionSource)&&/JSON\.stringify\(exportPayload,null,2\)/.test(distributionSource),'stažený distribuční JSON neexportuje sdílené tajemství a má bezpečné request ID');
 check(distributionSource.includes("/^https:\\/\\/script\\.google\\.com\\/macros\\/s\\/")&&distributionSource.includes('function validAppsScriptUrl()'),'Apps Script egress má explicitní allowlist URL');
 
 
